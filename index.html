@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LandShop แลนด์ช้อป - ตลาดซื้อขายที่ดิน บ้าน สวนเกษตร เจ้าของขายเอง</title>
+  <title>LandShop (แลนด์ช้อป) - ตลาดซื้อขายที่ดิน บ้าน สวนเกษตร และอสังหาฯ</title>
 
-  <!-- Google Fonts: Prompt สำหรับภาษาไทยที่ทันสมัย คมชัดทุกหน้าจอ -->
+  <!-- Google Fonts: Prompt & Kanit สำหรับภาษาไทยที่ทันสมัยและอ่านง่าย -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,13 +16,14 @@
   <!-- FontAwesome 6 CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-  <!-- ตั้งค่า Tailwind Theme สไตล์ Shopee + LINE -->
+  <!-- ตั้งค่า Tailwind Theme สไตล์ Shopee + LINE + Facebook -->
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Prompt', 'sans-serif'],
+            sans: ['Prompt', 'Kanit', 'sans-serif'],
+            display: ['Kanit', 'Prompt', 'sans-serif'],
           },
           colors: {
             shopee: {
@@ -36,6 +37,10 @@
             line: {
               DEFAULT: '#06C755',
               dark: '#05a847',
+            },
+            facebook: {
+              DEFAULT: '#1877F2',
+              dark: '#1462c9',
             },
           },
         },
@@ -53,7 +58,7 @@
       scrollbar-width: none;
     }
 
-    /* ตัดข้อความไม่เกิน 2 บรรทัดให้การ์ดสูงเท่ากันสวยงาม */
+    /* ตัดข้อความไม่เกิน 2 บรรทัดให้การ์ดสูงเท่ากัน */
     .clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -86,67 +91,68 @@
 
 <body class="bg-shopee-bg text-gray-800 font-sans antialiased overflow-x-hidden selection:bg-shopee selection:text-white">
 
-  <!-- ==================== STICKY TOP WRAPPER (ADMIN BAR + SHOPEE HEADER) ==================== -->
+  <!-- ==================== STICKY HEADER WRAPPER ==================== -->
   <div class="sticky top-0 z-40 shadow-md">
 
-    <!-- ==================== ADMIN CONTROL BAR (แสดงเฉพาะเมื่อแอดมินล็อกอิน Firebase แล้ว) ==================== -->
-    <div id="admin-control-bar" class="hidden bg-slate-900 text-white border-b border-slate-700">
+    <!-- แถบสมาชิก / แอดมินด้านบนสุด (แสดงเมื่อล็อกอินแล้ว) -->
+    <div id="member-control-bar" class="hidden bg-slate-900 text-white border-b border-slate-700">
       <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div class="flex items-center gap-2 min-w-0">
-          <span class="w-6 h-6 rounded-md bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-shield-halved"></i>
-          </span>
-          <div class="truncate">
-            <span class="font-semibold text-amber-300">โหมดแอดมิน (ซิงก์ Firebase เรียลไทม์)</span>
-            <span class="text-slate-400 mx-1 hidden sm:inline">•</span>
-            <span id="admin-bar-email" class="text-slate-200 hidden sm:inline"></span>
+          <div id="member-bar-avatar" class="w-7 h-7 rounded-full bg-shopee text-white font-bold flex items-center justify-center overflow-hidden shrink-0 border border-white/30">
+            <!-- รูปโปรไฟล์หรืออักษรย่อ -->
+          </div>
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span id="member-bar-name" class="font-semibold text-white truncate max-w-[140px] sm:max-w-[220px]">สมาชิก</span>
+            <span id="member-bar-admin-badge" class="hidden bg-amber-400 text-amber-950 font-extrabold text-[10px] px-2 py-0.5 rounded-full shrink-0">
+              <i class="fa-solid fa-crown mr-0.5"></i>แอดมิน
+            </span>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
           <button
+            id="my-listings-toggle-btn"
             type="button"
-            onclick="openPropertyModal(null)"
+            onclick="toggleMyListingsView()"
+            class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-1.5"
+          >
+            <span>📋 ประกาศของฉัน (<span id="my-listings-count">0</span>)</span>
+          </button>
+
+          <button
+            type="button"
+            onclick="handlePostListingClick()"
             class="bg-shopee hover:bg-shopee-dark text-white font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm"
           >
             <i class="fa-solid fa-plus"></i>
-            <span>เพิ่มทรัพย์ใหม่</span>
-          </button>
-
-          <button
-            id="admin-bar-seed-btn"
-            type="button"
-            onclick="seedSampleProperties()"
-            class="hidden bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm"
-          >
-            <i class="fa-solid fa-cloud-arrow-down"></i>
-            <span>นำเข้าตัวอย่าง 6 แปลง</span>
+            <span>ลงประกาศขาย</span>
           </button>
 
           <button
             type="button"
-            onclick="handleAdminLogout()"
-            class="bg-slate-700 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1.5"
+            onclick="handleLogout()"
+            class="bg-slate-700 hover:bg-red-600 text-white px-2.5 sm:px-3 py-1.5 rounded-lg transition flex items-center gap-1.5"
+            title="ออกจากระบบ"
           >
             <i class="fa-solid fa-right-from-bracket"></i>
-            <span>ออกจากระบบ</span>
+            <span class="hidden sm:inline">ออกจากระบบ</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- ==================== 1. SHOPEE-STYLE HEADER ==================== -->
+    <!-- ==================== 1. SHOPEE-STYLE MAIN HEADER ==================== -->
     <header class="bg-gradient-to-b from-[#ee4d2d] to-[#ff7337] text-white">
       <!-- Top Utility Strip -->
       <div class="border-b border-white/15">
         <div class="max-w-7xl mx-auto px-3 sm:px-4 h-9 flex items-center justify-between text-[11px] sm:text-xs gap-2">
           <div class="flex items-center gap-2 min-w-0">
-            <!-- สถานะการเชื่อมต่อ Firebase แบบเรียลไทม์ -->
+            <!-- แถบสถานะออนไลน์เรียลไทม์ -->
             <span id="live-status-badge" class="inline-flex items-center gap-1 bg-black/20 px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium shrink-0">
               <span class="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span>
               <span>กำลังเชื่อมต่อ...</span>
             </span>
-            <span class="hidden md:inline text-white/90 truncate">โฉนดครุฑแดงพร้อมโอน ซื้อขายตรงกับเจ้าของ นัดชมพื้นที่จริงได้ทุกวัน</span>
+            <span class="hidden md:inline text-white/90 truncate">ตลาดกลางซื้อขายที่ดิน บ้าน สวนเกษตร สมัครลงประกาศฟรีใน 1 คลิก</span>
           </div>
 
           <div class="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -157,17 +163,18 @@
             <span class="text-white/30 hidden sm:inline">|</span>
             <a id="top-line-link" href="https://line.me/ti/p/Sp9hKfD_6j" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-1 hover:text-yellow-200 transition font-medium">
               <i class="fa-brands fa-line text-green-200 text-sm"></i>
-              <span>ทัก LINE</span>
+              <span>LINE ศูนย์กลาง</span>
             </a>
             <span class="text-white/30">|</span>
-            <!-- ปุ่มเข้าสู่ระบบแอดมิน / สถานะแอดมิน -->
+            <!-- ปุ่มเข้าสู่ระบบ (แสดงเมื่อยังไม่ล็อกอิน) -->
             <button
-              id="header-admin-btn"
+              id="header-auth-btn"
               type="button"
-              onclick="handleHeaderAdminClick()"
-              class="hover:text-yellow-200 bg-white/10 hover:bg-white/20 px-2 py-0.5 rounded-md transition flex items-center gap-1 font-medium"
+              onclick="openAuthModal('เข้าสู่ระบบหรือสมัครสมาชิกฟรีใน 1 คลิก')"
+              class="bg-white/15 hover:bg-white/25 px-2.5 py-0.5 rounded-md transition flex items-center gap-1 font-medium"
             >
-              <span>🔐 เข้าสู่ระบบแอดมิน</span>
+              <i class="fa-solid fa-user-circle"></i>
+              <span>เข้าสู่ระบบ / สมัครสมาชิก</span>
             </button>
           </div>
         </div>
@@ -182,9 +189,9 @@
               <i class="fa-solid fa-house-chimney-window text-[#ee4d2d] text-xl"></i>
             </div>
             <div>
-              <div class="text-lg sm:text-xl font-bold leading-none tracking-tight flex items-center gap-1">
-                <span id="header-brand-en">LandShop</span>
-                <span id="header-brand-th" class="text-sm sm:text-base font-medium text-yellow-200">แลนด์ช้อป</span>
+              <div class="text-lg sm:text-xl font-display font-bold leading-none tracking-tight flex items-center gap-1">
+                <span>LandShop</span>
+                <span class="text-sm sm:text-base font-medium text-yellow-200">แลนด์ช้อป</span>
               </div>
               <p class="text-[10px] sm:text-[11px] text-white/90 font-light mt-0.5">ตลาดซื้อขายที่ดิน บ้าน สวนเกษตร</p>
             </div>
@@ -192,27 +199,27 @@
 
           <!-- ปุ่มขวาสำหรับมือถือ -->
           <div class="flex md:hidden items-center gap-1.5">
-            <a id="mobile-call-link" href="tel:0617278399" class="bg-white/20 hover:bg-white/30 text-white font-semibold text-xs px-2.5 py-2 rounded-lg flex items-center gap-1 active:scale-95 transition">
-              <i class="fa-solid fa-phone"></i>
-              <span>โทร</span>
-            </a>
-            <a id="mobile-line-link" href="https://line.me/ti/p/Sp9hKfD_6j" target="_blank" rel="noopener noreferrer" class="bg-line hover:bg-line-dark text-white font-semibold text-xs px-2.5 py-2 rounded-lg shadow-sm flex items-center gap-1 active:scale-95 transition">
-              <i class="fa-brands fa-line text-sm"></i>
-              <span>LINE</span>
-            </a>
+            <button
+              type="button"
+              onclick="handlePostListingClick()"
+              class="bg-shopee-yellow hover:bg-yellow-300 text-[#a8290f] font-bold text-xs px-3 py-2 rounded-lg shadow-sm flex items-center gap-1 active:scale-95 transition"
+            >
+              <i class="fa-solid fa-plus"></i>
+              <span>ลงประกาศ</span>
+            </button>
             <button type="button" onclick="toggleFavoritesDrawer(true)" class="relative p-2 bg-white/15 hover:bg-white/25 rounded-lg transition" aria-label="รายการที่สนใจ">
               <i class="fa-solid fa-heart text-base"></i>
-              <span id="fav-badge-mobile" class="absolute -top-1 -right-1 min-w-[19px] h-[19px] px-1 bg-shopee-yellow text-[#a8290f] font-bold text-[10px] rounded-full flex items-center justify-center shadow">0</span>
+              <span id="fav-badge-mobile" class="absolute -top-1 -right-1 min-w-[19px] h-[19px] px-1 bg-white text-shopee font-bold text-[10px] rounded-full flex items-center justify-center shadow">0</span>
             </button>
           </div>
 
-          <!-- ช่องค้นหา + คำค้นหาด่วน -->
+          <!-- ช่องค้นหาหลัก + คำค้นหาด่วน -->
           <div class="w-full md:flex-1 max-w-2xl">
             <form onsubmit="handleSearchSubmit(event)" class="relative flex items-center bg-white rounded-lg p-1 shadow-sm focus-within:ring-2 focus-within:ring-yellow-300">
               <input
                 id="search-input"
                 type="text"
-                placeholder="ค้นหาที่ดินเปล่า, บ้าน, สวนเกษตร, จังหวัด, อำเภอ หรือรหัสทรัพย์ (LS-001)..."
+                placeholder="ค้นหาที่ดินเปล่า, บ้าน, สวนเกษตร, จังหวัด, อำเภอ หรือชื่อผู้ลงประกาศ..."
                 oninput="handleSearchInput(this.value)"
                 class="w-full pl-3 pr-2 py-2 text-sm text-gray-800 placeholder-gray-400 bg-transparent focus:outline-none rounded-l-md"
               />
@@ -227,30 +234,29 @@
             <!-- คำค้นด่วนใต้แถบค้นหา -->
             <div class="flex items-center gap-2.5 sm:gap-3 mt-1.5 overflow-x-auto no-scrollbar text-[11px] sm:text-xs text-white/95">
               <button type="button" onclick="quickKeywordSearch('ที่ดินเปล่า')" class="hover:text-yellow-200 whitespace-nowrap transition">ที่ดินเปล่า</button>
+              <button type="button" onclick="quickKeywordSearch('บ้านพร้อมที่ดิน')" class="hover:text-yellow-200 whitespace-nowrap transition">บ้านพร้อมที่ดิน</button>
               <button type="button" onclick="quickKeywordSearch('สวนเกษตร')" class="hover:text-yellow-200 whitespace-nowrap transition">สวนเกษตร</button>
               <button type="button" onclick="quickKeywordSearch('ติดถนนใหญ่')" class="hover:text-yellow-200 whitespace-nowrap transition">ติดถนนใหญ่</button>
               <button type="button" onclick="activateBelowAppraisalAndScroll()" class="hover:text-yellow-200 whitespace-nowrap transition font-medium text-yellow-200">🔥 ต่ำกว่าราคาประเมิน</button>
-              <button type="button" onclick="quickKeywordSearch('บ้านพร้อมที่ดิน')" class="hover:text-yellow-200 whitespace-nowrap transition">บ้านพร้อมที่ดิน</button>
-              <button type="button" onclick="quickKeywordSearch('ครุฑแดง')" class="hover:text-yellow-200 whitespace-nowrap transition">โฉนดครุฑแดง</button>
+              <button type="button" onclick="quickKeywordSearch('น.ส.4')" class="hover:text-yellow-200 whitespace-nowrap transition">โฉนด น.ส.4 จ.</button>
             </div>
           </div>
 
           <!-- ปุ่มขวาสำหรับเดสก์ท็อป -->
-          <div class="hidden md:flex items-center gap-2 shrink-0">
-            <a id="desktop-call-link" href="tel:0617278399" class="bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold text-xs lg:text-sm px-3 py-2.5 rounded-lg flex items-center gap-1.5 transition active:scale-95">
-              <i class="fa-solid fa-phone-volume"></i>
-              <span id="desktop-call-text">061-727-8399</span>
-            </a>
-
-            <a id="desktop-line-link" href="https://line.me/ti/p/Sp9hKfD_6j" target="_blank" rel="noopener noreferrer" class="bg-line hover:bg-line-dark text-white font-semibold text-xs lg:text-sm px-3.5 py-2.5 rounded-lg shadow-sm flex items-center gap-1.5 transition active:scale-95">
-              <i class="fa-brands fa-line text-lg"></i>
-              <span>ทัก LINE</span>
-            </a>
+          <div class="hidden md:flex items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onclick="handlePostListingClick()"
+              class="bg-shopee-yellow hover:bg-yellow-300 text-[#a8290f] font-bold text-xs lg:text-sm px-4 py-2.5 rounded-lg shadow-sm flex items-center gap-1.5 transition active:scale-95"
+            >
+              <i class="fa-solid fa-plus-circle"></i>
+              <span>ลงประกาศขาย</span>
+            </button>
 
             <button type="button" onclick="toggleFavoritesDrawer(true)" class="relative p-2.5 hover:bg-white/15 rounded-lg transition flex items-center gap-1.5" title="รายการที่สนใจ">
               <div class="relative">
                 <i class="fa-solid fa-heart text-xl"></i>
-                <span id="fav-badge-desktop" class="absolute -top-2 -right-2.5 min-w-[20px] h-5 px-1 bg-shopee-yellow text-[#a8290f] font-bold text-[11px] rounded-full flex items-center justify-center shadow">0</span>
+                <span id="fav-badge-desktop" class="absolute -top-2 -right-2.5 min-w-[20px] h-5 px-1 bg-white text-shopee font-bold text-[11px] rounded-full flex items-center justify-center shadow">0</span>
               </div>
               <span class="hidden xl:inline text-xs font-medium">ที่สนใจ</span>
             </button>
@@ -260,24 +266,26 @@
     </header>
   </div>
 
-  <!-- ==================== PERMISSION ERROR ALERT BANNER (แสดงเมื่อติดสิทธิ์ Firestore Rules) ==================== -->
+  <!-- ==================== FIRESTORE PERMISSION-DENIED ALERT BANNER ==================== -->
   <div id="firestore-error-banner" class="hidden max-w-7xl mx-auto px-3 sm:px-4 pt-4">
     <div class="bg-red-50 border-2 border-red-400 text-red-900 rounded-xl p-4 flex items-start gap-3 shadow-sm">
       <i class="fa-solid fa-triangle-exclamation text-red-600 text-xl mt-0.5 shrink-0"></i>
-      <div class="text-xs sm:text-sm space-y-1.5 flex-1">
-        <div class="font-bold text-red-700" id="firestore-error-title">ไม่สามารถเข้าถึงฐานข้อมูล Cloud Firestore ได้ (permission-denied)</div>
+      <div class="text-xs sm:text-sm space-y-2 flex-1 min-w-0">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="font-bold text-red-700" id="firestore-error-title">ไม่สามารถเข้าถึง Cloud Firestore ได้ (permission-denied)</div>
+          <button
+            type="button"
+            onclick="copyFirestoreRules()"
+            class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shrink-0"
+          >
+            <i class="fa-solid fa-copy"></i>
+            <span>คัดลอก Firestore Rules ตัวใหม่</span>
+          </button>
+        </div>
         <p id="firestore-error-desc" class="leading-relaxed">
-          กรุณาเข้าไปที่ <strong>Firebase Console → Firestore Database → แท็บ Rules</strong> แล้ววางชุดกฎอนุญาตให้ทุกคนอ่านได้และแอดมินเขียนได้ จากนั้นกดปุ่ม <strong>Publish</strong> แล้วรีเฟรชหน้าเว็บนี้อีกครั้งครับ
+          กรุณาไปที่ <strong>Firebase Console → Firestore Database → แท็บ Rules</strong> วางกฎแยกสิทธิ์เฉพาะเจ้าของประกาศและแอดมินด้านล่าง แล้วกด <strong>Publish</strong> จากนั้นรีเฟรชหน้าเว็บครับ
         </p>
-        <pre class="bg-slate-900 text-emerald-300 p-2.5 rounded-lg text-[11px] overflow-x-auto font-mono">rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /properties/{docId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-  }
-}</pre>
+        <pre id="firestore-rules-preview" class="bg-slate-900 text-emerald-300 p-3 rounded-lg text-[11px] overflow-x-auto font-mono leading-relaxed"></pre>
       </div>
     </div>
   </div>
@@ -287,8 +295,8 @@ service cloud.firestore {
 
     <!-- ==================== 2. HERO PROMO BANNER ==================== -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3">
-      <!-- แบนเนอร์สไลด์ฝั่งซ้าย -->
-      <div class="lg:col-span-8 relative rounded-xl overflow-hidden shadow-sm h-[205px] sm:h-[260px] md:h-[285px] group bg-shopee">
+      <!-- แบนเนอร์สไลด์หลัก -->
+      <div class="lg:col-span-8 relative rounded-xl overflow-hidden shadow-sm h-[205px] sm:h-[255px] md:h-[275px] group bg-shopee">
         <div id="carousel-track" class="flex h-full transition-transform duration-500 ease-out">
           <!-- Slide 1 -->
           <div class="w-full h-full shrink-0 relative bg-gradient-to-br from-[#b8280d] via-[#ee4d2d] to-[#ff7b3a] flex items-center">
@@ -299,23 +307,22 @@ service cloud.firestore {
             </svg>
             <div class="relative z-10 px-5 sm:px-9 text-white max-w-xl">
               <span class="inline-flex items-center gap-1.5 bg-shopee-yellow text-[#a8290f] text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full mb-2 shadow-sm">
-                <i class="fa-solid fa-certificate"></i> เจ้าของขายเอง ราคาดีที่สุด
+                <i class="fa-solid fa-bolt"></i> ลงประกาศฟรี! เข้าสู่ระบบใน 1 คลิก
               </span>
-              <h1 class="text-xl sm:text-3xl font-bold leading-snug drop-shadow-sm">
-                ศูนย์รวมที่ดิน บ้าน สวนเกษตร โฉนดครุฑแดงพร้อมโอน
+              <h1 class="text-xl sm:text-3xl font-display font-bold leading-snug drop-shadow-sm">
+                ตลาดซื้อขายที่ดิน บ้าน สวนเกษตร สไตล์ Shopee
               </h1>
               <p class="text-xs sm:text-sm text-white/95 mt-1.5 hidden sm:block">
-                อัปเดตสถานะพร้อมขาย ติดจอง และปิดการขายแบบเรียลไทม์ นัดชมพื้นที่จริงได้ทุกวัน
+                เข้าสู่ระบบด้วย Google หรือ Facebook ไม่ต้องตั้งรหัสผ่าน ลงประกาศและอัปเดตสถานะติดจอง/ปิดการขายได้เองทันที
               </p>
               <div class="mt-3 flex flex-wrap gap-2">
-                <button type="button" onclick="setStatusFilterAndScroll('available')" class="bg-white hover:bg-yellow-50 text-shopee font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg shadow transition flex items-center gap-1.5">
-                  <span>ดูแปลงพร้อมขาย</span>
-                  <i class="fa-solid fa-arrow-right"></i>
+                <button type="button" onclick="handlePostListingClick()" class="bg-white hover:bg-yellow-50 text-shopee font-bold text-xs sm:text-sm px-4 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                  <i class="fa-solid fa-plus-circle"></i>
+                  <span>ลงประกาศขายฟรี</span>
                 </button>
-                <a id="hero-line-link" href="https://line.me/ti/p/Sp9hKfD_6j" target="_blank" rel="noopener noreferrer" class="bg-line hover:bg-line-dark text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg shadow transition flex items-center gap-1.5">
-                  <i class="fa-brands fa-line text-base"></i>
-                  <span>ทัก LINE ทันที</span>
-                </a>
+                <button type="button" onclick="setStatusFilterAndScroll('available')" class="bg-black/20 hover:bg-black/30 border border-white/30 text-white font-medium text-xs sm:text-sm px-4 py-2 rounded-lg transition">
+                  ดูทรัพย์พร้อมขาย
+                </button>
               </div>
             </div>
           </div>
@@ -328,90 +335,78 @@ service cloud.firestore {
             </svg>
             <div class="relative z-10 px-5 sm:px-9 text-white max-w-xl">
               <span class="inline-flex items-center gap-1.5 bg-emerald-300 text-emerald-950 text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full mb-2 shadow-sm">
-                <i class="fa-solid fa-seedling"></i> สวนเกษตร & ที่ดินลงทุน
+                <i class="fa-solid fa-seedling"></i> สวนเกษตร & ที่ดินทั่วไทย 77 จังหวัด
               </span>
-              <h2 class="text-xl sm:text-3xl font-bold leading-snug drop-shadow-sm">
-                สวนผลไม้ สวนปาล์ม และที่ดินติดถนนใหญ่ พร้อมสร้างรายได้
+              <h2 class="text-xl sm:text-3xl font-display font-bold leading-snug drop-shadow-sm">
+                คัดแปลงสวย สวนผลไม้ ที่ดินติดถนนใหญ่ และบ้านพร้อมที่ดิน
               </h2>
               <p class="text-xs sm:text-sm text-white/95 mt-1.5 hidden sm:block">
-                คัดแปลงสวยต่ำกว่าราคาประเมิน น้ำไฟพร้อม คุยตรงกับเจ้าของจบไว
+                คำนวณราคาเฉลี่ยต่อไร่และต่อตารางวาอัตโนมัติ ติดต่อเจ้าของประกาศได้ตรงทั้งโทรและ LINE
               </p>
-              <button type="button" onclick="selectCategoryAndScroll('สวนเกษตร')" class="mt-3 bg-shopee-yellow hover:bg-yellow-300 text-emerald-950 font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg shadow transition flex items-center gap-1.5">
-                <span>สำรวจสวนเกษตร</span>
+              <button type="button" onclick="selectCategoryAndScroll('สวนเกษตร')" class="mt-3 bg-shopee-yellow hover:bg-yellow-300 text-emerald-950 font-bold text-xs sm:text-sm px-4 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                <span>ดูสวนเกษตรทั้งหมด</span>
                 <i class="fa-solid fa-arrow-right"></i>
               </button>
-            </div>
-          </div>
-
-          <!-- Slide 3 -->
-          <div class="w-full h-full shrink-0 relative bg-gradient-to-br from-slate-900 via-slate-800 to-orange-700 flex items-center">
-            <svg class="absolute inset-0 w-full h-full opacity-15 pointer-events-none" viewBox="0 0 800 320" preserveAspectRatio="xMidYMid slice">
-              <rect x="520" y="30" width="220" height="220" rx="36" fill="#ffd839" transform="rotate(15 630 140)" />
-              <path d="M0 265 Q280 200 560 250 T800 220 L800 320 L0 320 Z" fill="#ffffff" />
-            </svg>
-            <div class="relative z-10 px-5 sm:px-9 text-white max-w-xl">
-              <span class="inline-flex items-center gap-1.5 bg-shopee text-white text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full mb-2 shadow-sm">
-                <i class="fa-solid fa-handshake"></i> นัดชมพื้นที่จริงได้ทุกวัน
-              </span>
-              <h2 class="text-xl sm:text-3xl font-bold leading-snug drop-shadow-sm">
-                สนใจแปลงไหน ขอพิกัด GPS และรูปโฉนดเพิ่มเติมได้ทันที
-              </h2>
-              <p class="text-xs sm:text-sm text-white/95 mt-1.5 hidden sm:block">
-                ต่อรองราคาหน้างานได้ โทรสอบถามหรือแอดไลน์รับข้อมูลครบทุกแปลง
-              </p>
-              <a id="hero-call-link" href="tel:0617278399" class="mt-3 bg-shopee hover:bg-shopee-dark text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-lg shadow transition inline-flex items-center gap-1.5">
-                <i class="fa-solid fa-phone-volume"></i>
-                <span id="hero-call-text">โทร 061-727-8399</span>
-              </a>
             </div>
           </div>
         </div>
 
         <!-- ปุ่มซ้าย-ขวา Carousel -->
-        <button type="button" onclick="moveCarousel(-1)" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 hover:bg-black/60 text-white flex items-center justify-center transition opacity-85 sm:opacity-0 sm:group-hover:opacity-100" aria-label="สไลด์ก่อนหน้า">
-          <i class="fa-solid fa-chevron-left"></i>
+        <button type="button" onclick="moveCarousel(-1)" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/35 hover:bg-black/60 text-white flex items-center justify-center transition opacity-85 sm:opacity-0 sm:group-hover:opacity-100" aria-label="สไลด์ก่อนหน้า">
+          <i class="fa-solid fa-chevron-left text-xs"></i>
         </button>
-        <button type="button" onclick="moveCarousel(1)" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 hover:bg-black/60 text-white flex items-center justify-center transition opacity-85 sm:opacity-0 sm:group-hover:opacity-100" aria-label="สไลด์ถัดไป">
-          <i class="fa-solid fa-chevron-right"></i>
+        <button type="button" onclick="moveCarousel(1)" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/35 hover:bg-black/60 text-white flex items-center justify-center transition opacity-85 sm:opacity-0 sm:group-hover:opacity-100" aria-label="สไลด์ถัดไป">
+          <i class="fa-solid fa-chevron-right text-xs"></i>
         </button>
 
         <!-- จุดบอกตำแหน่งสไลด์ -->
         <div id="carousel-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2">
           <button type="button" onclick="goToSlide(0)" class="w-6 h-2 rounded-full bg-shopee-yellow transition-all" aria-label="สไลด์ 1"></button>
           <button type="button" onclick="goToSlide(1)" class="w-2 h-2 rounded-full bg-white/60 hover:bg-white transition-all" aria-label="สไลด์ 2"></button>
-          <button type="button" onclick="goToSlide(2)" class="w-2 h-2 rounded-full bg-white/60 hover:bg-white transition-all" aria-label="สไลด์ 3"></button>
         </div>
       </div>
 
-      <!-- แบนเนอร์ขวา 2 ใบซ้อนกัน (โทรตรง + LINE) -->
+      <!-- การ์ดขวา 2 ใบซ้อนกัน -->
       <div class="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3">
-        <a id="side-call-card" href="tel:0617278399" class="relative rounded-xl overflow-hidden shadow-sm p-3.5 sm:p-4 text-left bg-gradient-to-br from-[#ee4d2d] to-[#ff7d3b] text-white group flex flex-col justify-between h-[115px] sm:h-[136px] hover:brightness-105 transition">
+        <!-- การ์ดลงประกาศฟรี -->
+        <button
+          type="button"
+          onclick="handlePostListingClick()"
+          class="relative rounded-xl overflow-hidden shadow-sm p-3.5 sm:p-4 text-left bg-gradient-to-br from-[#ee4d2d] to-[#ff7d3b] text-white group flex flex-col justify-between h-[112px] sm:h-[131px] hover:brightness-105 transition"
+        >
           <div class="flex items-center justify-between">
             <span class="bg-shopee-yellow text-[#a8290f] text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded shadow-sm">
-              <i class="fa-solid fa-phone-volume mr-1"></i>สายด่วนเจ้าของ
+              <i class="fa-solid fa-user-plus mr-1"></i>สมาชิกฟรี
             </span>
-            <i class="fa-solid fa-headset text-xl text-yellow-200/90"></i>
+            <i class="fa-solid fa-bullhorn text-xl text-yellow-200/90"></i>
           </div>
           <div>
-            <div id="side-phone-display" class="font-extrabold text-base sm:text-2xl leading-tight tracking-tight drop-shadow-sm">061-727-8399</div>
+            <div class="font-display font-bold text-sm sm:text-lg leading-tight">ลงประกาศขายที่ดินฟรี</div>
             <p class="text-[11px] sm:text-xs text-white/95 mt-0.5 flex items-center gap-1">
-              <span>กดโทรสอบถาม / นัดดูพื้นที่จริง</span>
+              <span>ล็อกอิน Google / Facebook 1 คลิก</span>
               <i class="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-1 transition"></i>
             </p>
           </div>
-        </a>
+        </button>
 
-        <a id="side-line-card" href="https://line.me/ti/p/Sp9hKfD_6j" target="_blank" rel="noopener noreferrer" class="relative rounded-xl overflow-hidden shadow-sm p-3.5 sm:p-4 text-left bg-gradient-to-br from-[#06C755] to-[#049c42] text-white group flex flex-col justify-between h-[115px] sm:h-[136px] hover:brightness-105 transition">
+        <!-- การ์ดติดต่อ LINE ศูนย์กลาง -->
+        <a
+          id="side-line-card"
+          href="https://line.me/ti/p/Sp9hKfD_6j"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="relative rounded-xl overflow-hidden shadow-sm p-3.5 sm:p-4 text-left bg-gradient-to-br from-[#06C755] to-[#049c42] text-white group flex flex-col justify-between h-[112px] sm:h-[131px] hover:brightness-105 transition"
+        >
           <div class="flex items-center justify-between">
             <span class="bg-white text-[#049c42] text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded shadow-sm">
-              <i class="fa-brands fa-line mr-1"></i>LINE ตอบไว
+              <i class="fa-brands fa-line mr-1"></i>ศูนย์บริการ LandShop
             </span>
             <i class="fa-brands fa-line text-2xl text-white/90"></i>
           </div>
           <div>
-            <div class="font-bold text-sm sm:text-lg leading-tight drop-shadow-sm">ทัก LINE ขอพิกัด & รูปโฉนด</div>
+            <div class="font-display font-bold text-sm sm:text-lg leading-tight">สอบถาม / ฝากขายทรัพย์</div>
             <p class="text-[11px] sm:text-xs text-white/95 mt-0.5 flex items-center gap-1">
-              <span>แอดเพื่อนคุยตรงกับเจ้าของ</span>
+              <span>โทร 061-727-8399 หรือทัก LINE</span>
               <i class="fa-solid fa-chevron-right text-[10px] group-hover:translate-x-1 transition"></i>
             </p>
           </div>
@@ -419,55 +414,47 @@ service cloud.firestore {
       </div>
     </section>
 
-    <!-- ==================== 3. CATEGORY BAR ==================== -->
+    <!-- ==================== 3. CATEGORY BAR (8 ช่องรวม "ทั้งหมด") ==================== -->
     <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
         <h2 class="text-sm sm:text-base font-semibold text-gray-700 flex items-center gap-2">
           <i class="fa-solid fa-border-all text-shopee"></i>
           <span>หมวดหมู่อสังหาฯ</span>
         </h2>
-        <span class="text-xs text-gray-400 hidden sm:inline">คลิกเลือกประเภททรัพย์ที่ต้องการดู</span>
+        <span class="text-xs text-gray-400 hidden sm:inline">เลือกประเภททรัพย์ที่ต้องการค้นหา</span>
       </div>
-      <div id="category-grid" class="grid grid-cols-4 sm:grid-cols-7 divide-x divide-y divide-gray-100">
+      <div id="category-grid" class="grid grid-cols-4 lg:grid-cols-8 divide-x divide-y divide-gray-100">
         <!-- สร้างด้วย JavaScript -->
       </div>
     </section>
 
-    <!-- ==================== 4. FLASH DEAL STRIP (WITH COUNTDOWN TIMER) ==================== -->
-    <section id="flash-deal-section" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-4 py-3.5 border-b border-gray-100 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-[#fff6f2] to-white">
-        <div class="flex items-center gap-3 flex-wrap">
-          <div class="flex items-center gap-1.5 text-shopee font-bold text-base sm:text-xl tracking-tight">
-            <i class="fa-solid fa-bolt text-shopee"></i>
-            <span>FLASH DEAL ดีลด่วนราคาพิเศษ</span>
+    <!-- ==================== 4. MAIN LISTINGS SECTION ==================== -->
+    <section id="listings-section" class="space-y-3 scroll-mt-40">
+      <!-- แถบแจ้งเตือนเมื่อกำลังเปิดมุมมอง "ประกาศของฉัน" -->
+      <div id="my-listings-banner" class="hidden bg-slate-900 text-white rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+        <div class="flex items-center gap-2 text-xs sm:text-sm">
+          <span class="w-8 h-8 rounded-lg bg-shopee flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-folder-open"></i>
+          </span>
+          <div>
+            <div class="font-bold text-amber-300">กำลังแสดง: ประกาศของคุณเท่านั้น</div>
+            <div class="text-[11px] text-slate-300">คุณสามารถสลับสถานะ พร้อมขาย / ติดจอง / ปิดการขาย แก้ไข หรือลบรายการของคุณได้จากตรงนี้</div>
           </div>
-          <div class="flex items-center gap-1 text-xs font-bold" aria-label="เวลาโปรโมชันที่เหลือ">
-            <span id="timer-h" class="bg-gray-900 text-white px-2 py-0.5 rounded">05</span>
-            <span class="text-gray-800">:</span>
-            <span id="timer-m" class="bg-gray-900 text-white px-2 py-0.5 rounded">42</span>
-            <span class="text-gray-800">:</span>
-            <span id="timer-s" class="bg-gray-900 text-white px-2 py-0.5 rounded">19</span>
-          </div>
-          <span class="text-xs text-gray-500 hidden md:inline">คัดเฉพาะแปลงดีลด่วนราคาพิเศษ</span>
         </div>
-
-        <button type="button" onclick="activateBelowAppraisalAndScroll()" class="text-xs sm:text-sm text-shopee hover:text-shopee-dark font-medium flex items-center gap-1 transition">
-          <span>ดูแปลงต่ำกว่าประเมิน</span>
-          <i class="fa-solid fa-chevron-right text-xs"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="openPropertyModal(null)" class="bg-shopee hover:bg-shopee-dark text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+            + เพิ่มประกาศใหม่
+          </button>
+          <button type="button" onclick="toggleMyListingsView(false)" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">
+            ดูตลาดทั้งหมด
+          </button>
+        </div>
       </div>
 
-      <div id="flash-deal-row" class="p-3 sm:p-4 flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-        <!-- สร้างด้วย JavaScript -->
-      </div>
-    </section>
-
-    <!-- ==================== 5. STATUS FILTER PILLS, TOOLBAR & PROPERTY GRID ==================== -->
-    <section id="listings-section" class="space-y-3 scroll-mt-36">
       <!-- หัวข้อรายการ -->
       <div class="bg-white rounded-t-xl shadow-sm border-b-4 border-shopee px-4 py-3.5 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <h2 class="text-base sm:text-lg font-bold text-shopee tracking-wide">รายการที่ดินและอสังหาฯ ทั้งหมด</h2>
+          <h2 id="listings-heading" class="text-base sm:text-lg font-display font-bold text-shopee tracking-wide">รายการที่ดินและอสังหาฯ ทั้งหมด</h2>
           <span id="result-count-pill" class="text-xs bg-shopee-soft text-shopee font-semibold px-2.5 py-0.5 rounded-full">0 รายการ</span>
         </div>
         <button id="reset-filters-btn" type="button" onclick="resetAllFilters()" class="hidden text-xs text-gray-500 hover:text-shopee flex items-center gap-1 transition">
@@ -476,14 +463,14 @@ service cloud.firestore {
         </button>
       </div>
 
-      <!-- แถบกรองสถานะ + จังหวัด + เรียงลำดับ + เช็กบ็อกซ์ -->
+      <!-- แถบกรองสถานะ + จังหวัด + เรียงราคา + เช็กบ็อกซ์ -->
       <div class="bg-[#ededed] rounded-xl p-3 space-y-2.5">
-        <!-- Status Filter Pills พร้อมตัวเลขสด -->
+        <!-- แท็บกรองสถานะ -->
         <div id="status-pills-bar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
           <!-- สร้างด้วย JavaScript -->
         </div>
 
-        <!-- Province Dropdown + Sort Selector + Checkboxes -->
+        <!-- กรองจังหวัด + เรียงลำดับ + เช็กบ็อกซ์ -->
         <div class="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-gray-300/60">
           <div class="flex flex-wrap items-center gap-2 flex-1">
             <div class="relative flex-1 sm:flex-none">
@@ -531,10 +518,10 @@ service cloud.firestore {
       <!-- สถานะกำลังโหลดข้อมูลจาก Firebase -->
       <div id="loading-state" class="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-100">
         <div class="w-12 h-12 border-4 border-shopee/20 border-t-shopee rounded-full animate-spin mx-auto mb-3"></div>
-        <p class="text-sm font-medium text-gray-600">กำลังซิงก์รายการที่ดินและอสังหาฯ จาก Firebase...</p>
+        <p class="text-sm font-medium text-gray-600">กำลังซิงก์รายการที่ดินและอสังหาฯ แบบเรียลไทม์...</p>
       </div>
 
-      <!-- ตารางการ์ดทรัพย์สิน (2 คอลัมน์บนมือถือแบบ Shopee, 3 บนแท็บเล็ต, 4 บนเดสก์ท็อป) -->
+      <!-- ตารางการ์ดทรัพย์สิน -->
       <div id="listings-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
         <!-- สร้างด้วย JavaScript -->
       </div>
@@ -542,59 +529,53 @@ service cloud.firestore {
       <!-- Empty State: กรณีฐานข้อมูล Firestore ยังว่างเปล่า -->
       <div id="empty-db-state" class="hidden bg-white rounded-2xl p-8 sm:p-12 text-center shadow-sm border border-gray-100 space-y-4">
         <div class="w-16 h-16 bg-shopee-soft text-shopee rounded-full flex items-center justify-center mx-auto text-2xl">
-          <i class="fa-solid fa-database"></i>
+          <i class="fa-solid fa-map-location-dot"></i>
         </div>
         <div class="max-w-md mx-auto">
-          <h3 class="text-base sm:text-lg font-bold text-gray-800">ยังไม่มีรายการอสังหาฯ ในฐานข้อมูลตอนนี้</h3>
+          <h3 class="text-base sm:text-lg font-bold text-gray-800">ยังไม่มีรายการประกาศในระบบตอนนี้</h3>
           <p class="text-xs sm:text-sm text-gray-500 mt-1 leading-relaxed">
-            เชื่อมต่อ Firebase เรียบร้อยแล้ว! เริ่มลงประกาศแปลงแรกของคุณ หรือนำเข้าข้อมูลตัวอย่าง 6 แปลงเพื่อทดสอบระบบได้เลย
+            เริ่มต้นลงประกาศขายที่ดิน บ้าน หรือสวนเกษตรแปลงแรกของคุณได้เลยฟรี!
           </p>
         </div>
 
-        <!-- ปุ่มสำหรับแอดมินที่ล็อกอินแล้ว -->
-        <div id="empty-db-admin-actions" class="hidden flex flex-wrap items-center justify-center gap-3 pt-2">
+        <div class="flex flex-wrap items-center justify-center gap-3 pt-1">
+          <!-- ปุ่มเฉพาะแอดมิน: นำเข้าประกาศตัวอย่าง 4 แปลง -->
           <button
             id="seed-sample-btn"
             type="button"
             onclick="seedSampleProperties()"
-            class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-md transition flex items-center gap-2"
+            class="hidden bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-md transition flex items-center gap-2"
           >
             <i class="fa-solid fa-cloud-arrow-down"></i>
-            <span>📥 เพิ่มรายการตัวอย่างเริ่มต้น (6 แปลง)</span>
+            <span>📥 เพิ่มประกาศตัวอย่าง 4 แปลง (เฉพาะแอดมิน)</span>
           </button>
 
           <button
             type="button"
-            onclick="openPropertyModal(null)"
+            onclick="handlePostListingClick()"
             class="bg-shopee hover:bg-shopee-dark text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-md transition flex items-center gap-2"
           >
             <i class="fa-solid fa-plus"></i>
-            <span>+ ลงประกาศแปลงแรกของคุณ</span>
-          </button>
-        </div>
-
-        <!-- ปุ่มสำหรับแอดมินที่ยังไม่ล็อกอิน -->
-        <div id="empty-db-guest-actions" class="pt-1">
-          <button
-            type="button"
-            onclick="openLoginModal()"
-            class="bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-medium px-5 py-2.5 rounded-xl shadow-sm transition inline-flex items-center gap-2"
-          >
-            <span>🔐 เข้าสู่ระบบแอดมินเพื่อเพิ่มประกาศแรก</span>
+            <span>+ ลงประกาศขายฟรีตอนนี้</span>
           </button>
         </div>
       </div>
 
-      <!-- Empty State: กรณีค้นหา/กรองแล้วไม่พบรายการ -->
+      <!-- Empty State: กรณีค้นหา/กรอง หรือดู "ประกาศของฉัน" แล้วไม่พบรายการ -->
       <div id="empty-filter-state" class="hidden bg-white rounded-xl p-10 text-center shadow-sm border border-gray-100">
         <div class="w-14 h-14 bg-shopee-soft text-shopee rounded-full flex items-center justify-center mx-auto mb-3 text-xl">
           <i class="fa-solid fa-magnifying-glass-location"></i>
         </div>
-        <h3 class="text-base sm:text-lg font-semibold text-gray-800">ไม่พบทรัพย์สินที่ตรงกับเงื่อนไข</h3>
-        <p class="text-xs sm:text-sm text-gray-500 mt-1">ลองเปลี่ยนคำค้นหา จังหวัด สถานะ หรือกดล้างตัวกรองทั้งหมด</p>
-        <button type="button" onclick="resetAllFilters()" class="mt-4 bg-shopee hover:bg-shopee-dark text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition">
-          ดูประกาศทั้งหมด
-        </button>
+        <h3 id="empty-filter-title" class="text-base sm:text-lg font-semibold text-gray-800">ไม่พบทรัพย์สินที่ตรงกับเงื่อนไข</h3>
+        <p id="empty-filter-desc" class="text-xs sm:text-sm text-gray-500 mt-1">ลองเปลี่ยนคำค้นหา จังหวัด สถานะ หรือกดล้างตัวกรองทั้งหมด</p>
+        <div class="mt-4 flex flex-wrap justify-center gap-2">
+          <button type="button" onclick="resetAllFilters()" class="bg-shopee hover:bg-shopee-dark text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition">
+            ดูประกาศทั้งหมด
+          </button>
+          <button id="empty-my-post-btn" type="button" onclick="openPropertyModal(null)" class="hidden bg-slate-800 hover:bg-slate-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition">
+            + ลงประกาศแรกของคุณ
+          </button>
+        </div>
       </div>
     </section>
   </main>
@@ -603,17 +584,17 @@ service cloud.firestore {
   <footer class="bg-white border-t-4 border-shopee mt-12 pb-20 sm:pb-8">
     <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-sm">
       <div>
-        <div class="flex items-center gap-2 text-shopee font-bold text-lg mb-2">
+        <div class="flex items-center gap-2 text-shopee font-display font-bold text-lg mb-2">
           <i class="fa-solid fa-house-chimney-window"></i>
-          <span>LandShop แลนด์ช้อป</span>
+          <span>LandShop (แลนด์ช้อป)</span>
         </div>
         <p class="text-xs text-gray-500 leading-relaxed">
-          ตลาดซื้อขายที่ดินเปล่า บ้านพร้อมที่ดิน สวนเกษตร อาคารพาณิชย์ และอสังหาฯ เจ้าของขายเอง อัปเดตสถานะเรียลไทม์ นัดลงพื้นที่จริงและตรวจสอบโฉนดได้ทุกแปลง
+          แพลตฟอร์มตลาดกลางซื้อขายที่ดินเปล่า บ้านพร้อมที่ดิน สวนเกษตร อาคารพาณิชย์ และอสังหาริมทรัพย์ทั่วประเทศไทย สมัครสมาชิกง่ายใน 1 คลิก จัดการประกาศของตัวเองได้แบบเรียลไทม์
         </p>
       </div>
 
       <div>
-        <h4 class="font-semibold text-gray-800 mb-2.5">ติดต่อสอบถาม / นัดชมพื้นที่</h4>
+        <h4 class="font-semibold text-gray-800 mb-2.5">ติดต่อศูนย์บริการ LandShop</h4>
         <div class="space-y-2 text-xs text-gray-600">
           <a id="footer-phone-link" href="tel:0617278399" class="flex items-center gap-2 hover:text-shopee transition">
             <i class="fa-solid fa-phone-volume text-shopee w-4"></i>
@@ -621,29 +602,29 @@ service cloud.firestore {
           </a>
           <a id="footer-line-link" href="https://line.me/ti/p/Sp9hKfD_6j" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:text-line transition">
             <i class="fa-brands fa-line text-line text-base w-4"></i>
-            <span class="font-medium text-line-dark">แอดไลน์สอบถาม (เปิดแอป LINE)</span>
+            <span class="font-medium text-line-dark">ทัก LINE ศูนย์กลาง</span>
           </a>
         </div>
       </div>
 
       <div>
-        <h4 class="font-semibold text-gray-800 mb-2.5">สำหรับเจ้าของเว็บไซต์ (Firebase Admin)</h4>
+        <h4 class="font-semibold text-gray-800 mb-2.5">สำหรับผู้ต้องการลงขายอสังหาฯ</h4>
         <p class="text-xs text-gray-500 mb-3 leading-relaxed">
-          เข้าสู่ระบบด้วยบัญชีแอดมินเพื่อเพิ่ม แก้ไข ลบประกาศ อัปโหลดรูปจากมือถือ และเปลี่ยนสถานะเป็น <strong>ติดจอง / ปิดการขาย</strong> ข้ามทุกเครื่องได้ทันที
+          เข้าสู่ระบบด้วย <strong>Google</strong> หรือ <strong>Facebook</strong> เพื่อลงประกาศขายฟรี แก้ไขข้อมูลและเปลี่ยนสถานะ <strong>ติดจอง / ปิดการขาย</strong> ได้ด้วยตัวเองตลอด 24 ชม.
         </p>
         <button
-          id="footer-admin-btn"
           type="button"
-          onclick="handleHeaderAdminClick()"
-          class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm"
+          onclick="handlePostListingClick()"
+          class="bg-shopee hover:bg-shopee-dark text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition inline-flex items-center gap-2 shadow-sm"
         >
-          <span>🔐 เข้าสู่ระบบแอดมิน</span>
+          <i class="fa-solid fa-plus-circle"></i>
+          <span>ลงประกาศขายฟรีตอนนี้</span>
         </button>
       </div>
     </div>
 
     <div class="border-t border-gray-100 py-4 text-center text-xs text-gray-400 px-4">
-      © 2026 LandShop แลนด์ช้อป — ติดต่อโทร <span id="footer-copyright-phone">061-727-8399</span>
+      © 2026 LandShop (แลนด์ช้อป) — ศูนย์บริการโทร <span id="footer-copyright-phone">061-727-8399</span>
     </div>
   </footer>
 
@@ -655,11 +636,11 @@ service cloud.firestore {
       target="_blank"
       rel="noopener noreferrer"
       class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-line hover:bg-line-dark text-white shadow-lg hover:scale-105 active:scale-95 transition flex items-center justify-center relative group"
-      aria-label="ทัก LINE"
+      aria-label="ทัก LINE ศูนย์กลาง"
     >
       <i class="fa-brands fa-line text-2xl sm:text-3xl"></i>
       <span class="hidden sm:block absolute right-16 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition shadow">
-        ทัก LINE สอบถาม
+        ทัก LINE ศูนย์กลาง
       </span>
     </a>
 
@@ -670,13 +651,13 @@ service cloud.firestore {
       aria-label="โทร 061-727-8399"
     >
       <i class="fa-solid fa-phone-volume text-xl sm:text-2xl"></i>
-      <span id="float-call-tooltip" class="hidden sm:block absolute right-16 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition shadow">
+      <span class="hidden sm:block absolute right-16 bg-gray-900 text-white text-xs px-2.5 py-1 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition shadow">
         โทร 061-727-8399
       </span>
     </a>
   </div>
 
-  <!-- ==================== 6. PROPERTY DETAIL MODAL ==================== -->
+  <!-- ==================== 5. PROPERTY DETAIL MODAL ==================== -->
   <div id="detail-modal" class="hidden fixed inset-0 z-50 bg-black/65 backdrop-blur-[2px] flex items-end sm:items-center justify-center sm:p-4" onclick="handleBackdropClick(event, 'detail-modal', closeDetailModal)">
     <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-5xl w-full max-h-[94vh] flex flex-col shadow-2xl animate-fade-scale overflow-hidden" onclick="event.stopPropagation()">
       <!-- แถบหัว Modal -->
@@ -704,7 +685,7 @@ service cloud.firestore {
     </div>
   </div>
 
-  <!-- ==================== 7. FAVORITES SLIDE-OVER DRAWER ==================== -->
+  <!-- ==================== 6. FAVORITES SLIDE-OVER DRAWER ==================== -->
   <div id="favorites-drawer" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex justify-end" onclick="toggleFavoritesDrawer(false)">
     <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col animate-slide-in-right" onclick="event.stopPropagation()">
       <div class="px-5 py-4 bg-gradient-to-r from-[#ee4d2d] to-[#ff7337] text-white flex items-center justify-between">
@@ -723,86 +704,163 @@ service cloud.firestore {
       </div>
 
       <div class="p-3.5 bg-white border-t border-gray-100 text-center text-xs text-gray-400">
-        รายการที่บันทึกไว้จะถูกเก็บไว้ในอุปกรณ์ของคุณเพื่อเปรียบเทียบภายหลัง
+        รายการที่สนใจถูกบันทึกไว้ในเบราว์เซอร์ของคุณอัตโนมัติ
       </div>
     </div>
   </div>
 
-  <!-- ==================== 8. FIREBASE ADMIN LOGIN MODAL ==================== -->
-  <div id="login-modal" class="hidden fixed inset-0 z-[60] bg-black/65 backdrop-blur-[2px] flex items-center justify-center p-4" onclick="handleBackdropClick(event, 'login-modal', closeLoginModal)">
-    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl animate-fade-scale overflow-hidden" onclick="event.stopPropagation()">
-      <div class="bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
+  <!-- ==================== 7. ONE-CLICK AUTH MODAL (GOOGLE / FACEBOOK + COLLAPSIBLE EMAIL) ==================== -->
+  <div id="auth-modal" class="hidden fixed inset-0 z-[60] bg-black/65 backdrop-blur-[2px] flex items-center justify-center p-4 overflow-y-auto" onclick="handleBackdropClick(event, 'auth-modal', closeAuthModal)">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl animate-fade-scale overflow-hidden my-auto" onclick="event.stopPropagation()">
+      <!-- ส่วนหัว Modal -->
+      <div class="bg-gradient-to-r from-[#ee4d2d] to-[#ff7337] text-white px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-shopee/20 text-shopee flex items-center justify-center">
-            <i class="fa-solid fa-shield-halved text-lg"></i>
+          <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-user-check"></i>
           </div>
           <div>
-            <h2 class="text-base font-bold leading-tight">เข้าสู่ระบบแอดมิน (Firebase)</h2>
-            <p class="text-[11px] text-slate-300">ใช้อีเมลและรหัสผ่านที่สร้างไว้ใน Firebase Authentication</p>
+            <h2 class="text-base sm:text-lg font-display font-bold leading-tight">เข้าสู่ระบบ / สมัครสมาชิก</h2>
+            <p class="text-[11px] text-white/90">กดปุ่มเดียวเข้าใช้งานได้ทันที ไม่ต้องตั้งรหัสผ่าน</p>
           </div>
         </div>
-        <button type="button" onclick="closeLoginModal()" class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition">
+        <button type="button" onclick="closeAuthModal()" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition" aria-label="ปิดหน้าต่าง">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <form id="admin-login-form" onsubmit="handleAdminLoginSubmit(event)" class="p-5 space-y-4">
-        <div id="login-error-box" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs px-3.5 py-2.5 rounded-xl flex items-start gap-2">
-          <i class="fa-solid fa-circle-exclamation mt-0.5 shrink-0"></i>
-          <span id="login-error-text">อีเมลหรือรหัสผ่านไม่ถูกต้อง</span>
+      <div class="p-5 space-y-4">
+        <!-- ข้อความเชิญชวน (เปลี่ยนอัตโนมัติเมื่อกดมาจากปุ่มลงประกาศ) -->
+        <div id="auth-prompt-banner" class="bg-shopee-soft border border-shopee/25 text-[#b83214] text-xs sm:text-sm px-3.5 py-2.5 rounded-xl flex items-center gap-2.5 font-medium">
+          <i class="fa-solid fa-sparkles text-shopee shrink-0"></i>
+          <span id="auth-prompt-text">เข้าสู่ระบบใน 1 คลิกด้วย Google หรือ Facebook เพื่อลงประกาศฟรี</span>
         </div>
 
-        <div>
-          <label for="login-email" class="block text-xs font-medium text-gray-700 mb-1">อีเมลแอดมิน</label>
-          <input
-            id="login-email"
-            type="email"
-            required
-            autocomplete="email"
-            placeholder="example@gmail.com"
-            class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee focus:ring-2 focus:ring-shopee/20"
-          />
+        <!-- กล่องแจ้งเตือน Error ภาษาไทยอย่างละเอียด -->
+        <div id="auth-error-box" class="hidden bg-red-50 border border-red-300 text-red-800 text-xs px-3.5 py-3 rounded-xl flex items-start gap-2.5 leading-relaxed">
+          <i class="fa-solid fa-circle-exclamation text-red-600 text-sm mt-0.5 shrink-0"></i>
+          <div id="auth-error-text">เกิดข้อผิดพลาดในการเข้าสู่ระบบ</div>
         </div>
 
-        <div>
-          <label for="login-password" class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-          <input
-            id="login-password"
-            type="password"
-            required
-            autocomplete="current-password"
-            placeholder="กรอกรหัสผ่าน"
-            class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee focus:ring-2 focus:ring-shopee/20"
-          />
-        </div>
-
-        <div class="flex items-center gap-2 pt-1">
-          <button type="button" onclick="closeLoginModal()" class="flex-1 py-2.5 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium transition">
-            ยกเลิก
+        <!-- ปุ่มเข้าสู่ระบบหลัก 1 คลิก: Google และ Facebook -->
+        <div class="space-y-3">
+          <!-- 1) ปุ่ม Google สีมาตรฐาน -->
+          <button
+            id="btn-google-login"
+            type="button"
+            onclick="handleSocialLogin('google')"
+            class="w-full py-3 px-4 rounded-xl bg-white hover:bg-gray-50 active:scale-[0.99] border-2 border-gray-200 hover:border-gray-300 text-gray-800 font-semibold text-sm sm:text-base shadow-sm transition flex items-center justify-center gap-3"
+          >
+            <!-- Google Official Multi-color SVG -->
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>
+              <path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"/>
+              <path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/>
+              <path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/>
+            </svg>
+            <span>เข้าสู่ระบบด้วย Google</span>
           </button>
-          <button id="login-submit-btn" type="submit" class="flex-1 py-2.5 rounded-xl bg-shopee hover:bg-shopee-dark text-white text-sm font-semibold shadow-sm transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-right-to-bracket"></i>
-            <span>เข้าสู่ระบบ</span>
+
+          <!-- 2) ปุ่ม Facebook สีน้ำเงินมาตรฐาน #1877F2 -->
+          <button
+            id="btn-facebook-login"
+            type="button"
+            onclick="handleSocialLogin('facebook')"
+            class="w-full py-3 px-4 rounded-xl bg-facebook hover:bg-facebook-dark active:scale-[0.99] text-white font-semibold text-sm sm:text-base shadow-sm transition flex items-center justify-center gap-3"
+          >
+            <i class="fa-brands fa-facebook text-xl"></i>
+            <span>เข้าสู่ระบบด้วย Facebook</span>
           </button>
         </div>
-      </form>
+
+        <!-- เส้นแบ่ง + ส่วนเสริมแบบพับเก็บสำหรับอีเมลและรหัสผ่าน -->
+        <div class="pt-2 border-t border-gray-100">
+          <button
+            type="button"
+            onclick="toggleEmailAuthPanel()"
+            class="w-full text-xs text-gray-500 hover:text-shopee font-medium py-2 flex items-center justify-center gap-1.5 transition"
+          >
+            <i class="fa-solid fa-envelope"></i>
+            <span>เข้าสู่ระบบ / สมัครด้วยอีเมลและรหัสผ่าน (หรือบัญชีแอดมิน)</span>
+            <i id="email-panel-chevron" class="fa-solid fa-chevron-down text-[10px] transition-transform"></i>
+          </button>
+
+          <!-- พื้นที่ฟอร์มอีเมล (ซ่อนไว้เป็นค่าเริ่มต้นเพื่อให้หน้าต่างสะอาด) -->
+          <div id="email-auth-panel" class="hidden mt-3 bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-3">
+            <!-- สลับแท็บ เข้าสู่ระบบ / สมัครใหม่ -->
+            <div class="grid grid-cols-2 bg-gray-200/80 p-1 rounded-lg text-xs font-semibold">
+              <button id="tab-email-login" type="button" onclick="setEmailAuthMode('login')" class="py-1.5 rounded-md bg-white text-shopee shadow-sm transition">
+                เข้าสู่ระบบ
+              </button>
+              <button id="tab-email-register" type="button" onclick="setEmailAuthMode('register')" class="py-1.5 rounded-md text-gray-600 hover:text-gray-800 transition">
+                สมัครสมาชิกใหม่
+              </button>
+            </div>
+
+            <form id="email-auth-form" onsubmit="handleEmailAuthSubmit(event)" class="space-y-3">
+              <div id="email-name-group" class="hidden">
+                <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อที่แสดงในประกาศ</label>
+                <input
+                  id="auth-display-name"
+                  type="text"
+                  placeholder="เช่น คุณสมชาย ที่ดินสวย"
+                  class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-shopee"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">อีเมล</label>
+                <input
+                  id="auth-email"
+                  type="email"
+                  required
+                  autocomplete="email"
+                  placeholder="example@gmail.com"
+                  class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-shopee"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)</label>
+                <input
+                  id="auth-password"
+                  type="password"
+                  required
+                  minlength="6"
+                  autocomplete="current-password"
+                  placeholder="กรอกรหัสผ่าน"
+                  class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-shopee"
+                />
+              </div>
+
+              <button
+                id="email-submit-btn"
+                type="submit"
+                class="w-full py-2.5 rounded-lg bg-slate-900 hover:bg-shopee text-white text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2"
+              >
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span id="email-submit-text">เข้าสู่ระบบด้วยอีเมล</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- ==================== 9. ADD / EDIT PROPERTY MODAL (FIRESTORE + SMART FREE IMAGE UPLOADER) ==================== -->
+  <!-- ==================== 8. POST / EDIT PROPERTY MODAL (ALL MEMBERS) ==================== -->
   <div id="property-modal" class="hidden fixed inset-0 z-[60] bg-black/65 backdrop-blur-[2px] flex items-center justify-center p-2 sm:p-4 overflow-y-auto" onclick="handleBackdropClick(event, 'property-modal', closePropertyModal)">
     <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl animate-fade-scale" onclick="event.stopPropagation()">
-      <div class="sticky top-0 z-20 bg-slate-900 text-white px-5 py-4 flex items-center justify-between">
+      <div class="sticky top-0 z-20 bg-gradient-to-r from-[#ee4d2d] to-[#ff7337] text-white px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-shopee flex items-center justify-center">
-            <i class="fa-solid fa-pen-to-square"></i>
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+            <i class="fa-solid fa-file-pen"></i>
           </div>
           <div>
-            <h2 id="prop-modal-title" class="text-base sm:text-lg font-bold leading-tight">เพิ่มประกาศทรัพย์ใหม่</h2>
-            <p class="text-[11px] text-slate-300">บันทึกลง Cloud Firestore ทันที อัปเดตให้ลูกค้าเห็นทุกเครื่องอัตโนมัติ</p>
+            <h2 id="prop-modal-title" class="text-base sm:text-lg font-display font-bold leading-tight">ลงประกาศขายอสังหาฯ ฟรี</h2>
+            <p class="text-[11px] text-white/90">ประกาศของคุณจะขึ้นหน้าเว็บแบบเรียลไทม์ และแก้ไข/เปลี่ยนสถานะได้เฉพาะคุณ</p>
           </div>
         </div>
-        <button type="button" onclick="closePropertyModal()" class="w-8 h-8 rounded-full hover:bg-white/15 flex items-center justify-center transition">
+        <button type="button" onclick="closePropertyModal()" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -815,26 +873,38 @@ service cloud.firestore {
           <span id="pf-error-text">กรุณากรอกข้อมูลให้ครบถ้วน</span>
         </div>
 
-        <!-- รหัสทรัพย์ + หมวดหมู่ + สถานะ -->
+        <!-- ชื่อประกาศ -->
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อประกาศ <span class="text-shopee">*</span></label>
+          <input id="pf-title" type="text" required maxlength="150" placeholder="เช่น ขายที่ดินเปล่าโฉนด น.ส.4 จ. 3 ไร่ ติดถนนลาดยาง น้ำไฟพร้อม" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee focus:ring-2 focus:ring-shopee/20" />
+        </div>
+
+        <!-- หมวดหมู่ + เอกสารสิทธิ์ + สถานะ -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">รหัสทรัพย์ <span class="text-shopee">*</span></label>
-            <input id="pf-code" type="text" required placeholder="LS-007" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
-          </div>
-          <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">หมวดหมู่ <span class="text-shopee">*</span></label>
-            <select id="pf-category" required class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:border-shopee">
+            <select id="pf-category" required class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-shopee">
               <option value="ที่ดินเปล่า">ที่ดินเปล่า</option>
               <option value="บ้านพร้อมที่ดิน">บ้านพร้อมที่ดิน</option>
               <option value="สวนเกษตร">สวนเกษตร</option>
               <option value="อาคารพาณิชย์">อาคารพาณิชย์</option>
+              <option value="คอนโด">คอนโด</option>
               <option value="ติดถนนใหญ่">ติดถนนใหญ่</option>
               <option value="ติดน้ำ/วิวภูเขา">ติดน้ำ/วิวภูเขา</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">สถานะการขาย <span class="text-shopee">*</span></label>
-            <select id="pf-status" required class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm bg-white focus:outline-none focus:border-shopee font-medium">
+            <label class="block text-xs font-medium text-gray-700 mb-1">เอกสารสิทธิ์ <span class="text-shopee">*</span></label>
+            <select id="pf-deed" required class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-shopee">
+              <option value="โฉนด น.ส.4 จ.">โฉนด น.ส.4 จ.</option>
+              <option value="น.ส.3 ก.">น.ส.3 ก.</option>
+              <option value="ภ.บ.ท.5 / ส.ป.ก.">ภ.บ.ท.5 / ส.ป.ก.</option>
+              <option value="อื่นๆ">อื่นๆ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">สถานะประกาศ</label>
+            <select id="pf-status" class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-shopee font-medium">
               <option value="available">🟢 พร้อมขาย</option>
               <option value="reserved">🟠 ติดจอง</option>
               <option value="sold">🔴 ปิดการขาย</option>
@@ -842,21 +912,17 @@ service cloud.firestore {
           </div>
         </div>
 
-        <!-- ชื่อประกาศ -->
-        <div>
-          <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อประกาศ <span class="text-shopee">*</span></label>
-          <input id="pf-title" type="text" required placeholder="เช่น ขายที่ดินเปล่าโฉนดครุฑแดง 3 ไร่ ติดถนนลาดยาง น้ำไฟพร้อม" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
-        </div>
-
-        <!-- ราคาขาย + ราคาประเมิน -->
+        <!-- จังหวัด (77 จังหวัด) + อำเภอ/เขต -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">ราคาขาย (บาท) <span class="text-shopee">*</span></label>
-            <input id="pf-price" type="number" min="1000" step="1000" required placeholder="เช่น 4500000" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
+            <label class="block text-xs font-medium text-gray-700 mb-1">จังหวัด <span class="text-shopee">*</span></label>
+            <select id="pf-province" required class="w-full border border-gray-300 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-shopee">
+              <!-- เติม 77 จังหวัดด้วย JavaScript -->
+            </select>
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">ราคาประเมิน (บาท - ไม่บังคับ)</label>
-            <input id="pf-appraised" type="number" min="0" step="1000" placeholder="เช่น 5500000" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
+            <label class="block text-xs font-medium text-gray-700 mb-1">อำเภอ / เขต <span class="text-shopee">*</span></label>
+            <input id="pf-district" type="text" required placeholder="เช่น ท่าฉาง, ปากช่อง, เมืองเชียงใหม่" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
           </div>
         </div>
 
@@ -865,101 +931,75 @@ service cloud.firestore {
           <label class="block text-xs font-medium text-gray-700 mb-1">เนื้อที่ดิน (กรอกอย่างน้อย 1 ช่อง) <span class="text-shopee">*</span></label>
           <div class="grid grid-cols-3 gap-2.5">
             <div class="relative">
-              <input id="pf-rai" type="number" min="0" value="0" class="w-full border border-gray-300 rounded-xl pl-3 pr-9 py-2 text-sm focus:outline-none focus:border-shopee" />
+              <input id="pf-rai" type="number" min="0" value="0" class="w-full border border-gray-300 rounded-xl pl-3 pr-9 py-2.5 text-sm focus:outline-none focus:border-shopee" />
               <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">ไร่</span>
             </div>
             <div class="relative">
-              <input id="pf-ngan" type="number" min="0" max="3" value="0" class="w-full border border-gray-300 rounded-xl pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-shopee" />
+              <input id="pf-ngan" type="number" min="0" max="3" value="0" class="w-full border border-gray-300 rounded-xl pl-3 pr-10 py-2.5 text-sm focus:outline-none focus:border-shopee" />
               <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">งาน</span>
             </div>
             <div class="relative">
-              <input id="pf-wah" type="number" min="0" max="99" value="0" class="w-full border border-gray-300 rounded-xl pl-3 pr-12 py-2 text-sm focus:outline-none focus:border-shopee" />
+              <input id="pf-wah" type="number" min="0" max="99" value="0" class="w-full border border-gray-300 rounded-xl pl-3 pr-12 py-2.5 text-sm focus:outline-none focus:border-shopee" />
               <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">ตร.วา</span>
             </div>
           </div>
         </div>
 
-        <!-- เอกสารสิทธิ์ + หน้ากว้าง -->
+        <!-- ราคาขาย + ราคาประเมิน -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">เอกสารสิทธิ์</label>
-            <input id="pf-deed" type="text" value="โฉนดครุฑแดง (น.ส.4 จ.)" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
+            <label class="block text-xs font-medium text-gray-700 mb-1">ราคาขาย (บาท) <span class="text-shopee">*</span></label>
+            <input id="pf-price" type="number" min="1000" step="1000" required placeholder="เช่น 3500000" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">หน้ากว้าง (ไม่บังคับ)</label>
-            <input id="pf-frontage" type="text" placeholder="เช่น 26 เมตร ติดถนนใหญ่" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
+            <label class="block text-xs font-medium text-gray-700 mb-1">ราคาประเมิน (บาท - ไม่บังคับ เพื่อแสดงป้ายลด %)</label>
+            <input id="pf-appraised" type="number" min="0" step="1000" placeholder="เช่น 4200000" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
           </div>
         </div>
 
-        <!-- จังหวัด / อำเภอ / ตำบล -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">จังหวัด <span class="text-shopee">*</span></label>
-            <input id="pf-province" type="text" required placeholder="เช่น สุราษฎร์ธานี" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
+        <!-- ช่องทางติดต่อผู้ขาย (เบอร์โทร + LINE + Google Maps) -->
+        <div class="bg-orange-50/50 border border-orange-200/70 rounded-xl p-3.5 space-y-3">
+          <div class="text-xs font-semibold text-shopee flex items-center gap-1.5">
+            <i class="fa-solid fa-address-card"></i>
+            <span>ข้อมูลติดต่อผู้ขาย (สำหรับผู้ซื้อกดโทรและทัก LINE ตรงถึงคุณ)</span>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">อำเภอ / เขต <span class="text-shopee">*</span></label>
-            <input id="pf-district" type="text" required placeholder="เช่น ท่าฉาง" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">เบอร์โทรผู้ขาย <span class="text-shopee">*</span></label>
+              <input id="pf-seller-phone" type="tel" required placeholder="เช่น 081-234-5678" class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-shopee" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">ลิงก์ LINE หรือ LINE ID (ไม่บังคับ)</label>
+              <input id="pf-seller-line" type="text" placeholder="เช่น https://line.me/ti/p/... หรือ mylineid" class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-shopee" />
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">ตำบล / แขวง</label>
-            <input id="pf-subdistrict" type="text" placeholder="เช่น ท่าเคย" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
-          </div>
-        </div>
-
-        <!-- จุดเด่น (คั่นด้วยลูกน้ำ) -->
-        <div>
-          <label class="block text-xs font-medium text-gray-700 mb-1">จุดเด่น (คั่นด้วยเครื่องหมายลูกน้ำ , เช่น ถมแล้ว, น้ำไฟพร้อม, ใกล้ปั๊มน้ำมัน)</label>
-          <input id="pf-highlights" type="text" placeholder="ติดถนนสายหลัก, ไฟฟ้า 3 เฟส, น้ำประปาพร้อม, โอน 50/50" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
-        </div>
-
-        <!-- ลิงก์ Google Maps + ลิงก์วิดีโอ -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-medium text-gray-700 mb-1">ลิงก์พิกัด Google Maps (ไม่บังคับ)</label>
-            <input id="pf-map-url" type="url" placeholder="https://maps.google.com/?q=..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">ลิงก์วิดีโอ YouTube / TikTok (ไม่บังคับ)</label>
-            <input id="pf-video-url" type="url" placeholder="https://youtube.com/... หรือ https://tiktok.com/..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
+            <input id="pf-map-url" type="url" placeholder="https://maps.google.com/?q=..." class="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-shopee" />
           </div>
         </div>
 
-        <!-- ==================== SMART FREE IMAGE UPLOADER (CANVAS COMPRESSION + URL) ==================== -->
+        <!-- อัปโหลดรูปภาพฟรีด้วย HTML5 Canvas (สูงสุด 5 รูป / รวมไม่เกิน 750 KB) -->
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <label class="text-xs sm:text-sm font-semibold text-gray-800 flex items-center gap-1.5">
               <i class="fa-solid fa-images text-shopee"></i>
-              <span>รูปภาพอสังหาฯ (สูงสุด 5 รูป — บีบอัดอัตโนมัติ ฟรีไม่ต้องใช้ Storage)</span>
+              <span>รูปภาพอสังหาฯ (สูงสุด 5 รูป — บีบอัด JPEG อัตโนมัติ)</span>
             </label>
-            <span id="img-size-text" class="text-[11px] font-semibold text-emerald-700">ขนาดข้อมูลรูป: 0 KB / 800 KB</span>
+            <span id="img-size-text" class="text-[11px] font-semibold text-emerald-700">ขนาดรวม: 0 KB / 750 KB (0/5 รูป)</span>
           </div>
 
-          <!-- Progress bar ขนาดข้อมูลรูปใน Firestore Document -->
+          <!-- Progress bar ขนาดรวม (KB) -->
           <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
             <div id="img-size-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
           </div>
 
-          <!-- อัปโหลดจากเครื่อง/มือถือ -->
           <label class="block border-2 border-dashed border-gray-300 hover:border-shopee bg-white hover:bg-shopee-soft/40 rounded-xl p-4 text-center cursor-pointer transition">
             <input id="pf-file-input" type="file" accept="image/*" multiple onchange="handleImageFileSelect(event)" class="hidden" />
             <i class="fa-solid fa-cloud-arrow-up text-2xl text-shopee mb-1"></i>
-            <p class="text-xs sm:text-sm font-medium text-gray-700">แตะเพื่อเลือกรูปภาพจากมือถือหรือคอมพิวเตอร์</p>
-            <p class="text-[11px] text-gray-400 mt-0.5">ระบบจะย่อขนาดอัตโนมัติ (สูงสุด 900px) ให้ประหยัดพื้นที่และโหลดไว</p>
+            <p class="text-xs sm:text-sm font-medium text-gray-700">แตะเพื่อเลือกรูปภาพจากเครื่องของคุณ</p>
+            <p class="text-[11px] text-gray-400 mt-0.5">ระบบย่อขนาดเป็น JPEG ให้อัตโนมัติเพื่อให้โหลดไวและไม่เกิน 750 KB</p>
           </label>
-
-          <!-- เพิ่มรูปจาก URL หรือโฟลเดอร์ images/ บน GitHub -->
-          <div class="flex gap-2">
-            <input
-              id="pf-img-url-input"
-              type="text"
-              placeholder="หรือวางลิงก์รูป https://... หรือโฟลเดอร์ GitHub เช่น images/land1.jpg"
-              class="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-shopee"
-            />
-            <button type="button" onclick="addExternalImageUrl()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium px-3.5 py-2 rounded-lg shrink-0 transition">
-              + เพิ่มรูป
-            </button>
-          </div>
 
           <!-- พรีวิวรูปภาพที่เลือกไว้ -->
           <div id="pf-images-preview" class="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
@@ -974,20 +1014,16 @@ service cloud.firestore {
             id="pf-description"
             rows="4"
             required
-            placeholder="บรรยายสภาพพื้นที่ ถนนเข้าออก สิ่งปลูกสร้าง สถานที่ใกล้เคียง และเงื่อนไขค่าโอน..."
-            class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-shopee"
+            placeholder="บรรยายสภาพพื้นที่ หน้ากว้าง ถนนเข้าออก สิ่งปลูกสร้าง สถานที่ใกล้เคียง และเงื่อนไขค่าโอน..."
+            class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee"
           ></textarea>
         </div>
 
-        <!-- เช็กบ็อกซ์ เจ้าของขายเอง + Flash Deal -->
-        <div class="flex flex-wrap items-center gap-5 pt-1 text-xs sm:text-sm">
-          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+        <!-- ตัวเลือก "เจ้าของขายเอง" -->
+        <div class="pt-1">
+          <label class="inline-flex items-center gap-2 cursor-pointer select-none text-xs sm:text-sm font-medium text-gray-700">
             <input id="pf-owner-direct" type="checkbox" checked class="w-4 h-4 accent-[#ee4d2d]" />
-            <span>เจ้าของขายเอง</span>
-          </label>
-          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-            <input id="pf-flash-deal" type="checkbox" class="w-4 h-4 accent-[#ee4d2d]" />
-            <span>แสดงในแถบดีลด่วน (Flash Deal)</span>
+            <span>เจ้าของขายเอง (แสดงป้ายสีส้ม "เจ้าของขายเอง" บนการ์ดประกาศ)</span>
           </label>
         </div>
 
@@ -997,15 +1033,15 @@ service cloud.firestore {
             ยกเลิก
           </button>
           <button id="pf-submit-btn" type="submit" class="px-6 py-2.5 rounded-xl bg-shopee hover:bg-shopee-dark text-white text-sm font-semibold shadow-md transition flex items-center gap-2">
-            <i class="fa-solid fa-floppy-disk"></i>
-            <span id="pf-submit-text">บันทึกลง Firebase</span>
+            <i class="fa-solid fa-paper-plane"></i>
+            <span id="pf-submit-text">เผยแพร่ประกาศทันที</span>
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ==================== 10. CUSTOM DELETE CONFIRMATION MODAL (ห้ามใช้ confirm()) ==================== -->
+  <!-- ==================== 9. CUSTOM DELETE CONFIRMATION MODAL (ไม่ใช้ confirm()) ==================== -->
   <div id="delete-modal" class="hidden fixed inset-0 z-[70] bg-black/65 backdrop-blur-[2px] flex items-center justify-center p-4" onclick="handleBackdropClick(event, 'delete-modal', closeDeleteModal)">
     <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl animate-fade-scale overflow-hidden" onclick="event.stopPropagation()">
       <div class="p-6 text-center space-y-3">
@@ -1014,7 +1050,7 @@ service cloud.firestore {
         </div>
         <h3 id="delete-modal-title" class="text-lg font-bold text-gray-900">ยืนยันการลบประกาศนี้?</h3>
         <p id="delete-modal-desc" class="text-xs sm:text-sm text-gray-500 leading-relaxed">
-          ข้อมูลจะถูกลบออกจากฐานข้อมูล Firebase ถาวร (หากขายออกแล้วและอยากเก็บโชว์ผลงาน แนะนำให้กดเปลี่ยนสถานะเป็น "ปิดการขาย" แทน)
+          ข้อมูลจะถูกลบออกจากระบบถาวร (หากขายออกแล้วและอยากเก็บโชว์ แนะนำให้เปลี่ยนสถานะเป็น "ปิดการขาย" แทน)
         </p>
         <div class="pt-3 flex items-center gap-2.5">
           <button type="button" onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium transition">
@@ -1032,15 +1068,20 @@ service cloud.firestore {
   <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
   <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[80] flex flex-col items-center gap-2 pointer-events-none w-[92%] max-w-sm"></div>
 
-  <!-- ==================== FIREBASE V11 MODULAR APP SCRIPT ==================== -->
+  <!-- ==================== FIREBASE MODULAR SDK v10.12.2 SCRIPT ==================== -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
+      GoogleAuthProvider,
+      FacebookAuthProvider,
+      signInWithPopup,
       signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      updateProfile,
       signOut,
       onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore,
       collection,
@@ -1049,10 +1090,10 @@ service cloud.firestore {
       updateDoc,
       deleteDoc,
       onSnapshot
-    } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // =========================================================================
-    // 1. FIREBASE CONFIG (ของโปรเจกต์ landshop-th)
+    // 1. FIREBASE & SHOP CONFIGURATION
     // =========================================================================
     const firebaseConfig = {
       apiKey: "AIzaSyCjMkhu5I2hy8YvyzgxgwRIEmG8qoZttzI",
@@ -1063,37 +1104,81 @@ service cloud.firestore {
       appId: "1:518588544694:web:70483394cdf134a474d817"
     };
 
-    // =========================================================================
-    // 2. SHOP CONFIG (แก้ไขชื่อแบรนด์ เบอร์โทร และลิงก์ LINE ได้ง่ายๆ ตรงนี้)
-    // =========================================================================
     const SHOP_CONFIG = {
-      brandEn: "LandShop",
-      brandTh: "แลนด์ช้อป",
+      brandName: "LandShop (แลนด์ช้อป)",
       phone: "0617278399",
       phoneDisplay: "061-727-8399",
-      lineUrl: "https://line.me/ti/p/Sp9hKfD_6j"
+      lineUrl: "https://line.me/ti/p/Sp9hKfD_6j",
+      adminEmails: ["ghakgrit040142@gmail.com"]
     };
+
+    // ชุดกฎ Firestore Rules แยกสิทธิ์เฉพาะเจ้าของประกาศและแอดมิน
+    const RECOMMENDED_FIRESTORE_RULES = `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /properties/{docId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.ownerId == request.auth.uid;
+      allow update: if request.auth != null && (
+        request.auth.token.email == "ghakgrit040142@gmail.com" ||
+        (resource.data.ownerId == request.auth.uid && request.resource.data.ownerId == resource.data.ownerId)
+      );
+      allow delete: if request.auth != null && (
+        request.auth.token.email == "ghakgrit040142@gmail.com" ||
+        resource.data.ownerId == request.auth.uid
+      );
+    }
+  }
+}`;
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    auth.languageCode = "th";
     const db = getFirestore(app);
     const propertiesColRef = collection(db, "properties");
 
+    const googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: "select_account" });
+
+    const facebookProvider = new FacebookAuthProvider();
+    facebookProvider.addScope("public_profile");
+
     // =========================================================================
-    // 3. CONSTANTS & SAMPLE SEED DATA (สำหรับกดนำเข้า 1 คลิกเมื่อฐานข้อมูลยังว่าง)
+    // 2. CONSTANTS: 77 THAI PROVINCES, CATEGORIES & 4 SAMPLE SEED LISTINGS
     // =========================================================================
+    const THAI_PROVINCES = [
+      "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร",
+      "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท",
+      "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง",
+      "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม",
+      "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส",
+      "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์",
+      "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา",
+      "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์",
+      "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน",
+      "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง",
+      "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย",
+      "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ",
+      "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี",
+      "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย",
+      "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์",
+      "อุทัยธานี", "อุบลราชธานี"
+    ];
+
     const CATEGORIES = [
       { id: "ALL", label: "ทั้งหมด", icon: "fa-solid fa-border-all", color: "text-shopee bg-orange-50" },
       { id: "ที่ดินเปล่า", label: "ที่ดินเปล่า", icon: "fa-solid fa-map", color: "text-amber-600 bg-amber-50" },
       { id: "บ้านพร้อมที่ดิน", label: "บ้านพร้อมที่ดิน", icon: "fa-solid fa-house", color: "text-blue-600 bg-blue-50" },
       { id: "สวนเกษตร", label: "สวนเกษตร", icon: "fa-solid fa-tree", color: "text-emerald-600 bg-emerald-50" },
       { id: "อาคารพาณิชย์", label: "อาคารพาณิชย์", icon: "fa-solid fa-warehouse", color: "text-indigo-600 bg-indigo-50" },
+      { id: "คอนโด", label: "คอนโด", icon: "fa-solid fa-building", color: "text-purple-600 bg-purple-50" },
       { id: "ติดถนนใหญ่", label: "ติดถนนใหญ่", icon: "fa-solid fa-road", color: "text-rose-600 bg-rose-50" },
       { id: "ติดน้ำ/วิวภูเขา", label: "ติดน้ำ/วิวภูเขา", icon: "fa-solid fa-mountain-sun", color: "text-cyan-600 bg-cyan-50" }
     ];
 
-    const SEED_SAMPLE_PROPERTIES = [
+    const SEED_4_PROPERTIES = [
       {
         code: "LS-001",
         title: "ขายด่วน! ที่ดินทำเลทองติดถนนสาย 41 พร้อมบ้าน 3 หลังและสวนปาล์ม 5 ปี ใกล้ปั๊ม PT",
@@ -1104,22 +1189,16 @@ service cloud.firestore {
         rai: 13,
         ngan: 0,
         wah: 0,
-        deed: "โฉนดครุฑแดง (น.ส.4 จ.)",
-        frontage: "26 เมตร ติดถนนสาย 41",
+        deed: "โฉนด น.ส.4 จ.",
         province: "สุราษฎร์ธานี",
         district: "ท่าฉาง",
-        subdistrict: "ท่าเคย",
-        highlights: ["ติดถนนเอเชียสาย 41", "ใกล้ปั๊ม PT", "บ้าน 3 หลัง", "สวนปาล์ม 5 ปี", "โอน 50/50"],
         mapUrl: "https://maps.google.com/?q=9.2597,99.1856",
-        videoUrl: "",
-        description: "ที่ดินแปลงใหญ่ทำเลศักยภาพสูงติดทางหลวงสาย 41 หน้ากว้าง 26 เมตร ใกล้ปั๊มน้ำมัน PT แปลงหน้า 1 ไร่ 3 งาน 50 ตร.วา พร้อมบ้าน 2 หลัง แปลงหลัง 11 ไร่ ปลูกปาล์มน้ำมันอายุ 5 ปีเต็มพื้นที่พร้อมบ้าน 1 หลัง เก็บผลผลิตได้ทันที เหมาะทำโกดัง โชว์รูม ปั๊มน้ำมัน หรือลงทุนระยะยาว โฉนดครุฑแดงพร้อมโอน ค่าโอนและภาษีคนละครึ่ง 50/50",
+        description: "ที่ดินแปลงสวยติดถนนเอเชียสาย 41 หน้ากว้าง 26 เมตร ใกล้ปั๊ม PT แปลงหน้า 1 ไร่ 3 งาน 50 ตร.วา พร้อมบ้าน 2 หลัง และแปลงหลัง 11 ไร่ ปลูกปาล์มน้ำมันอายุ 5 ปีเต็มพื้นที่พร้อมบ้าน 1 หลัง เหมาะทำโกดัง ปั๊มน้ำมัน หรือลงทุนระยะยาว ค่าโอนและภาษีคนละครึ่ง 50/50",
         isOwnerDirect: true,
-        flashDeal: true,
         images: [
           "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80",
           "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=80"
-        ],
-        createdAt: Date.now() - 1000 * 60 * 10
+        ]
       },
       {
         code: "LS-002",
@@ -1131,137 +1210,67 @@ service cloud.firestore {
         rai: 2,
         ngan: 1,
         wah: 50,
-        deed: "โฉนดครุฑแดง (น.ส.4 จ.)",
-        frontage: "42 เมตร ติดถนนลาดยาง",
+        deed: "โฉนด น.ส.4 จ.",
         province: "นครราชสีมา",
         district: "ปากช่อง",
-        subdistrict: "ขนงพระ",
-        highlights: ["ถมสูงแล้วทั้งแปลง", "วิวภูเขา", "ไฟฟ้า 3 เฟส", "น้ำประปาพร้อม"],
         mapUrl: "https://maps.google.com/?q=14.6266,101.4184",
-        videoUrl: "",
-        description: "ที่ดินรูปสี่เหลี่ยมผืนผ้าสวยมาก ถมดินแน่นเรียบร้อยแล้วทั้งแปลง อากาศดีตลอดปี เดินทางจากถนนธนะรัชต์เพียง 8 นาที เหมาะสร้างบ้านพักตากอากาศ พูลวิลล่า หรือซื้อเก็บลงทุน โฉนดลอยไม่ติดภาระพร้อมโอนทันที",
+        description: "ที่ดินรูปสี่เหลี่ยมผืนผ้าสวยมาก ถมดินแน่นเรียบร้อยแล้วทั้งแปลง อากาศดีตลอดปี วิวภูเขาเต็มตา น้ำประปา-ไฟฟ้า 3 เฟสพร้อม เหมาะสร้างบ้านพักตากอากาศ พูลวิลล่า หรือซื้อเก็บลงทุน",
         isOwnerDirect: true,
-        flashDeal: true,
         images: [
           "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
           "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=900&q=80"
-        ],
-        createdAt: Date.now() - 1000 * 60 * 20
+        ]
       },
       {
         code: "LS-003",
-        title: "บ้านเดี่ยวสไตล์โมเดิร์นทรอปิคอลพร้อมที่ดินกว้าง บรรยากาศร่มรื่น ใกล้สนามบินเชียงใหม่",
-        category: "บ้านพร้อมที่ดิน",
-        status: "available",
-        price: 6850000,
-        appraisedPrice: 7600000,
-        rai: 0,
-        ngan: 2,
-        wah: 20,
-        deed: "โฉนดครุฑแดง (น.ส.4 จ.)",
-        frontage: "24 เมตร ติดถนนคอนกรีต",
-        province: "เชียงใหม่",
-        district: "หางดง",
-        subdistrict: "น้ำแพร่",
-        highlights: ["3 ห้องนอน 4 ห้องน้ำ", "พื้นที่ใช้สอย 265 ตร.ม.", "แถมเฟอร์นิเจอร์บิวท์อิน"],
-        mapUrl: "https://maps.google.com/?q=18.6989,98.9182",
-        videoUrl: "",
-        description: "บ้านเดี่ยวสร้างด้วยวัสดุเกรดพรีเมียม บนที่ดิน 220 ตารางวา มีสนามหญ้ากว้างร่มรื่น จอดรถในร่มได้ 3 คัน แถมเฟอร์นิเจอร์บิวท์อินและเครื่องปรับอากาศทุกห้อง เดินทางเข้าตัวเมืองและสนามบินเชียงใหม่เพียง 20 นาที",
-        isOwnerDirect: true,
-        flashDeal: false,
-        images: [
-          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80"
-        ],
-        createdAt: Date.now() - 1000 * 60 * 30
-      },
-      {
-        code: "LS-004",
-        title: "สวนทุเรียนหมอนทอง 110 ต้น พร้อมบ้านพักและสระน้ำใหญ่ ระบบสปริงเกลอร์ครบ เก็บผลได้ทันที",
+        title: "สวนทุเรียนหมอนทอง 110 ต้น พร้อมบ้านพักและสระน้ำใหญ่ ระบบสปริงเกลอร์ครบ เก็บผลได้เลย",
         category: "สวนเกษตร",
-        status: "available",
+        status: "reserved",
         price: 11900000,
         appraisedPrice: 14800000,
         rai: 7,
         ngan: 2,
         wah: 0,
-        deed: "โฉนดครุฑแดง (น.ส.4 จ.)",
-        frontage: "55 เมตร ติดทางสาธารณะ",
+        deed: "โฉนด น.ส.4 จ.",
         province: "จันทบุรี",
         district: "ท่าใหม่",
-        subdistrict: "ทุ่งเบญจา",
-        highlights: ["ทุเรียนอายุ 7 ปี", "มีสระน้ำใหญ่", "สปริงเกลอร์ทั้งแปลง", "พร้อมบ้านพัก"],
         mapUrl: "https://maps.google.com/?q=12.6686,101.9642",
-        videoUrl: "",
-        description: "ขายสวนทุเรียนหมอนทองเกรดส่งออก 110 ต้น แซมมังคุดและเงาะอีกกว่า 35 ต้น มีสระน้ำขนาดใหญ่ใช้ได้ตลอดปี ระบบน้ำสปริงเกลอร์ครบทั้งแปลง พร้อมบ้านพัก 2 ห้องนอนและโรงเก็บอุปกรณ์ รถ 6 ล้อเข้าถึงในสวน",
+        description: "สวนทุเรียนหมอนทองอายุ 7 ปีให้ผลผลิตทุกปี แซมมังคุดและเงาะ พร้อมบ้านพัก 2 ห้องนอน โรงเก็บอุปกรณ์ และระบบน้ำสปริงเกลอร์ทั้งแปลง มีสระน้ำขนาดใหญ่ไม่เคยขาดน้ำ",
         isOwnerDirect: true,
-        flashDeal: true,
         images: [
           "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80",
           "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=900&q=80"
-        ],
-        createdAt: Date.now() - 1000 * 60 * 40
+        ]
       },
       {
-        code: "LS-005",
-        title: "โกดังพร้อมออฟฟิศ 2 ชั้น ลานคอนกรีตกว้าง รถเทรลเลอร์เข้าออกสะดวก ใกล้ตลาดไท",
-        category: "อาคารพาณิชย์",
-        status: "reserved",
-        price: 16500000,
-        appraisedPrice: 19500000,
-        rai: 1,
-        ngan: 1,
-        wah: 0,
-        deed: "โฉนดครุฑแดง (น.ส.4 จ.)",
-        frontage: "30 เมตร ติดถนนคอนกรีต 10 เมตร",
-        province: "ปทุมธานี",
-        district: "คลองหลวง",
-        subdistrict: "คลองหนึ่ง",
-        highlights: ["พื้นรับน้ำหนัก 3 ตัน/ตร.ม.", "ไฟฟ้า 3 เฟส", "รถพ่วงกลับรถได้"],
-        mapUrl: "https://maps.google.com/?q=14.0725,100.6186",
-        videoUrl: "",
-        description: "โกดังสภาพใหม่พร้อมสำนักงาน 2 ชั้น พื้นคอนกรีตเสริมเหล็กรับน้ำหนัก 3 ตัน/ตร.ม. ไฟฟ้า 3 เฟส ลานจอดและกลับรถพ่วงกว้างขวาง ห่างถนนพหลโยธินเพียง 1.2 กม. เหมาะทำศูนย์กระจายสินค้าและคลังอีคอมเมิร์ซ",
-        isOwnerDirect: false,
-        flashDeal: true,
-        images: [
-          "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=900&q=80"
-        ],
-        createdAt: Date.now() - 1000 * 60 * 50
-      },
-      {
-        code: "LS-006",
-        title: "ที่ดินเนินสวยติดลำธารธรรมชาติ วิวภูเขาล้อมรอบ อากาศเย็นสบาย เหมาะทำรีสอร์ทหรือลานกางเต็นท์",
-        category: "ติดน้ำ/วิวภูเขา",
+        code: "LS-004",
+        title: "บ้านเดี่ยวสไตล์โมเดิร์นพร้อมที่ดินกว้าง บรรยากาศร่มรื่น ใกล้สนามบินเชียงใหม่ 20 นาที",
+        category: "บ้านพร้อมที่ดิน",
         status: "sold",
-        price: 5400000,
-        appraisedPrice: 6300000,
-        rai: 4,
-        ngan: 0,
-        wah: 80,
-        deed: "โฉนดครุฑแดง (น.ส.4 จ.)",
-        frontage: "38 เมตร ด้านหลังติดลำธาร",
-        province: "ราชบุรี",
-        district: "สวนผึ้ง",
-        subdistrict: "ท่าเคย",
-        highlights: ["ติดลำธารน้ำใส", "วิวภูเขา 360 องศา", "ห่าง กทม. 2 ชม."],
-        mapUrl: "https://maps.google.com/?q=13.5419,99.3389",
-        videoUrl: "",
-        description: "ที่ดินธรรมชาติแปลงสวยในอำเภอสวนผึ้ง ด้านหลังติดลำธารน้ำไหลใสตลอดปี ด้านหน้าติดถนนคอนกรีตสาธารณะ เดินทางจากกรุงเทพฯ เพียง 2 ชั่วโมง เหมาะทำบ้านสวน คาเฟ่ หรือแกลมปิ้งรีสอร์ท",
+        price: 6850000,
+        appraisedPrice: 7600000,
+        rai: 0,
+        ngan: 2,
+        wah: 20,
+        deed: "โฉนด น.ส.4 จ.",
+        province: "เชียงใหม่",
+        district: "หางดง",
+        mapUrl: "https://maps.google.com/?q=18.6989,98.9182",
+        description: "บ้านเดี่ยวสร้างเองวัสดุพรีเมียม 3 ห้องนอน 4 ห้องน้ำ พื้นที่ใช้สอย 265 ตร.ม. บนที่ดิน 220 ตร.วา พร้อมสนามหญ้าร่มรื่นและเฟอร์นิเจอร์บิวท์อินทั้งหลัง",
         isOwnerDirect: true,
-        flashDeal: false,
         images: [
-          "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80",
-          "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=80"
-        ],
-        createdAt: Date.now() - 1000 * 60 * 60
+          "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80",
+          "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80"
+        ]
       }
     ];
 
     // =========================================================================
-    // 4. APPLICATION STATE
+    // 3. APPLICATION STATE & FAVORITES STORAGE
     // =========================================================================
-    const FAV_STORAGE_KEY = "landshop_firebase_favorites_v1";
+    const FAV_STORAGE_KEY = "landshop_marketplace_favorites_v2";
+    const MAX_IMAGES = 5;
+    const MAX_TOTAL_IMAGE_KB = 750;
 
     function readFavorites() {
       try {
@@ -1284,7 +1293,10 @@ service cloud.firestore {
       properties: [],
       isLoading: true,
       connectionStatus: "connecting", // connecting | online | error
-      adminUser: null,
+      currentUser: null,
+      pendingPostAfterLogin: false,
+      emailAuthMode: "login", // login | register
+      myListingsOnly: false,
       favorites: readFavorites(),
       searchQuery: "",
       selectedCategory: "ALL",
@@ -1295,17 +1307,41 @@ service cloud.firestore {
       discountOnly: false,
       activeDetailId: null,
       activeImageIdx: 0,
-      formImages: [], // array of Data URLs or URLs
+      formImages: [],
       pendingDeleteId: null,
       currentSlide: 0,
       carouselTimer: null
     };
 
-    const MAX_IMAGES = 5;
-    const MAX_TOTAL_IMAGE_KB = 800;
+    // =========================================================================
+    // 4. ROLE & OWNERSHIP HELPERS
+    // =========================================================================
+    function isAdmin() {
+      if (!state.currentUser || !state.currentUser.email) return false;
+      const email = state.currentUser.email.toLowerCase();
+      return SHOP_CONFIG.adminEmails.some((e) => e.toLowerCase() === email);
+    }
+
+    // ตรวจสอบสิทธิ์จัดการประกาศ: เฉพาะเจ้าของประกาศ (ownerId ตรงกับ uid) หรือแอดมินเท่านั้น!
+    function canManage(prop) {
+      if (!state.currentUser || !prop) return false;
+      return isAdmin() || (Boolean(prop.ownerId) && state.currentUser.uid === prop.ownerId);
+    }
+
+    function isOwnListing(prop) {
+      if (!state.currentUser || !prop || !prop.ownerId) return false;
+      return state.currentUser.uid === prop.ownerId;
+    }
+
+    function getUserDisplayName(user) {
+      if (!user) return "ผู้ใช้งาน";
+      if (user.displayName && user.displayName.trim()) return user.displayName.trim();
+      if (user.email) return user.email.split("@")[0];
+      return "สมาชิก LandShop";
+    }
 
     // =========================================================================
-    // 5. UTILITY FUNCTIONS (XSS ESCAPE, FORMATTERS, CLIPBOARD, TOAST)
+    // 5. UTILITY FORMATTERS, LINE URL BUILDER, CLIPBOARD & TOAST
     // =========================================================================
     function escapeHTML(str) {
       return String(str ?? "")
@@ -1357,7 +1393,7 @@ service cloud.firestore {
           key: "reserved",
           label: "ติดจอง",
           badgeClass: "bg-amber-500 text-white",
-          ctaLineText: "ทัก LINE ขอรับคิวสำรอง"
+          ctaLineText: "ทัก LINE ขอคิวสำรอง"
         };
       }
       if (status === "sold") {
@@ -1365,15 +1401,43 @@ service cloud.firestore {
           key: "sold",
           label: "ปิดการขาย",
           badgeClass: "bg-red-600 text-white",
-          ctaLineText: "ทัก LINE ดูแปลงใกล้เคียง"
+          ctaLineText: "ทัก LINE ถามแปลงอื่น"
         };
       }
       return {
         key: "available",
         label: "พร้อมขาย",
         badgeClass: "bg-emerald-600 text-white",
-        ctaLineText: "ทัก LINE นัดดูที่ดิน"
+        ctaLineText: "ทัก LINE ผู้ขาย"
       };
+    }
+
+    // แปลงค่า LINE ของผู้ขายให้เป็นลิงก์จริง รองรับทั้ง URL และ LINE ID (หากไม่กรอกใช้ SHOP_CONFIG.lineUrl)
+    function resolveSellerLine(sellerLine) {
+      const raw = String(sellerLine || "").trim();
+      if (!raw) {
+        return { href: SHOP_CONFIG.lineUrl, displayId: "" };
+      }
+      if (raw.startsWith("https://") || raw.startsWith("http://")) {
+        return { href: raw, displayId: "" };
+      }
+      if (raw.startsWith("line.me/")) {
+        return { href: `https://${raw}`, displayId: "" };
+      }
+      if (raw.startsWith("@")) {
+        return { href: `https://line.me/R/ti/p/${encodeURIComponent(raw)}`, displayId: raw };
+      }
+      return { href: `https://line.me/ti/p/~${encodeURIComponent(raw)}`, displayId: raw };
+    }
+
+    function formatPhoneDigits(raw) {
+      return String(raw || "").replace(/[^0-9+]/g, "");
+    }
+
+    function isSafeUrl(url) {
+      if (!url) return false;
+      const trimmed = String(url).trim();
+      return trimmed.startsWith("https://") || trimmed.startsWith("http://");
     }
 
     function copyToClipboard(text) {
@@ -1416,13 +1480,7 @@ service cloud.firestore {
         toast.style.transform = "translateY(8px)";
         toast.style.transition = "all 0.25s ease";
         setTimeout(() => toast.remove(), 260);
-      }, 3000);
-    }
-
-    function isSafeUrl(url) {
-      if (!url) return false;
-      const trimmed = String(url).trim();
-      return trimmed.startsWith("https://") || trimmed.startsWith("http://");
+      }, 3200);
     }
 
     // =========================================================================
@@ -1435,8 +1493,8 @@ service cloud.firestore {
       if (category === "สวนเกษตร") {
         return `<svg viewBox="0 0 400 300" class="w-full h-full object-cover" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="#dcfce7"/><circle cx="76" cy="60" r="26" fill="#facc15"/><path d="M0 190 Q110 140 220 175 T400 158 L400 300 L0 300 Z" fill="#4ade80"/><path d="M0 220 Q170 185 400 212 L400 300 L0 300 Z" fill="#16a34a"/><rect x="92" y="182" width="10" height="44" fill="#713f12"/><circle cx="97" cy="164" r="25" fill="#14532d"/><rect x="195" y="174" width="10" height="50" fill="#713f12"/><circle cx="200" cy="154" r="28" fill="#166534"/><rect x="296" y="180" width="10" height="46" fill="#713f12"/><circle cx="301" cy="162" r="24" fill="#14532d"/></svg>`;
       }
-      if (category === "อาคารพาณิชย์") {
-        return `<svg viewBox="0 0 400 300" class="w-full h-full object-cover" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="#e2e8f0"/><rect x="0" y="230" width="400" height="70" fill="#64748b"/><rect x="65" y="110" width="270" height="125" rx="6" fill="#fff" stroke="#334155" stroke-width="2.5"/><polygon points="52,115 200,72 348,115" fill="#1e293b"/><rect x="92" y="148" width="84" height="87" rx="3" fill="#cbd5e1" stroke="#475569" stroke-width="2"/><rect x="204" y="138" width="106" height="34" rx="3" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/><rect x="204" y="185" width="46" height="50" rx="3" fill="#ee4d2d"/></svg>`;
+      if (category === "อาคารพาณิชย์" || category === "คอนโด") {
+        return `<svg viewBox="0 0 400 300" class="w-full h-full object-cover" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="#e2e8f0"/><rect x="0" y="232" width="400" height="68" fill="#64748b"/><rect x="95" y="70" width="210" height="165" rx="6" fill="#fff" stroke="#334155" stroke-width="2.5"/><rect x="120" y="95" width="40" height="30" rx="3" fill="#bae6fd"/><rect x="180" y="95" width="40" height="30" rx="3" fill="#bae6fd"/><rect x="240" y="95" width="40" height="30" rx="3" fill="#bae6fd"/><rect x="120" y="142" width="40" height="30" rx="3" fill="#bae6fd"/><rect x="180" y="142" width="40" height="30" rx="3" fill="#bae6fd"/><rect x="240" y="142" width="40" height="30" rx="3" fill="#bae6fd"/><rect x="176" y="190" width="48" height="45" rx="3" fill="#ee4d2d"/></svg>`;
       }
       if (category === "ติดถนนใหญ่") {
         return `<svg viewBox="0 0 400 300" class="w-full h-full object-cover" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="#ffedd5"/><circle cx="322" cy="58" r="24" fill="#fb923c"/><rect x="0" y="178" width="400" height="122" fill="#22c55e"/><polygon points="154,178 246,178 350,300 50,300" fill="#334155"/><line x1="200" y1="184" x2="200" y2="296" stroke="#fde047" stroke-width="4" stroke-dasharray="14 10"/><path d="M108 112 C90 112 76 126 76 144 C76 168 108 196 108 196 C108 196 140 168 140 144 C140 126 126 112 108 112 Z" fill="#ee4d2d"/><circle cx="108" cy="144" r="10" fill="#fff"/></svg>`;
@@ -1473,38 +1531,16 @@ service cloud.firestore {
       `;
     }
 
-    // =========================================================================
-    // 7. APPLY SHOP CONFIG TO STATIC ELEMENTS
-    // =========================================================================
-    function applyShopConfig() {
-      const telHref = `tel:${SHOP_CONFIG.phone}`;
-      const lineHref = SHOP_CONFIG.lineUrl;
-
-      document.getElementById("header-brand-en").textContent = SHOP_CONFIG.brandEn;
-      document.getElementById("header-brand-th").textContent = SHOP_CONFIG.brandTh;
-      document.getElementById("top-phone-text").textContent = SHOP_CONFIG.phoneDisplay;
-      document.getElementById("desktop-call-text").textContent = SHOP_CONFIG.phoneDisplay;
-      document.getElementById("hero-call-text").textContent = `โทร ${SHOP_CONFIG.phoneDisplay}`;
-      document.getElementById("side-phone-display").textContent = SHOP_CONFIG.phoneDisplay;
-      document.getElementById("footer-phone-text").textContent = SHOP_CONFIG.phoneDisplay;
-      document.getElementById("footer-copyright-phone").textContent = SHOP_CONFIG.phoneDisplay;
-      document.getElementById("float-call-tooltip").textContent = `โทร ${SHOP_CONFIG.phoneDisplay}`;
-
-      ["top-phone-link", "mobile-call-link", "desktop-call-link", "hero-call-link", "side-call-card", "footer-phone-link", "float-call-link"]
-        .forEach((id) => {
-          const el = document.getElementById(id);
-          if (el) el.href = telHref;
-        });
-
-      ["top-line-link", "mobile-line-link", "desktop-line-link", "hero-line-link", "side-line-card", "footer-line-link", "float-line-link"]
-        .forEach((id) => {
-          const el = document.getElementById(id);
-          if (el) el.href = lineHref;
-        });
+    function renderAvatarHTML(photoUrl, name, sizeClass = "w-7 h-7 text-xs") {
+      const initial = escapeHTML((name || "ส").trim().charAt(0).toUpperCase());
+      if (photoUrl && isSafeUrl(photoUrl)) {
+        return `<img src="${escapeHTML(photoUrl)}" alt="${escapeHTML(name)}" class="${sizeClass} rounded-full object-cover" onerror="this.outerHTML='<div class=\\'${sizeClass} rounded-full bg-shopee text-white font-bold flex items-center justify-center\\'>${initial}</div>'" />`;
+      }
+      return `<div class="${sizeClass} rounded-full bg-shopee text-white font-bold flex items-center justify-center">${initial}</div>`;
     }
 
     // =========================================================================
-    // 8. FIREBASE CONNECTION STATUS & REAL-TIME LISTENER (onSnapshot)
+    // 7. FIREBASE REAL-TIME LISTENER & ERROR HANDLING
     // =========================================================================
     function updateLiveStatusBadge(status, detailText = "") {
       state.connectionStatus = status;
@@ -1516,6 +1552,23 @@ service cloud.firestore {
       } else {
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span><span>กำลังเชื่อมต่อ...</span>`;
       }
+    }
+
+    function showFirestoreRulesBanner(errorCode) {
+      const banner = document.getElementById("firestore-error-banner");
+      const titleEl = document.getElementById("firestore-error-title");
+      document.getElementById("firestore-rules-preview").textContent = RECOMMENDED_FIRESTORE_RULES;
+      if (errorCode === "permission-denied") {
+        titleEl.textContent = "สิทธิ์ Firestore ยังไม่รองรับระบบสมาชิก (permission-denied)";
+      } else {
+        titleEl.textContent = `เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล (${errorCode || "error"})`;
+      }
+      banner.classList.remove("hidden");
+    }
+
+    function copyFirestoreRules() {
+      copyToClipboard(RECOMMENDED_FIRESTORE_RULES);
+      showToast("คัดลอก Firestore Rules ตัวใหม่แล้ว! นำไปวางและกด Publish ได้เลย");
     }
 
     function startRealtimePropertiesListener() {
@@ -1532,7 +1585,7 @@ service cloud.firestore {
             docs.push({ id: docSnap.id, ...docSnap.data() });
           });
 
-          // เรียงตาม createdAt ล่าสุดบนฝั่ง client เพื่อไม่ต้องสร้าง Composite Index
+          // เรียงลำดับใหม่ล่าสุดใน JavaScript เพื่อไม่ต้องสร้าง Composite Index ใน Firestore
           docs.sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0));
           state.properties = docs;
 
@@ -1543,199 +1596,313 @@ service cloud.firestore {
           state.isLoading = false;
           document.getElementById("loading-state").classList.add("hidden");
           updateLiveStatusBadge("error", error.code === "permission-denied" ? "ติดสิทธิ์ Rules" : "ออฟไลน์");
-
-          const banner = document.getElementById("firestore-error-banner");
-          const titleEl = document.getElementById("firestore-error-title");
-          const descEl = document.getElementById("firestore-error-desc");
-
-          if (error.code === "permission-denied") {
-            titleEl.textContent = "ไม่สามารถอ่านข้อมูลจาก Cloud Firestore ได้ (permission-denied)";
-            descEl.innerHTML =
-              "กรุณาไปที่ <strong>Firebase Console → Firestore Database → แท็บ Rules</strong> แล้ววางชุดกฎด้านล่างนี้ จากนั้นกดปุ่ม <strong>Publish</strong> แล้วรีเฟรชหน้าเว็บครับ";
-          } else {
-            titleEl.textContent = `เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล (${error.code || "unknown"})`;
-            descEl.textContent = "กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต หรือตรวจสอบการตั้งค่า Firestore Database ใน Firebase Console";
-          }
-          banner.classList.remove("hidden");
+          showFirestoreRulesBanner(error.code);
         }
       );
     }
 
     // =========================================================================
-    // 9. FIREBASE AUTHENTICATION (ADMIN MODE)
+    // 8. FIREBASE AUTHENTICATION (GOOGLE, FACEBOOK & EMAIL/PASSWORD)
     // =========================================================================
-    function mapAuthErrorThai(code) {
+    function mapAuthErrorThai(code, providerLabel = "Google หรือ Facebook") {
       switch (code) {
+        case "auth/operation-not-allowed":
+          return `ยังไม่ได้เปิดใช้งานการเข้าสู่ระบบด้วย ${providerLabel} ใน Firebase — กรุณาไปที่ Firebase Console → Authentication → Sign-in method แล้วกดเปิดใช้งาน (Enable) ก่อนครับ`;
+        case "auth/unauthorized-domain":
+          return `โดเมนเว็บนี้ยังไม่ได้รับอนุญาต — กรุณาไปที่ Firebase Console → Authentication → Settings → Authorized domains แล้วเพิ่มโดเมนปัจจุบัน (${window.location.hostname}) เข้าไปครับ`;
+        case "auth/account-exists-with-different-credential":
+          return "อีเมลนี้เคยสมัครไว้ด้วยช่องทางอื่นแล้ว (เช่น เคยล็อกอินด้วย Google หรืออีเมลมาก่อน) กรุณาเข้าสู่ระบบด้วยช่องทางเดิมที่เคยใช้ครับ";
+        case "auth/popup-blocked":
+          return "เบราว์เซอร์บล็อกหน้าต่างป๊อปอัปสำหรับเข้าสู่ระบบ กรุณาอนุญาตป๊อปอัป (Allow Pop-ups) แล้วลองกดปุ่มอีกครั้งครับ";
+        case "auth/popup-closed-by-user":
+          return "คุณปิดหน้าต่างเข้าสู่ระบบก่อนทำรายการเสร็จ หากต้องการเข้าสู่ระบบให้กดปุ่มใหม่อีกครั้งครับ";
+        case "auth/cancelled-popup-request":
+          return "มีการกดเปิดหน้าต่างซ้ำซ้อน กรุณาลองกดปุ่มใหม่อีกครั้ง";
         case "auth/invalid-credential":
         case "auth/wrong-password":
         case "auth/user-not-found":
           return "อีเมลหรือรหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
+        case "auth/email-already-in-use":
+          return "อีเมลนี้ถูกใช้งานสมัครสมาชิกแล้ว กรุณาสลับไปที่แท็บ 'เข้าสู่ระบบ' หรือใช้ Google/Facebook";
+        case "auth/weak-password":
+          return "รหัสผ่านสั้นเกินไป กรุณาตั้งรหัสผ่านอย่างน้อย 6 ตัวอักษร";
         case "auth/invalid-email":
           return "รูปแบบอีเมลไม่ถูกต้อง";
         case "auth/too-many-requests":
-          return "ลองเข้าสู่ระบบผิดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่";
-        case "auth/unauthorized-domain":
-          return "โดเมนนี้ยังไม่ได้เพิ่มใน Firebase Authentication → Settings → Authorized domains";
+          return "มีการพยายามเข้าสู่ระบบมากเกินไป กรุณารอสักครู่แล้วลองใหม่";
         case "auth/network-request-failed":
-          return "เชื่อมต่ออินเทอร์เน็ตไม่ได้ กรุณาเช็กสัญญาณแล้วลองใหม่";
+          return "เชื่อมต่ออินเทอร์เน็ตไม่ได้ กรุณาตรวจสอบสัญญาณแล้วลองใหม่";
         default:
-          return `ไม่สามารถเข้าสู่ระบบได้ (${code || "error"})`;
+          return `ไม่สามารถเข้าสู่ระบบได้ (${code || "unknown error"})`;
       }
     }
 
-    function updateAdminUI() {
-      const isAdmin = Boolean(state.adminUser);
-      const adminBar = document.getElementById("admin-control-bar");
-      const headerBtn = document.getElementById("header-admin-btn");
-      const footerBtn = document.getElementById("footer-admin-btn");
-      const barSeedBtn = document.getElementById("admin-bar-seed-btn");
-      const emptyAdminActions = document.getElementById("empty-db-admin-actions");
-      const emptyGuestActions = document.getElementById("empty-db-guest-actions");
-
-      if (isAdmin) {
-        adminBar.classList.remove("hidden");
-        document.getElementById("admin-bar-email").textContent = state.adminUser.email || "";
-        headerBtn.innerHTML = `<i class="fa-solid fa-user-shield text-yellow-200"></i><span class="hidden sm:inline max-w-[140px] truncate">${escapeHTML(state.adminUser.email)}</span><span class="bg-emerald-400 text-emerald-950 text-[10px] font-bold px-1.5 rounded">แอดมิน</span>`;
-        footerBtn.innerHTML = `<i class="fa-solid fa-plus"></i><span>เพิ่มประกาศทรัพย์ใหม่ (${escapeHTML(state.adminUser.email)})</span>`;
-        barSeedBtn.classList.toggle("hidden", state.properties.length > 0);
-        emptyAdminActions.classList.remove("hidden");
-        emptyGuestActions.classList.add("hidden");
-      } else {
-        adminBar.classList.add("hidden");
-        headerBtn.innerHTML = `<span>🔐 เข้าสู่ระบบแอดมิน</span>`;
-        footerBtn.innerHTML = `<span>🔐 เข้าสู่ระบบแอดมิน</span>`;
-        emptyAdminActions.classList.add("hidden");
-        emptyGuestActions.classList.remove("hidden");
-      }
+    function showAuthError(msg) {
+      document.getElementById("auth-error-text").textContent = msg;
+      document.getElementById("auth-error-box").classList.remove("hidden");
     }
 
-    function handleHeaderAdminClick() {
-      if (state.adminUser) {
-        openPropertyModal(null);
-      } else {
-        openLoginModal();
-      }
+    function hideAuthError() {
+      document.getElementById("auth-error-box").classList.add("hidden");
     }
 
-    function openLoginModal() {
-      document.getElementById("admin-login-form").reset();
-      document.getElementById("login-error-box").classList.add("hidden");
-      document.getElementById("login-modal").classList.remove("hidden");
+    function openAuthModal(promptMessage = "เข้าสู่ระบบใน 1 คลิกด้วย Google หรือ Facebook เพื่อลงประกาศฟรี") {
+      hideAuthError();
+      document.getElementById("auth-prompt-text").textContent = promptMessage;
+      document.getElementById("auth-modal").classList.remove("hidden");
       document.body.style.overflow = "hidden";
-      setTimeout(() => document.getElementById("login-email").focus(), 60);
     }
 
-    function closeLoginModal() {
-      document.getElementById("login-modal").classList.add("hidden");
+    function closeAuthModal() {
+      document.getElementById("auth-modal").classList.add("hidden");
+      state.pendingPostAfterLogin = false;
       if (!state.activeDetailId) document.body.style.overflow = "";
     }
 
-    async function handleAdminLoginSubmit(event) {
-      event.preventDefault();
-      const email = document.getElementById("login-email").value.trim();
-      const password = document.getElementById("login-password").value;
-      const errBox = document.getElementById("login-error-box");
-      const errText = document.getElementById("login-error-text");
-      const submitBtn = document.getElementById("login-submit-btn");
+    function toggleEmailAuthPanel() {
+      const panel = document.getElementById("email-auth-panel");
+      const chevron = document.getElementById("email-panel-chevron");
+      const isHidden = panel.classList.contains("hidden");
+      panel.classList.toggle("hidden", !isHidden);
+      chevron.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
+    }
 
-      errBox.classList.add("hidden");
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>กำลังตรวจสอบ...</span>`;
+    function setEmailAuthMode(mode) {
+      state.emailAuthMode = mode;
+      const loginTab = document.getElementById("tab-email-login");
+      const regTab = document.getElementById("tab-email-register");
+      const nameGroup = document.getElementById("email-name-group");
+      const submitText = document.getElementById("email-submit-text");
+
+      if (mode === "register") {
+        regTab.className = "py-1.5 rounded-md bg-white text-shopee shadow-sm transition";
+        loginTab.className = "py-1.5 rounded-md text-gray-600 hover:text-gray-800 transition";
+        nameGroup.classList.remove("hidden");
+        submitText.textContent = "สมัครสมาชิกด้วยอีเมล";
+      } else {
+        loginTab.className = "py-1.5 rounded-md bg-white text-shopee shadow-sm transition";
+        regTab.className = "py-1.5 rounded-md text-gray-600 hover:text-gray-800 transition";
+        nameGroup.classList.add("hidden");
+        submitText.textContent = "เข้าสู่ระบบด้วยอีเมล";
+      }
+      hideAuthError();
+    }
+
+    async function handleSocialLogin(type) {
+      hideAuthError();
+      const btnId = type === "google" ? "btn-google-login" : "btn-facebook-login";
+      const provider = type === "google" ? googleProvider : facebookProvider;
+      const providerLabel = type === "google" ? "Google" : "Facebook";
+      const btn = document.getElementById(btnId);
+      const origHtml = btn.innerHTML;
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>กำลังเชื่อมต่อ ${providerLabel}...</span>`;
 
       try {
-        await signInWithEmailAndPassword(auth, email, password);
-        closeLoginModal();
-        showToast("เข้าสู่ระบบแอดมินสำเร็จ! พร้อมจัดการข้อมูลเรียลไทม์ 🔓");
+        const result = await signInWithPopup(auth, provider);
+        const shouldOpenPost = state.pendingPostAfterLogin;
+        closeAuthModal();
+        showToast(`ยินดีต้อนรับคุณ ${getUserDisplayName(result.user)}! 🎉`);
+        if (shouldOpenPost) {
+          setTimeout(() => openPropertyModal(null), 180);
+        }
       } catch (err) {
-        console.error("Login error:", err);
-        errText.textContent = mapAuthErrorThai(err.code);
-        errBox.classList.remove("hidden");
+        console.error(`${providerLabel} login error:`, err);
+        showAuthError(mapAuthErrorThai(err.code, providerLabel));
       } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i><span>เข้าสู่ระบบ</span>`;
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
       }
     }
 
-    async function handleAdminLogout() {
+    async function handleEmailAuthSubmit(event) {
+      event.preventDefault();
+      hideAuthError();
+
+      const email = document.getElementById("auth-email").value.trim();
+      const password = document.getElementById("auth-password").value;
+      const displayName = document.getElementById("auth-display-name").value.trim();
+      const btn = document.getElementById("email-submit-btn");
+      const origHtml = btn.innerHTML;
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>กำลังดำเนินการ...</span>`;
+
+      try {
+        let userCred;
+        if (state.emailAuthMode === "register") {
+          userCred = await createUserWithEmailAndPassword(auth, email, password);
+          if (displayName) {
+            await updateProfile(userCred.user, { displayName });
+          }
+          showToast(`สมัครสมาชิกสำเร็จ! ยินดีต้อนรับคุณ ${displayName || email.split("@")[0]} 🎉`);
+        } else {
+          userCred = await signInWithEmailAndPassword(auth, email, password);
+          showToast(`เข้าสู่ระบบสำเร็จ! ยินดีต้อนรับคุณ ${getUserDisplayName(userCred.user)}`);
+        }
+
+        const shouldOpenPost = state.pendingPostAfterLogin;
+        document.getElementById("email-auth-form").reset();
+        closeAuthModal();
+        if (shouldOpenPost) {
+          setTimeout(() => openPropertyModal(null), 180);
+        }
+      } catch (err) {
+        console.error("Email auth error:", err);
+        showAuthError(mapAuthErrorThai(err.code, "อีเมลและรหัสผ่าน"));
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
+    }
+
+    async function handleLogout() {
       try {
         await signOut(auth);
-        showToast("ออกจากระบบแอดมินเรียบร้อยแล้ว", "info");
-      } catch (err) {
-        showToast("ออกจากระบบไม่สำเร็จ กรุณาลองใหม่", "error");
+        state.myListingsOnly = false;
+        showToast("ออกจากระบบเรียบร้อยแล้ว", "info");
+      } catch {
+        showToast("ออกจากระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", "error");
       }
     }
 
-    // ฟังสถานะการล็อกอินอัตโนมัติ
+    // ปุ่ม "+ ลงประกาศขาย": ถ้ายังไม่ล็อกอินให้เปิดหน้าต่าง Auth พร้อมข้อความเชิญชวน
+    function handlePostListingClick() {
+      if (!state.currentUser) {
+        state.pendingPostAfterLogin = true;
+        openAuthModal("เข้าสู่ระบบใน 1 คลิกด้วย Google หรือ Facebook เพื่อลงประกาศฟรี");
+        return;
+      }
+      openPropertyModal(null);
+    }
+
+    function updateAuthUI() {
+      const user = state.currentUser;
+      const memberBar = document.getElementById("member-control-bar");
+      const headerAuthBtn = document.getElementById("header-auth-btn");
+      const adminBadge = document.getElementById("member-bar-admin-badge");
+      const seedBtn = document.getElementById("seed-sample-btn");
+
+      if (user) {
+        const displayName = getUserDisplayName(user);
+        const myCount = state.properties.filter((p) => p.ownerId === user.uid).length;
+
+        memberBar.classList.remove("hidden");
+        headerAuthBtn.classList.add("hidden");
+        document.getElementById("member-bar-avatar").innerHTML = renderAvatarHTML(user.photoURL, displayName, "w-7 h-7 text-xs");
+        document.getElementById("member-bar-name").textContent = displayName;
+        document.getElementById("my-listings-count").textContent = myCount;
+        adminBadge.classList.toggle("hidden", !isAdmin());
+
+        // เน้นปุ่ม "ประกาศของฉัน" เมื่อกำลังเปิดมุมมองนี้อยู่
+        const myBtn = document.getElementById("my-listings-toggle-btn");
+        myBtn.className = state.myListingsOnly
+          ? "bg-amber-400 text-amber-950 font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 shadow-sm"
+          : "bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-medium px-3 py-1.5 rounded-lg transition flex items-center gap-1.5";
+
+        // ปุ่มเพิ่มประกาศตัวอย่าง 4 แปลง (เฉพาะแอดมินเมื่อฐานข้อมูลว่าง)
+        seedBtn.classList.toggle("hidden", !isAdmin());
+      } else {
+        memberBar.classList.add("hidden");
+        headerAuthBtn.classList.remove("hidden");
+        seedBtn.classList.add("hidden");
+      }
+    }
+
     onAuthStateChanged(auth, (user) => {
-      state.adminUser = user || null;
+      state.currentUser = user || null;
+      if (!user) state.myListingsOnly = false;
       refreshAllViews();
     });
 
     // =========================================================================
-    // 10. SEED 6 SAMPLE PROPERTIES INTO FIRESTORE (1-CLICK)
+    // 9. ADMIN SEED 4 SAMPLE PROPERTIES
     // =========================================================================
     async function seedSampleProperties() {
-      if (!state.adminUser) {
-        openLoginModal();
+      if (!isAdmin() || !state.currentUser) {
+        showToast("ฟีเจอร์นี้สำหรับผู้ดูแลระบบ (แอดมิน) เท่านั้น", "warning");
         return;
       }
 
-      const btn1 = document.getElementById("seed-sample-btn");
-      const btn2 = document.getElementById("admin-bar-seed-btn");
-      [btn1, btn2].forEach((b) => {
-        if (b) {
-          b.disabled = true;
-          b.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>กำลังนำเข้าข้อมูล 6 แปลง...</span>`;
-        }
-      });
+      const btn = document.getElementById("seed-sample-btn");
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>กำลังนำเข้า 4 แปลง...</span>`;
 
       try {
-        for (const item of SEED_SAMPLE_PROPERTIES) {
-          const docId = `prop-${item.code.toLowerCase()}`;
+        const now = Date.now();
+        for (let i = 0; i < SEED_4_PROPERTIES.length; i++) {
+          const item = SEED_4_PROPERTIES[i];
+          const docId = `seed-${item.code.toLowerCase()}-${now + i}`;
           await setDoc(doc(db, "properties", docId), {
             ...item,
-            updatedAt: Date.now()
+            ownerId: state.currentUser.uid,
+            ownerName: getUserDisplayName(state.currentUser),
+            ownerPhoto: state.currentUser.photoURL || "",
+            ownerEmail: state.currentUser.email || "",
+            sellerPhone: SHOP_CONFIG.phoneDisplay,
+            sellerLine: SHOP_CONFIG.lineUrl,
+            createdAt: now - i * 60000,
+            updatedAt: now
           });
         }
-        showToast("นำเข้าข้อมูลตัวอย่าง 6 แปลงลง Firebase เรียบร้อยแล้ว 🎉");
+        showToast("เพิ่มประกาศตัวอย่าง 4 แปลงเรียบร้อยแล้ว 🎉");
       } catch (err) {
         console.error("Seed error:", err);
         if (err.code === "permission-denied") {
-          showToast("บันทึกไม่ได้ (permission-denied) กรุณาเช็กการ Publish Firestore Rules", "error");
+          showFirestoreRulesBanner("permission-denied");
+          showToast("ติดสิทธิ์ Firestore Rules กรุณากดคัดลอกและ Publish กฎใหม่ด้านบน", "error");
         } else {
-          showToast(`นำเข้าข้อมูลไม่สำเร็จ: ${err.message}`, "error");
+          showToast(`นำเข้าไม่สำเร็จ: ${err.message}`, "error");
         }
       } finally {
-        if (btn1) {
-          btn1.disabled = false;
-          btn1.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i><span>📥 เพิ่มรายการตัวอย่างเริ่มต้น (6 แปลง)</span>`;
-        }
-        if (btn2) {
-          btn2.disabled = false;
-          btn2.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i><span>นำเข้าตัวอย่าง 6 แปลง</span>`;
-        }
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
       }
     }
 
     // =========================================================================
-    // 11. RENDERING: CATEGORIES, FLASH DEALS, STATUS PILLS, PROVINCES, GRID
+    // 10. RENDERING: CATEGORIES, PROVINCES, STATUS PILLS, GRID
     // =========================================================================
     function refreshAllViews() {
-      updateAdminUI();
+      updateAuthUI();
       renderCategories();
-      populateProvinceDropdown();
-      renderFlashDeals();
+      populateFilterProvinceDropdown();
       renderListingsGrid();
       updateFavoriteBadges();
       renderFavoritesDrawer();
+
       if (state.activeDetailId) {
-        const stillExists = state.properties.some((p) => p.id === state.activeDetailId);
-        if (stillExists) {
+        const exists = state.properties.some((p) => p.id === state.activeDetailId);
+        if (exists) {
           renderDetailModalContent(state.activeDetailId);
         } else {
           closeDetailModal();
         }
       }
+    }
+
+    function populateFormProvinceDropdown() {
+      const select = document.getElementById("pf-province");
+      select.innerHTML =
+        `<option value="">-- เลือกจังหวัด (77 จังหวัด) --</option>` +
+        THAI_PROVINCES.map((p) => `<option value="${escapeHTML(p)}">${escapeHTML(p)}</option>`).join("");
+    }
+
+    function populateFilterProvinceDropdown() {
+      const select = document.getElementById("province-filter");
+      const activeProvinces = Array.from(new Set(state.properties.map((p) => p.province).filter(Boolean))).sort((a, b) =>
+        a.localeCompare(b, "th")
+      );
+      if (state.selectedProvince !== "ALL" && !activeProvinces.includes(state.selectedProvince)) {
+        state.selectedProvince = "ALL";
+      }
+      select.innerHTML =
+        `<option value="ALL">ทุกจังหวัด (${activeProvinces.length})</option>` +
+        activeProvinces
+          .map((p) => `<option value="${escapeHTML(p)}" ${state.selectedProvince === p ? "selected" : ""}>จ.${escapeHTML(p)}</option>`)
+          .join("");
     }
 
     function renderCategories() {
@@ -1761,105 +1928,20 @@ service cloud.firestore {
       }).join("");
     }
 
-    function renderFlashDeals() {
-      const section = document.getElementById("flash-deal-section");
-      const row = document.getElementById("flash-deal-row");
-
-      const deals = state.properties
-        .filter((p) => p.flashDeal === true && p.status !== "sold")
-        .sort((a, b) => {
-          if (a.status !== b.status) return a.status === "available" ? -1 : 1;
-          return getDiscountPercent(b.price, b.appraisedPrice) - getDiscountPercent(a.price, a.appraisedPrice);
-        });
-
-      if (!deals.length) {
-        section.classList.add("hidden");
-        return;
+    function getBaseListForCounts() {
+      if (state.myListingsOnly && state.currentUser) {
+        return state.properties.filter((p) => p.ownerId === state.currentUser.uid);
       }
-
-      section.classList.remove("hidden");
-      row.innerHTML = deals
-        .map((item) => {
-          const discount = getDiscountPercent(item.price, item.appraisedPrice);
-          const pricing = getAreaPricing(item.price, item.rai, item.ngan, item.wah);
-          const coverImg = (item.images && item.images[0]) || "";
-          const isReserved = item.status === "reserved";
-
-          return `
-            <article
-              onclick="openDetailModal('${escapeHTML(item.id)}')"
-              class="snap-start shrink-0 w-[195px] sm:w-[235px] bg-white rounded-xl border border-gray-100 hover:border-shopee hover:shadow-md hover:-translate-y-0.5 transition cursor-pointer overflow-hidden flex flex-col"
-            >
-              <div class="relative aspect-[4/3] bg-gray-100 overflow-hidden">
-                ${renderSmartImage(coverImg, item.category, item.title)}
-                <span class="absolute top-2 left-2 bg-shopee text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-1 z-10">
-                  <i class="fa-solid fa-bolt"></i> ดีลด่วน
-                </span>
-                ${
-                  discount > 0
-                    ? `<div class="absolute top-0 right-0 bg-shopee-yellow text-shopee px-1.5 pt-1 pb-2 text-center leading-none shopee-discount-flag shadow-sm z-10">
-                        <div class="text-[11px] font-extrabold">-${discount}%</div>
-                        <div class="text-[8px] font-semibold text-gray-800 mt-0.5">ต่ำกว่าประเมิน</div>
-                      </div>`
-                    : ""
-                }
-                ${
-                  isReserved
-                    ? `<div class="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-amber-500/95 text-white text-center font-extrabold text-xs py-1 shadow-md border-y border-white/80 z-10">
-                        <i class="fa-solid fa-clock mr-1"></i>ติดจอง
-                      </div>`
-                    : ""
-                }
-                <span class="absolute bottom-1.5 left-1.5 bg-black/65 text-white text-[10px] font-medium px-2 py-0.5 rounded z-10">
-                  ${escapeHTML(formatArea(item.rai, item.ngan, item.wah))}
-                </span>
-              </div>
-
-              <div class="p-2.5 flex-1 flex flex-col justify-between gap-1.5">
-                <div>
-                  <div class="flex items-center justify-between text-[10px] mb-0.5">
-                    <span class="text-gray-400 font-semibold">${escapeHTML(item.code || "")}</span>
-                    <span class="${isReserved ? "text-amber-600 font-bold" : "text-emerald-600 font-semibold"}">${isReserved ? "ติดจอง" : "พร้อมขาย"}</span>
-                  </div>
-                  <h3 class="text-xs font-medium text-gray-800 clamp-2 min-h-[2rem]">${escapeHTML(item.title)}</h3>
-                  <div class="text-[11px] text-gray-400 flex items-center gap-1 mt-1 truncate">
-                    <i class="fa-solid fa-location-dot text-[10px] shrink-0"></i>
-                    <span class="truncate">อ.${escapeHTML(item.district)}, จ.${escapeHTML(item.province)}</span>
-                  </div>
-                </div>
-                <div>
-                  ${discount > 0 ? `<div class="text-[10px] text-gray-400 line-through leading-none">${formatPrice(item.appraisedPrice)}</div>` : ""}
-                  <div class="text-sm sm:text-base font-bold text-shopee leading-tight mt-0.5">${formatPrice(item.price)}</div>
-                  ${pricing.shortAvg ? `<div class="text-[10px] text-gray-500">${pricing.shortAvg}</div>` : ""}
-                </div>
-              </div>
-            </article>
-          `;
-        })
-        .join("");
-    }
-
-    function populateProvinceDropdown() {
-      const select = document.getElementById("province-filter");
-      const provinces = Array.from(new Set(state.properties.map((p) => p.province).filter(Boolean))).sort((a, b) =>
-        a.localeCompare(b, "th")
-      );
-      if (state.selectedProvince !== "ALL" && !provinces.includes(state.selectedProvince)) {
-        state.selectedProvince = "ALL";
-      }
-      select.innerHTML =
-        `<option value="ALL">ทุกจังหวัด (${provinces.length})</option>` +
-        provinces
-          .map((p) => `<option value="${escapeHTML(p)}" ${state.selectedProvince === p ? "selected" : ""}>จ.${escapeHTML(p)}</option>`)
-          .join("");
+      return state.properties;
     }
 
     function renderStatusPills() {
+      const base = getBaseListForCounts();
       const counts = {
-        ALL: state.properties.length,
-        available: state.properties.filter((p) => (p.status || "available") === "available").length,
-        reserved: state.properties.filter((p) => p.status === "reserved").length,
-        sold: state.properties.filter((p) => p.status === "sold").length
+        ALL: base.length,
+        available: base.filter((p) => (p.status || "available") === "available").length,
+        reserved: base.filter((p) => p.status === "reserved").length,
+        sold: base.filter((p) => p.status === "sold").length
       };
 
       const pills = [
@@ -1892,6 +1974,9 @@ service cloud.firestore {
     function getFilteredProperties() {
       let list = [...state.properties];
 
+      if (state.myListingsOnly && state.currentUser) {
+        list = list.filter((p) => p.ownerId === state.currentUser.uid);
+      }
       if (state.selectedCategory !== "ALL") {
         list = list.filter((p) => p.category === state.selectedCategory);
       }
@@ -1917,10 +2002,8 @@ service cloud.firestore {
             p.category,
             p.province,
             p.district,
-            p.subdistrict,
             p.deed,
-            p.frontage,
-            Array.isArray(p.highlights) ? p.highlights.join(" ") : "",
+            p.ownerName,
             p.description,
             getStatusMeta(p.status).label
           ]
@@ -1935,7 +2018,6 @@ service cloud.firestore {
       } else if (state.sortBy === "price_desc") {
         list.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
       } else {
-        // ใหม่ล่าสุด (เรียงตาม createdAt มากไปน้อย)
         list.sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0));
       }
 
@@ -1947,6 +2029,7 @@ service cloud.firestore {
       const resetBtn = document.getElementById("reset-filters-btn");
       const chips = [];
 
+      if (state.myListingsOnly) chips.push({ label: "ประกาศของฉันเท่านั้น", action: "toggleMyListingsView(false)" });
       if (state.searchQuery.trim()) chips.push({ label: `คำค้น: "${state.searchQuery.trim()}"`, action: "clearSearch()" });
       if (state.selectedCategory !== "ALL") chips.push({ label: `หมวดหมู่: ${state.selectedCategory}`, action: "selectCategory('ALL')" });
       if (state.selectedStatus !== "ALL") chips.push({ label: `สถานะ: ${getStatusMeta(state.selectedStatus).label}`, action: "setStatusFilter('ALL')" });
@@ -1983,35 +2066,44 @@ service cloud.firestore {
       const grid = document.getElementById("listings-grid");
       const emptyDbEl = document.getElementById("empty-db-state");
       const emptyFilterEl = document.getElementById("empty-filter-state");
+      const myBanner = document.getElementById("my-listings-banner");
+      const heading = document.getElementById("listings-heading");
       const items = getFilteredProperties();
 
+      myBanner.classList.toggle("hidden", !state.myListingsOnly);
+      heading.textContent = state.myListingsOnly ? "ประกาศของคุณทั้งหมด" : "รายการที่ดินและอสังหาฯ ทั้งหมด";
       document.getElementById("result-count-pill").textContent = `${items.length} รายการ`;
+
       renderStatusPills();
       renderActiveFilterChips();
 
-      // กรณีฐานข้อมูล Firestore ยังว่างเปล่า
+      // กรณีฐานข้อมูล Firestore ยังว่างเปล่าทั้งหมด
       if (state.properties.length === 0) {
         grid.innerHTML = "";
         emptyFilterEl.classList.add("hidden");
-        if (state.connectionStatus === "online") {
-          emptyDbEl.classList.remove("hidden");
-        } else {
-          emptyDbEl.classList.add("hidden");
-        }
+        emptyDbEl.classList.toggle("hidden", state.connectionStatus !== "online");
         return;
       }
 
       emptyDbEl.classList.add("hidden");
 
-      // กรณีกรองแล้วไม่พบรายการ
+      // กรณีกรองแล้วไม่พบรายการ หรือ "ประกาศของฉัน" ยังไม่มีรายการ
       if (items.length === 0) {
         grid.innerHTML = "";
         emptyFilterEl.classList.remove("hidden");
+        if (state.myListingsOnly) {
+          document.getElementById("empty-filter-title").textContent = "คุณยังไม่มีประกาศที่ลงขาย";
+          document.getElementById("empty-filter-desc").textContent = "เริ่มลงประกาศขายที่ดิน บ้าน หรือสวนเกษตรแปลงแรกของคุณได้เลยฟรี!";
+          document.getElementById("empty-my-post-btn").classList.remove("hidden");
+        } else {
+          document.getElementById("empty-filter-title").textContent = "ไม่พบทรัพย์สินที่ตรงกับเงื่อนไข";
+          document.getElementById("empty-filter-desc").textContent = "ลองเปลี่ยนคำค้นหา จังหวัด สถานะ หรือกดล้างตัวกรองทั้งหมด";
+          document.getElementById("empty-my-post-btn").classList.add("hidden");
+        }
         return;
       }
 
       emptyFilterEl.classList.add("hidden");
-      const isAdmin = Boolean(state.adminUser);
 
       grid.innerHTML = items
         .map((item) => {
@@ -2022,16 +2114,18 @@ service cloud.firestore {
           const pricing = getAreaPricing(item.price, item.rai, item.ngan, item.wah);
           const isFav = state.favorites.includes(item.id);
           const coverImg = (item.images && item.images[0]) || "";
-          const shortDeed = (item.deed || "").includes("ครุฑแดง") ? "โฉนดครุฑแดง" : item.deed || "โฉนด";
+          const canManageThis = canManage(item);
+          const isMine = isOwnListing(item);
+          const sellerLabel = item.ownerName || "สมาชิก LandShop";
 
           return `
             <article
               onclick="openDetailModal('${escapeHTML(item.id)}')"
               class="bg-white rounded-xl border ${
-                isSold ? "border-gray-200 bg-gray-50/70" : isReserved ? "border-amber-300" : "border-transparent hover:border-shopee"
+                isSold ? "border-gray-200 bg-gray-50/70" : isReserved ? "border-amber-300" : isMine ? "border-blue-300 hover:border-shopee" : "border-transparent hover:border-shopee"
               } shadow-sm hover:shadow-md hover:-translate-y-0.5 transition duration-200 cursor-pointer overflow-hidden flex flex-col group"
             >
-              <!-- รูปภาพ 4:3 + แถบสถานะ -->
+              <!-- รูปปก 4:3 + ป้ายสถานะ -->
               <div class="relative aspect-[4/3] bg-gray-100 overflow-hidden">
                 ${renderSmartImage(
                   coverImg,
@@ -2040,12 +2134,19 @@ service cloud.firestore {
                   `${isSold ? "grayscale-[65%] brightness-70" : "group-hover:scale-105"} transition duration-300`
                 )}
 
-                <!-- ป้ายซ้ายบน: เจ้าของขายเอง -->
-                ${
-                  item.isOwnerDirect
-                    ? `<span class="absolute top-2 left-0 bg-shopee text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-r-md shadow-sm z-10">เจ้าของขายเอง</span>`
-                    : `<span class="absolute top-2 left-0 bg-slate-700 text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-r-md shadow-sm z-10">ทรัพย์คัดพิเศษ</span>`
-                }
+                <!-- ป้ายซ้ายบน: เจ้าของขายเอง + ประกาศของคุณ -->
+                <div class="absolute top-2 left-0 flex flex-col items-start gap-1 z-10">
+                  ${
+                    item.isOwnerDirect
+                      ? `<span class="bg-shopee text-white text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-r-md shadow-sm">เจ้าของขายเอง</span>`
+                      : ""
+                  }
+                  ${
+                    isMine
+                      ? `<span class="bg-blue-600 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-r-md shadow-sm">ประกาศของคุณ</span>`
+                      : ""
+                  }
+                </div>
 
                 <!-- ป้ายขวาบน: ส่วนลดสีเหลืองสไตล์ Shopee -->
                 ${
@@ -2057,7 +2158,7 @@ service cloud.firestore {
                     : ""
                 }
 
-                <!-- Overlay สถานะ "ติดจอง" (แถบคาดสีส้มทองเด่นชัด) -->
+                <!-- Overlay สถานะ "ติดจอง" -->
                 ${
                   isReserved
                     ? `<div class="absolute inset-x-0 top-1/2 -translate-y-1/2 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-white py-1.5 text-center font-extrabold text-xs sm:text-sm tracking-wide shadow-lg border-y-2 border-white/90 z-10 pointer-events-none">
@@ -2066,7 +2167,7 @@ service cloud.firestore {
                     : ""
                 }
 
-                <!-- Overlay สถานะ "ปิดการขาย" (ภาพมืด + ตราประทับเอียงสีแดง-ขาว) -->
+                <!-- Overlay สถานะ "ปิดการขาย" -->
                 ${
                   isSold
                     ? `<div class="absolute inset-0 bg-black/45 flex items-center justify-center z-10 pointer-events-none">
@@ -2079,7 +2180,7 @@ service cloud.firestore {
 
                 <!-- ป้ายซ้ายล่าง: เอกสารสิทธิ์ -->
                 <span class="absolute bottom-1.5 left-1.5 bg-black/65 text-white text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded backdrop-blur-[1px] z-10 max-w-[85%] truncate">
-                  ${escapeHTML(shortDeed)}
+                  ${escapeHTML(item.deed || "โฉนด น.ส.4 จ.")}
                 </span>
               </div>
 
@@ -2088,7 +2189,7 @@ service cloud.firestore {
                 <div>
                   <!-- รหัสทรัพย์ + ป้ายสถานะ -->
                   <div class="flex items-center justify-between gap-1 mb-1">
-                    <span class="text-[10px] sm:text-[11px] font-semibold text-gray-400 truncate">${escapeHTML(item.code || "")}</span>
+                    <span class="text-[10px] font-semibold text-gray-400 truncate">${escapeHTML(item.code || "LAND")}</span>
                     ${
                       status === "available"
                         ? `<span class="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0">
@@ -2105,7 +2206,7 @@ service cloud.firestore {
                     ${escapeHTML(item.title)}
                   </h3>
 
-                  <!-- ป้ายขนาดเนื้อที่ -->
+                  <!-- ขนาดเนื้อที่ -->
                   <div class="mt-1.5">
                     <span class="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium ${
                       isSold ? "text-gray-500 bg-gray-100 border-gray-200" : "text-shopee bg-shopee-soft border-shopee/30"
@@ -2128,11 +2229,17 @@ service cloud.firestore {
                   </div>
                   ${pricing.shortAvg ? `<div class="text-[10px] ${isSold ? "text-gray-400" : "text-gray-500"} truncate">${pricing.shortAvg}</div>` : ""}
 
-                  <!-- จังหวัด + ปุ่มหัวใจ -->
+                  <!-- ที่ตั้ง + ผู้ลงประกาศ + ปุ่มหัวใจ -->
                   <div class="mt-2 pt-1.5 border-t border-gray-100 flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-gray-500">
-                    <div class="flex items-center gap-1 min-w-0">
-                      <i class="fa-solid fa-location-dot text-gray-400 shrink-0"></i>
-                      <span class="truncate">จ.${escapeHTML(item.province)}</span>
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                      <div class="flex items-center gap-1 truncate">
+                        <i class="fa-solid fa-location-dot text-gray-400 shrink-0"></i>
+                        <span class="truncate">จ.${escapeHTML(item.province)}</span>
+                      </div>
+                      <div class="flex items-center gap-1 truncate text-[10px] text-gray-400">
+                        <i class="fa-solid fa-user text-[9px] shrink-0"></i>
+                        <span class="truncate">${escapeHTML(sellerLabel)}</span>
+                      </div>
                     </div>
 
                     <button
@@ -2149,9 +2256,9 @@ service cloud.firestore {
                 </div>
               </div>
 
-              <!-- ==================== ADMIN CONTROLS ON CARD ==================== -->
+              <!-- ==================== แถบจัดการเฉพาะเจ้าของประกาศหรือแอดมิน ==================== -->
               ${
-                isAdmin
+                canManageThis
                   ? `
                     <div onclick="event.stopPropagation()" class="bg-slate-900 text-white p-2 space-y-1.5 border-t border-slate-700">
                       <div class="grid grid-cols-3 gap-1">
@@ -2206,7 +2313,7 @@ service cloud.firestore {
     }
 
     // =========================================================================
-    // 12. PROPERTY DETAIL MODAL
+    // 11. PROPERTY DETAIL MODAL
     // =========================================================================
     function openDetailModal(id) {
       const item = state.properties.find((p) => p.id === id);
@@ -2216,7 +2323,7 @@ service cloud.firestore {
       state.activeImageIdx = 0;
 
       document.getElementById("detail-breadcrumb-cat").textContent = item.category || "อสังหาฯ";
-      document.getElementById("detail-breadcrumb-code").textContent = item.code || id;
+      document.getElementById("detail-breadcrumb-code").textContent = item.code || id.slice(-6).toUpperCase();
       renderDetailModalContent(id);
 
       document.getElementById("detail-modal").classList.remove("hidden");
@@ -2244,14 +2351,15 @@ service cloud.firestore {
     function copyPropertyCode(id) {
       const item = state.properties.find((p) => p.id === id);
       if (!item) return;
-      const msg = `สนใจรหัสทรัพย์ ${item.code || item.id}: ${item.title} (${formatPrice(item.price)} | ${formatArea(item.rai, item.ngan, item.wah)} | อ.${item.district} จ.${item.province})`;
+      const code = item.code || id.slice(-6).toUpperCase();
+      const msg = `สนใจรหัสทรัพย์ ${code}: ${item.title} (${formatPrice(item.price)} | ${formatArea(item.rai, item.ngan, item.wah)} | อ.${item.district} จ.${item.province})`;
       copyToClipboard(msg);
-      showToast(`คัดลอกรหัสทรัพย์ ${item.code || ""} แล้ว! วางส่งใน LINE ได้ทันที`);
+      showToast(`คัดลอกรหัสทรัพย์ ${code} แล้ว! วางส่งให้ผู้ขายได้เลย`);
     }
 
-    function copyShopPhone() {
-      copyToClipboard(SHOP_CONFIG.phone);
-      showToast(`คัดลอกเบอร์โทร ${SHOP_CONFIG.phoneDisplay} แล้ว`);
+    function copyTextWithToast(text, label) {
+      copyToClipboard(text);
+      showToast(`คัดลอก${label} ${text} แล้ว`);
     }
 
     function renderDetailModalContent(id) {
@@ -2262,7 +2370,8 @@ service cloud.firestore {
       const statusMeta = getStatusMeta(status);
       const isReserved = status === "reserved";
       const isSold = status === "sold";
-      const isAdmin = Boolean(state.adminUser);
+      const canManageThis = canManage(item);
+      const isMine = isOwnListing(item);
 
       const images = Array.isArray(item.images) && item.images.length ? item.images : [""];
       if (state.activeImageIdx >= images.length) state.activeImageIdx = 0;
@@ -2272,42 +2381,15 @@ service cloud.firestore {
       const savedDiff = discount > 0 ? item.appraisedPrice - item.price : 0;
       const pricing = getAreaPricing(item.price, item.rai, item.ngan, item.wah);
       const isFav = state.favorites.includes(item.id);
-      const highlights = Array.isArray(item.highlights)
-        ? item.highlights
-        : String(item.highlights || "").split(",").map((s) => s.trim()).filter(Boolean);
+      const propCode = item.code || item.id.slice(-6).toUpperCase();
 
-      const telHref = `tel:${SHOP_CONFIG.phone}`;
-      const lineHref = SHOP_CONFIG.lineUrl;
+      // ข้อมูลติดต่อผู้ขายของประกาศนี้ (หากไม่ได้กรอก ใช้ค่าจาก SHOP_CONFIG)
+      const sellerName = item.ownerName || SHOP_CONFIG.brandName;
+      const sellerPhoneDisplay = (item.sellerPhone || "").trim() || SHOP_CONFIG.phoneDisplay;
+      const sellerTelHref = `tel:${formatPhoneDigits(sellerPhoneDisplay) || SHOP_CONFIG.phone}`;
+      const sellerLine = resolveSellerLine(item.sellerLine);
 
       document.getElementById("detail-modal-body").innerHTML = `
-        <!-- แถบจัดการแอดมินภายในหน้ารายละเอียด -->
-        ${
-          isAdmin
-            ? `
-              <div class="mb-4 bg-slate-900 text-white rounded-xl p-3 flex flex-wrap items-center justify-between gap-2">
-                <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
-                  <i class="fa-solid fa-sliders"></i>
-                  <span>จัดการแปลง ${escapeHTML(item.code || "")} (ซิงก์เรียลไทม์):</span>
-                </div>
-                <div class="flex flex-wrap items-center gap-1.5">
-                  <button type="button" onclick="quickUpdateStatus('${escapeHTML(item.id)}', 'available', this)" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    status === "available" ? "bg-emerald-500 text-white ring-2 ring-emerald-200" : "bg-slate-800 text-slate-300 hover:bg-emerald-600/50"
-                  }">พร้อมขาย</button>
-                  <button type="button" onclick="quickUpdateStatus('${escapeHTML(item.id)}', 'reserved', this)" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    status === "reserved" ? "bg-amber-500 text-white ring-2 ring-amber-200" : "bg-slate-800 text-slate-300 hover:bg-amber-500/50"
-                  }">ติดจอง</button>
-                  <button type="button" onclick="quickUpdateStatus('${escapeHTML(item.id)}', 'sold', this)" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    status === "sold" ? "bg-red-600 text-white ring-2 ring-red-200" : "bg-slate-800 text-slate-300 hover:bg-red-600/50"
-                  }">ปิดการขาย</button>
-                  <span class="text-slate-600 mx-0.5 hidden sm:inline">|</span>
-                  <button type="button" onclick="openPropertyModal('${escapeHTML(item.id)}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ แก้ไข</button>
-                  <button type="button" onclick="openDeleteModal('${escapeHTML(item.id)}')" class="bg-red-600/90 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">🗑️ ลบ</button>
-                </div>
-              </div>
-            `
-            : ""
-        }
-
         <!-- แบนเนอร์แจ้งเตือนเมื่อติดจอง หรือ ปิดการขาย -->
         ${
           isReserved
@@ -2317,8 +2399,8 @@ service cloud.firestore {
                   <i class="fa-solid fa-clock"></i>
                 </div>
                 <div class="text-xs sm:text-sm">
-                  <strong class="text-amber-800 block text-sm sm:text-base">แปลงนี้ติดจองแล้ว — ทัก LINE ขอรับคิวสำรองได้</strong>
-                  <span>หากต้องการให้ทางเราแจ้งเตือนเมื่อหลุดจอง หรือขอชมแปลงใกล้เคียง ทัก LINE ได้ทันทีครับ</span>
+                  <strong class="text-amber-800 block text-sm sm:text-base">ประกาศนี้ติดจองแล้ว</strong>
+                  <span>คุณสามารถทัก LINE หรือโทรหาผู้ขายเพื่อขอรับคิวสำรองหรือสอบถามแปลงใกล้เคียงได้ครับ</span>
                 </div>
               </div>
             `
@@ -2329,8 +2411,8 @@ service cloud.firestore {
                   <i class="fa-solid fa-ban"></i>
                 </div>
                 <div class="text-xs sm:text-sm">
-                  <strong class="text-red-700 block text-sm sm:text-base">แปลงนี้ปิดการขายแล้ว — ทัก LINE ดูแปลงใกล้เคียงได้</strong>
-                  <span>เรายังมีแปลงสวยทำเลใกล้เคียงอีกหลายรายการ สอบถามเพิ่มเติมทาง LINE หรือโทรได้เลยครับ</span>
+                  <strong class="text-red-700 block text-sm sm:text-base">ประกาศนี้ปิดการขายแล้ว</strong>
+                  <span>สามารถติดต่อผู้ขายเพื่อสอบถามแปลงใกล้เคียง หรือเลือกดูแปลงอื่นที่ยังพร้อมขายใน LandShop ครับ</span>
                 </div>
               </div>
             `
@@ -2338,7 +2420,7 @@ service cloud.firestore {
         }
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <!-- ซ้าย: แกลเลอรีรูปภาพ + ปุ่มแผนที่/วิดีโอ -->
+          <!-- ซ้าย: แกลเลอรีรูปภาพ + ปุ่มแผนที่ -->
           <div class="lg:col-span-5 space-y-3">
             <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
               ${renderSmartImage(activeImg, item.category, item.title, isSold ? "grayscale-[55%] brightness-75" : "")}
@@ -2372,7 +2454,6 @@ service cloud.firestore {
               }
             </div>
 
-            <!-- Thumbnails -->
             ${
               images.length > 1
                 ? `
@@ -2393,37 +2474,25 @@ service cloud.firestore {
                 : ""
             }
 
-            <!-- ปุ่ม Google Maps และวิดีโอ -->
-            <div class="flex flex-col sm:flex-row gap-2">
-              ${
-                isSafeUrl(item.mapUrl)
-                  ? `
-                    <a href="${escapeHTML(item.mapUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-semibold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
-                      <i class="fa-solid fa-map-location-dot"></i>
-                      <span>เปิดพิกัด Google Maps</span>
-                    </a>
-                  `
-                  : ""
-              }
-              ${
-                isSafeUrl(item.videoUrl)
-                  ? `
-                    <a href="${escapeHTML(item.videoUrl)}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
-                      <i class="fa-solid fa-circle-play"></i>
-                      <span>ดูวิดีโอพาชมแปลง</span>
-                    </a>
-                  `
-                  : ""
-              }
-            </div>
+            ${
+              isSafeUrl(item.mapUrl)
+                ? `
+                  <a href="${escapeHTML(item.mapUrl)}" target="_blank" rel="noopener noreferrer" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-semibold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span>เปิดพิกัดบน Google Maps</span>
+                  </a>
+                `
+                : ""
+            }
           </div>
 
-          <!-- ขวา: ราคา สเปคครบ และปุ่มติดต่อ -->
+          <!-- ขวา: ราคา สเปค ข้อมูลผู้ขาย และปุ่มติดต่อ -->
           <div class="lg:col-span-7 space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5">
                 <span class="${statusMeta.badgeClass} text-xs font-bold px-2.5 py-0.5 rounded-md">${statusMeta.label}</span>
                 ${item.isOwnerDirect ? `<span class="bg-shopee text-white text-xs font-semibold px-2.5 py-0.5 rounded-md">เจ้าของขายเอง</span>` : ""}
+                ${isMine ? `<span class="bg-blue-600 text-white text-xs font-semibold px-2.5 py-0.5 rounded-md">ประกาศของคุณ</span>` : ""}
                 <span class="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium px-2.5 py-0.5 rounded-md">
                   ${escapeHTML(item.category || "อสังหาฯ")}
                 </span>
@@ -2431,11 +2500,11 @@ service cloud.firestore {
 
               <button type="button" onclick="copyPropertyCode('${escapeHTML(item.id)}')" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition">
                 <i class="fa-solid fa-copy"></i>
-                <span>คัดลอกรหัสทรัพย์ (${escapeHTML(item.code || "")})</span>
+                <span>คัดลอกรหัส (${escapeHTML(propCode)})</span>
               </button>
             </div>
 
-            <h2 class="text-lg sm:text-xl font-bold text-gray-900 leading-snug">${escapeHTML(item.title)}</h2>
+            <h2 class="text-lg sm:text-xl font-display font-bold text-gray-900 leading-snug">${escapeHTML(item.title)}</h2>
 
             <!-- กล่องราคาและการคำนวณอัตโนมัติ -->
             <div class="bg-[#fafafa] border border-gray-200/80 rounded-xl p-4 space-y-2.5">
@@ -2478,69 +2547,65 @@ service cloud.firestore {
               }
             </div>
 
-            <!-- ตารางสเปคฉบับเต็ม -->
-            <div class="grid grid-cols-2 gap-2 text-xs sm:text-sm">
+            <!-- สเปคทรัพย์ -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs sm:text-sm">
               <div class="bg-gray-50 rounded-xl p-2.5 border border-gray-100">
                 <div class="text-[11px] text-gray-400">เนื้อที่ดิน</div>
                 <div class="font-semibold text-gray-800 mt-0.5">${escapeHTML(formatArea(item.rai, item.ngan, item.wah))}</div>
               </div>
               <div class="bg-gray-50 rounded-xl p-2.5 border border-gray-100">
-                <div class="text-[11px] text-gray-400">ที่ตั้ง (ตำบล / อำเภอ / จังหวัด)</div>
-                <div class="font-semibold text-gray-800 mt-0.5">
-                  ${item.subdistrict ? `ต.${escapeHTML(item.subdistrict)} ` : ""}อ.${escapeHTML(item.district)} จ.${escapeHTML(item.province)}
-                </div>
+                <div class="text-[11px] text-gray-400">ทำเลที่ตั้ง</div>
+                <div class="font-semibold text-gray-800 mt-0.5">อ.${escapeHTML(item.district)} จ.${escapeHTML(item.province)}</div>
               </div>
-              <div class="bg-gray-50 rounded-xl p-2.5 border border-gray-100">
+              <div class="col-span-2 sm:col-span-1 bg-gray-50 rounded-xl p-2.5 border border-gray-100">
                 <div class="text-[11px] text-gray-400">เอกสารสิทธิ์</div>
-                <div class="font-semibold text-gray-800 mt-0.5">${escapeHTML(item.deed || "โฉนดครุฑแดง (น.ส.4 จ.)")}</div>
-              </div>
-              <div class="bg-gray-50 rounded-xl p-2.5 border border-gray-100">
-                <div class="text-[11px] text-gray-400">หน้ากว้าง</div>
-                <div class="font-semibold text-gray-800 mt-0.5">${escapeHTML(item.frontage || "สอบถามเพิ่มเติม")}</div>
+                <div class="font-semibold text-gray-800 mt-0.5">${escapeHTML(item.deed || "โฉนด น.ส.4 จ.")}</div>
               </div>
             </div>
 
-            <!-- จุดเด่น Tags -->
-            ${
-              highlights.length
-                ? `
-                  <div class="flex flex-wrap gap-1.5">
-                    ${highlights
-                      .map(
-                        (tag) => `<span class="text-[11px] bg-orange-50 text-shopee border border-orange-200 px-2.5 py-0.5 rounded-full font-medium"><i class="fa-solid fa-check text-[9px] mr-1"></i>${escapeHTML(tag)}</span>`
-                      )
-                      .join("")}
+            <!-- การ์ดข้อมูลผู้ลงประกาศ -->
+            <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                ${renderAvatarHTML(item.ownerPhoto, sellerName, "w-11 h-11 text-base shrink-0")}
+                <div class="min-w-0">
+                  <div class="text-xs text-gray-400">ผู้ลงประกาศ</div>
+                  <div class="font-bold text-sm text-gray-800 truncate">${escapeHTML(sellerName)}</div>
+                  <div class="text-xs text-gray-600 flex flex-wrap items-center gap-2 mt-0.5">
+                    <span><i class="fa-solid fa-phone text-shopee mr-1"></i>${escapeHTML(sellerPhoneDisplay)}</span>
+                    ${sellerLine.displayId ? `<span><i class="fa-brands fa-line text-line mr-1"></i>ID: ${escapeHTML(sellerLine.displayId)}</span>` : ""}
                   </div>
-                `
-                : ""
-            }
-
-            <!-- ปุ่มติดต่อ (เดสก์ท็อป/แท็บเล็ต) -->
-            <div class="hidden sm:block space-y-2 pt-1">
-              <div class="grid grid-cols-12 gap-2.5">
-                <a href="${escapeHTML(lineHref)}" target="_blank" rel="noopener noreferrer" class="col-span-5 bg-line hover:bg-line-dark text-white font-semibold py-3 px-3 rounded-xl text-sm shadow-sm flex items-center justify-center gap-2 transition">
-                  <i class="fa-brands fa-line text-lg"></i>
-                  <span>${statusMeta.ctaLineText}</span>
-                </a>
-                <a href="${escapeHTML(telHref)}" class="col-span-5 bg-shopee hover:bg-shopee-dark text-white font-semibold py-3 px-3 rounded-xl text-sm shadow-sm flex items-center justify-center gap-2 transition">
-                  <i class="fa-solid fa-phone-volume"></i>
-                  <span>โทร ${escapeHTML(SHOP_CONFIG.phoneDisplay)}</span>
-                </a>
-                <button type="button" onclick="toggleFavorite(event, '${escapeHTML(item.id)}')" class="col-span-2 py-3 rounded-xl border flex items-center justify-center transition ${
-                  isFav ? "border-shopee bg-shopee-soft text-shopee" : "border-gray-300 text-gray-500 hover:border-shopee hover:text-shopee"
-                }" title="บันทึกที่สนใจ">
-                  <i class="${isFav ? "fa-solid" : "fa-regular"} fa-heart text-lg"></i>
-                </button>
+                </div>
               </div>
-              <button type="button" onclick="copyShopPhone()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-medium transition">
+              <button
+                type="button"
+                onclick="copyTextWithToast('${escapeHTML(sellerPhoneDisplay)}', 'เบอร์โทรผู้ขาย')"
+                class="text-xs bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 font-medium transition shrink-0"
+              >
                 <i class="fa-solid fa-copy"></i>
-                <span>คัดลอกเบอร์โทร (${escapeHTML(SHOP_CONFIG.phoneDisplay)})</span>
+                <span>คัดลอกเบอร์</span>
+              </button>
+            </div>
+
+            <!-- ปุ่มติดต่อผู้ขาย (เดสก์ท็อป/แท็บเล็ต) -->
+            <div class="hidden sm:grid grid-cols-12 gap-2.5">
+              <a href="${escapeHTML(sellerLine.href)}" target="_blank" rel="noopener noreferrer" class="col-span-5 bg-line hover:bg-line-dark text-white font-semibold py-3 px-3 rounded-xl text-sm shadow-sm flex items-center justify-center gap-2 transition">
+                <i class="fa-brands fa-line text-lg"></i>
+                <span>${statusMeta.ctaLineText}</span>
+              </a>
+              <a href="${escapeHTML(sellerTelHref)}" class="col-span-5 bg-shopee hover:bg-shopee-dark text-white font-semibold py-3 px-3 rounded-xl text-sm shadow-sm flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-phone-volume"></i>
+                <span>โทร ${escapeHTML(sellerPhoneDisplay)}</span>
+              </a>
+              <button type="button" onclick="toggleFavorite(event, '${escapeHTML(item.id)}')" class="col-span-2 py-3 rounded-xl border flex items-center justify-center transition ${
+                isFav ? "border-shopee bg-shopee-soft text-shopee" : "border-gray-300 text-gray-500 hover:border-shopee hover:text-shopee"
+              }" title="บันทึกที่สนใจ">
+                <i class="${isFav ? "fa-solid" : "fa-regular"} fa-heart text-lg"></i>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- รายละเอียดเต็ม -->
+        <!-- รายละเอียดเพิ่มเติม -->
         <div class="mt-6 border-t border-gray-100 pt-5">
           <h3 class="text-sm sm:text-base font-bold text-gray-800 mb-2 flex items-center gap-2">
             <i class="fa-solid fa-align-left text-shopee"></i>
@@ -2548,9 +2613,37 @@ service cloud.firestore {
           </h3>
           <p class="text-xs sm:text-sm text-gray-600 leading-relaxed whitespace-pre-line">${escapeHTML(item.description || "")}</p>
         </div>
+
+        <!-- แถบควบคุมเจ้าของประกาศด้านล่าง (เฉพาะเจ้าของประกาศหรือแอดมิน) -->
+        ${
+          canManageThis
+            ? `
+              <div class="mt-6 bg-slate-900 text-white rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-2.5">
+                <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-sliders"></i>
+                  <span>จัดการประกาศนี้ (${isMine ? "ประกาศของคุณ" : "สิทธิ์แอดมิน"}):</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <button type="button" onclick="quickUpdateStatus('${escapeHTML(item.id)}', 'available', this)" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    status === "available" ? "bg-emerald-500 text-white ring-2 ring-emerald-200" : "bg-slate-800 text-slate-300 hover:bg-emerald-600/50"
+                  }">พร้อมขาย</button>
+                  <button type="button" onclick="quickUpdateStatus('${escapeHTML(item.id)}', 'reserved', this)" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    status === "reserved" ? "bg-amber-500 text-white ring-2 ring-amber-200" : "bg-slate-800 text-slate-300 hover:bg-amber-500/50"
+                  }">ติดจอง</button>
+                  <button type="button" onclick="quickUpdateStatus('${escapeHTML(item.id)}', 'sold', this)" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    status === "sold" ? "bg-red-600 text-white ring-2 ring-red-200" : "bg-slate-800 text-slate-300 hover:bg-red-600/50"
+                  }">ปิดการขาย</button>
+                  <span class="text-slate-600 mx-0.5 hidden sm:inline">|</span>
+                  <button type="button" onclick="openPropertyModal('${escapeHTML(item.id)}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">✏️ แก้ไข</button>
+                  <button type="button" onclick="openDeleteModal('${escapeHTML(item.id)}')" class="bg-red-600/90 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">🗑️ ลบ</button>
+                </div>
+              </div>
+            `
+            : ""
+        }
       `;
 
-      // Sticky Bottom Contact Bar บนมือถือ
+      // แถบปุ่มติดต่อด้านล่างสำหรับมือถือ
       document.getElementById("detail-mobile-sticky-bar").innerHTML = `
         <button type="button" onclick="toggleFavorite(event, '${escapeHTML(item.id)}')" class="col-span-2 py-2 rounded-xl border flex flex-col items-center justify-center text-[10px] ${
           isFav ? "border-shopee bg-shopee-soft text-shopee" : "border-gray-200 text-gray-600"
@@ -2558,28 +2651,27 @@ service cloud.firestore {
           <i class="${isFav ? "fa-solid" : "fa-regular"} fa-heart text-sm"></i>
           <span>สนใจ</span>
         </button>
-        <a href="${escapeHTML(lineHref)}" target="_blank" rel="noopener noreferrer" class="col-span-5 bg-line hover:bg-line-dark text-white font-semibold py-2.5 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1.5 shadow-sm">
+        <a href="${escapeHTML(sellerLine.href)}" target="_blank" rel="noopener noreferrer" class="col-span-5 bg-line hover:bg-line-dark text-white font-semibold py-2.5 px-2 rounded-xl text-[11px] flex items-center justify-center gap-1.5 shadow-sm">
           <i class="fa-brands fa-line text-base shrink-0"></i>
           <span class="truncate">${statusMeta.ctaLineText}</span>
         </a>
-        <a href="${escapeHTML(telHref)}" class="col-span-5 bg-shopee hover:bg-shopee-dark text-white font-semibold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
+        <a href="${escapeHTML(sellerTelHref)}" class="col-span-5 bg-shopee hover:bg-shopee-dark text-white font-semibold py-2.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm">
           <i class="fa-solid fa-phone-volume"></i>
-          <span>โทรเลย</span>
+          <span>โทรผู้ขาย</span>
         </a>
       `;
     }
 
     // =========================================================================
-    // 13. ADMIN FIRESTORE OPERATIONS: QUICK STATUS, ADD/EDIT, DELETE
+    // 12. OWNER / ADMIN CRUD OPERATIONS (FIRESTORE)
     // =========================================================================
     async function quickUpdateStatus(docId, newStatus, btnEl) {
-      if (!state.adminUser) {
-        openLoginModal();
+      const item = state.properties.find((p) => p.id === docId);
+      if (!item || !canManage(item)) {
+        showToast("คุณไม่มีสิทธิ์แก้ไขสถานะของประกาศนี้", "error");
         return;
       }
-
-      const item = state.properties.find((p) => p.id === docId);
-      if (!item || item.status === newStatus) return;
+      if (item.status === newStatus) return;
 
       const origHtml = btnEl ? btnEl.innerHTML : "";
       if (btnEl) {
@@ -2588,21 +2680,23 @@ service cloud.firestore {
       }
 
       try {
+        // คงค่า ownerId เดิมไว้เสมอเพื่อให้ผ่าน Firestore Security Rules
         await updateDoc(doc(db, "properties", docId), {
           status: newStatus,
+          ownerId: item.ownerId || state.currentUser.uid,
           updatedAt: Date.now()
         });
         const meta = getStatusMeta(newStatus);
         const toastType = newStatus === "sold" ? "error" : newStatus === "reserved" ? "warning" : "success";
-        showToast(`อัปเดต ${item.code || ""} เป็น "${meta.label}" เรียลไทม์แล้ว`, toastType);
+        showToast(`เปลี่ยนสถานะเป็น "${meta.label}" เรียบร้อยแล้ว`, toastType);
       } catch (err) {
         console.error("Status update error:", err);
-        showToast(
-          err.code === "permission-denied"
-            ? "ไม่มีสิทธิ์แก้ไข กรุณาตรวจสอบ Firestore Rules"
-            : `เปลี่ยนสถานะไม่สำเร็จ: ${err.message}`,
-          "error"
-        );
+        if (err.code === "permission-denied") {
+          showFirestoreRulesBanner("permission-denied");
+          showToast("บันทึกไม่ได้ (permission-denied) กรุณาเช็ก Firestore Rules", "error");
+        } else {
+          showToast(`เปลี่ยนสถานะไม่สำเร็จ: ${err.message}`, "error");
+        }
         if (btnEl) {
           btnEl.disabled = false;
           btnEl.innerHTML = origHtml;
@@ -2610,19 +2704,15 @@ service cloud.firestore {
       }
     }
 
-    // สร้างรหัสทรัพย์อัตโนมัติ (เช่น LS-007)
-    function suggestNextCode() {
-      const maxNum = state.properties.reduce((max, p) => {
-        const match = String(p.code || "").match(/(\d+)$/);
-        const n = match ? parseInt(match[1], 10) : 0;
-        return Math.max(max, n);
-      }, state.properties.length);
-      return "LS-" + String(maxNum + 1).padStart(3, "0");
+    function generateListingCode() {
+      const suffix = String(Math.floor(100 + Math.random() * 900));
+      return `LS-${suffix}`;
     }
 
     function openPropertyModal(editId) {
-      if (!state.adminUser) {
-        openLoginModal();
+      if (!state.currentUser) {
+        state.pendingPostAfterLogin = true;
+        openAuthModal("เข้าสู่ระบบใน 1 คลิกด้วย Google หรือ Facebook เพื่อลงประกาศฟรี");
         return;
       }
 
@@ -2631,44 +2721,43 @@ service cloud.firestore {
 
       if (editId) {
         const item = state.properties.find((p) => p.id === editId);
-        if (!item) return;
+        if (!item || !canManage(item)) {
+          showToast("คุณสามารถแก้ไขได้เฉพาะประกาศของตัวเองเท่านั้น", "error");
+          return;
+        }
 
         document.getElementById("prop-modal-title").textContent = `แก้ไขประกาศ (${item.code || ""})`;
-        document.getElementById("pf-submit-text").textContent = "บันทึกการแก้ไขลง Firebase";
+        document.getElementById("pf-submit-text").textContent = "บันทึกการแก้ไข";
         document.getElementById("pf-doc-id").value = item.id;
-        document.getElementById("pf-code").value = item.code || "";
-        document.getElementById("pf-category").value = item.category || "ที่ดินเปล่า";
-        document.getElementById("pf-status").value = item.status || "available";
         document.getElementById("pf-title").value = item.title || "";
-        document.getElementById("pf-price").value = item.price || "";
-        document.getElementById("pf-appraised").value = item.appraisedPrice || "";
+        document.getElementById("pf-category").value = item.category || "ที่ดินเปล่า";
+        document.getElementById("pf-deed").value = item.deed || "โฉนด น.ส.4 จ.";
+        document.getElementById("pf-status").value = item.status || "available";
+        document.getElementById("pf-province").value = item.province || "";
+        document.getElementById("pf-district").value = item.district || "";
         document.getElementById("pf-rai").value = item.rai ?? 0;
         document.getElementById("pf-ngan").value = item.ngan ?? 0;
         document.getElementById("pf-wah").value = item.wah ?? 0;
-        document.getElementById("pf-deed").value = item.deed || "โฉนดครุฑแดง (น.ส.4 จ.)";
-        document.getElementById("pf-frontage").value = item.frontage || "";
-        document.getElementById("pf-province").value = item.province || "";
-        document.getElementById("pf-district").value = item.district || "";
-        document.getElementById("pf-subdistrict").value = item.subdistrict || "";
-        document.getElementById("pf-highlights").value = Array.isArray(item.highlights)
-          ? item.highlights.join(", ")
-          : item.highlights || "";
+        document.getElementById("pf-price").value = item.price || "";
+        document.getElementById("pf-appraised").value = item.appraisedPrice || "";
+        document.getElementById("pf-seller-phone").value = item.sellerPhone || "";
+        document.getElementById("pf-seller-line").value = item.sellerLine || "";
         document.getElementById("pf-map-url").value = item.mapUrl || "";
-        document.getElementById("pf-video-url").value = item.videoUrl || "";
         document.getElementById("pf-description").value = item.description || "";
         document.getElementById("pf-owner-direct").checked = Boolean(item.isOwnerDirect);
-        document.getElementById("pf-flash-deal").checked = Boolean(item.flashDeal);
         state.formImages = Array.isArray(item.images) ? [...item.images] : [];
       } else {
-        const nextCode = suggestNextCode();
-        document.getElementById("prop-modal-title").textContent = "เพิ่มประกาศทรัพย์ใหม่";
-        document.getElementById("pf-submit-text").textContent = "เผยแพร่ลง Firebase ทันที";
+        document.getElementById("prop-modal-title").textContent = "ลงประกาศขายอสังหาฯ ฟรี";
+        document.getElementById("pf-submit-text").textContent = "เผยแพร่ประกาศทันที";
         document.getElementById("pf-doc-id").value = "";
-        document.getElementById("pf-code").value = nextCode;
         document.getElementById("pf-status").value = "available";
-        document.getElementById("pf-deed").value = "โฉนดครุฑแดง (น.ส.4 จ.)";
+        document.getElementById("pf-deed").value = "โฉนด น.ส.4 จ.";
         document.getElementById("pf-owner-direct").checked = true;
-        document.getElementById("pf-flash-deal").checked = false;
+        // หากเป็นแอดมิน เติมเบอร์และ LINE ศูนย์กลางให้ล่วงหน้าเพื่อความสะดวก
+        if (isAdmin()) {
+          document.getElementById("pf-seller-phone").value = SHOP_CONFIG.phoneDisplay;
+          document.getElementById("pf-seller-line").value = SHOP_CONFIG.lineUrl;
+        }
         state.formImages = [];
       }
 
@@ -2683,7 +2772,7 @@ service cloud.firestore {
     }
 
     // =========================================================================
-    // 14. SMART FREE IMAGE UPLOADER (CANVAS COMPRESSION + SIZE METER)
+    // 13. HTML5 CANVAS IMAGE COMPRESSOR (MAX 5 IMAGES / <= 750 KB)
     // =========================================================================
     function getFormImagesTotalKB() {
       const totalBytes = state.formImages.reduce((sum, img) => sum + new Blob([String(img || "")]).size, 0);
@@ -2696,7 +2785,7 @@ service cloud.firestore {
         reader.onload = (ev) => {
           const img = new Image();
           img.onload = () => {
-            const maxDim = 900;
+            const maxDim = 860;
             let { width, height } = img;
             if (width > maxDim || height > maxDim) {
               const ratio = Math.min(maxDim / width, maxDim / height);
@@ -2710,9 +2799,11 @@ service cloud.firestore {
             ctx.drawImage(img, 0, 0, width, height);
 
             let dataUrl = canvas.toDataURL("image/jpeg", 0.68);
-            // ถ้ารูปเดียวใหญ่เกิน 145 KB ให้ลดคุณภาพลงเล็กน้อยเพื่อประหยัดพื้นที่ Firestore
-            if (dataUrl.length / 1024 > 145) {
+            if (dataUrl.length / 1024 > 140) {
               dataUrl = canvas.toDataURL("image/jpeg", 0.52);
+            }
+            if (dataUrl.length / 1024 > 140) {
+              dataUrl = canvas.toDataURL("image/jpeg", 0.38);
             }
             resolve(dataUrl);
           };
@@ -2740,35 +2831,15 @@ service cloud.firestore {
 
       for (const file of toProcess) {
         const compressed = await compressImageWithCanvas(file);
-        if (compressed) {
-          state.formImages.push(compressed);
-        }
+        if (compressed) state.formImages.push(compressed);
       }
 
       renderFormImagesPreview();
       if (getFormImagesTotalKB() > MAX_TOTAL_IMAGE_KB) {
-        showToast("ขนาดรูปภาพรวมเกิน 800 KB กรุณาลบบางรูปออกก่อนบันทึก", "warning");
+        showToast(`ขนาดรูปภาพรวมเกิน ${MAX_TOTAL_IMAGE_KB} KB กรุณาลบบางรูปออกก่อนบันทึก`, "warning");
       } else {
-        showToast("เพิ่มและบีบอัดรูปภาพเรียบร้อยแล้ว");
+        showToast("เพิ่มและย่อขนาดรูปภาพเรียบร้อยแล้ว");
       }
-    }
-
-    function addExternalImageUrl() {
-      const input = document.getElementById("pf-img-url-input");
-      const raw = input.value.trim();
-      if (!raw) return;
-
-      if (state.formImages.length >= MAX_IMAGES) {
-        showToast(`ใส่รูปได้สูงสุด ${MAX_IMAGES} รูปต่อประกาศ`, "warning");
-        return;
-      }
-
-      const cleanPath = raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("images/")
-        ? raw
-        : `images/${raw}`;
-      state.formImages.push(cleanPath);
-      input.value = "";
-      renderFormImagesPreview();
     }
 
     function removeFormImage(idx) {
@@ -2790,13 +2861,13 @@ service cloud.firestore {
       const sizeText = document.getElementById("img-size-text");
       const sizeBar = document.getElementById("img-size-bar");
 
-      sizeText.textContent = `ขนาดข้อมูลรูป: ${totalKB} KB / ${MAX_TOTAL_IMAGE_KB} KB (${state.formImages.length}/${MAX_IMAGES} รูป)`;
+      sizeText.textContent = `ขนาดรวม: ${totalKB} KB / ${MAX_TOTAL_IMAGE_KB} KB (${state.formImages.length}/${MAX_IMAGES} รูป)`;
       sizeBar.style.width = `${pct}%`;
 
       if (totalKB > MAX_TOTAL_IMAGE_KB) {
         sizeText.className = "text-[11px] font-bold text-red-600";
         sizeBar.className = "h-full bg-red-600 transition-all duration-300";
-      } else if (totalKB > 600) {
+      } else if (totalKB > 580) {
         sizeText.className = "text-[11px] font-semibold text-amber-600";
         sizeBar.className = "h-full bg-amber-500 transition-all duration-300";
       } else {
@@ -2814,7 +2885,7 @@ service cloud.firestore {
         .map((src, idx) => {
           const kb = Math.round(new Blob([src]).size / 1024);
           return `
-            <div class="relative aspect-square rounded-xl overflow-hidden border-2 ${idx === 0 ? "border-shopee" : "border-gray-200"} bg-white group">
+            <div class="relative aspect-square rounded-xl overflow-hidden border-2 ${idx === 0 ? "border-shopee" : "border-gray-200"} bg-white">
               <img src="${escapeHTML(src)}" alt="รูปที่ ${idx + 1}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x300/ffe6de/ee4d2d?text=Image'" />
               <button
                 type="button"
@@ -2836,8 +2907,8 @@ service cloud.firestore {
 
     async function handlePropertyFormSubmit(event) {
       event.preventDefault();
-      if (!state.adminUser) {
-        openLoginModal();
+      if (!state.currentUser) {
+        openAuthModal("กรุณาเข้าสู่ระบบก่อนลงประกาศ");
         return;
       }
 
@@ -2857,7 +2928,7 @@ service cloud.firestore {
       }
 
       if (getFormImagesTotalKB() > MAX_TOTAL_IMAGE_KB) {
-        errText.textContent = `ขนาดข้อมูลรูปภาพรวมเกิน ${MAX_TOTAL_IMAGE_KB} KB กรุณาลบรูปบางส่วนออกเพื่อให้บันทึกใน Firestore ได้`;
+        errText.textContent = `ขนาดรูปภาพรวมเกิน ${MAX_TOTAL_IMAGE_KB} KB กรุณาลบบางรูปออกก่อนบันทึกเพื่อให้ผ่านขีดจำกัดของ Firestore`;
         errBox.classList.remove("hidden");
         errBox.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
@@ -2865,81 +2936,87 @@ service cloud.firestore {
 
       const editDocId = document.getElementById("pf-doc-id").value.trim();
       const existing = editDocId ? state.properties.find((p) => p.id === editDocId) : null;
-      const code = document.getElementById("pf-code").value.trim() || suggestNextCode();
+
+      if (editDocId && (!existing || !canManage(existing))) {
+        errText.textContent = "คุณไม่มีสิทธิ์แก้ไขประกาศนี้";
+        errBox.classList.remove("hidden");
+        return;
+      }
+
       const price = Number(document.getElementById("pf-price").value) || 0;
       const appraisedRaw = Number(document.getElementById("pf-appraised").value) || 0;
-      const highlightsArr = document.getElementById("pf-highlights").value
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const now = Date.now();
 
       const payload = {
-        code,
+        code: existing && existing.code ? existing.code : generateListingCode(),
         title: document.getElementById("pf-title").value.trim(),
         category: document.getElementById("pf-category").value,
-        status: document.getElementById("pf-status").value,
-        price,
-        appraisedPrice: appraisedRaw > price ? appraisedRaw : 0,
+        deed: document.getElementById("pf-deed").value,
+        status: document.getElementById("pf-status").value || "available",
+        province: document.getElementById("pf-province").value,
+        district: document.getElementById("pf-district").value.trim(),
         rai,
         ngan,
         wah,
-        deed: document.getElementById("pf-deed").value.trim() || "โฉนดครุฑแดง (น.ส.4 จ.)",
-        frontage: document.getElementById("pf-frontage").value.trim(),
-        province: document.getElementById("pf-province").value.trim(),
-        district: document.getElementById("pf-district").value.trim(),
-        subdistrict: document.getElementById("pf-subdistrict").value.trim(),
-        highlights: highlightsArr,
+        price,
+        appraisedPrice: appraisedRaw > price ? appraisedRaw : 0,
+        sellerPhone: document.getElementById("pf-seller-phone").value.trim(),
+        sellerLine: document.getElementById("pf-seller-line").value.trim(),
         mapUrl: document.getElementById("pf-map-url").value.trim(),
-        videoUrl: document.getElementById("pf-video-url").value.trim(),
         description: document.getElementById("pf-description").value.trim(),
         isOwnerDirect: document.getElementById("pf-owner-direct").checked,
-        flashDeal: document.getElementById("pf-flash-deal").checked,
         images: [...state.formImages],
-        createdAt: existing && existing.createdAt ? existing.createdAt : Date.now(),
-        updatedAt: Date.now()
+        // คงค่า ownerId และข้อมูลเจ้าของเดิมไว้เสมอเมื่อแก้ไข เพื่อให้ผ่าน Firestore Rules
+        ownerId: existing && existing.ownerId ? existing.ownerId : state.currentUser.uid,
+        ownerName: existing && existing.ownerName ? existing.ownerName : getUserDisplayName(state.currentUser),
+        ownerPhoto: existing && existing.ownerPhoto !== undefined ? existing.ownerPhoto : (state.currentUser.photoURL || ""),
+        ownerEmail: existing && existing.ownerEmail ? existing.ownerEmail : (state.currentUser.email || ""),
+        createdAt: existing && existing.createdAt ? existing.createdAt : now,
+        updatedAt: now
       };
 
       const submitBtn = document.getElementById("pf-submit-btn");
       const origText = document.getElementById("pf-submit-text").textContent;
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>กำลังบันทึกลง Firebase...</span>`;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>กำลังบันทึก...</span>`;
 
       try {
         if (editDocId) {
           await updateDoc(doc(db, "properties", editDocId), payload);
-          showToast(`บันทึกการแก้ไข ${code} ลง Firebase แล้ว ✅`);
+          showToast("บันทึกการแก้ไขประกาศเรียบร้อยแล้ว ✅");
         } else {
-          const newDocId = `prop-${Date.now()}`;
+          const newDocId = `prop-${now}-${Math.random().toString(36).slice(2, 6)}`;
           await setDoc(doc(db, "properties", newDocId), payload);
-          showToast(`ลงประกาศ ${code} สำเร็จ! อัปเดตเรียลไทม์ทุกเครื่องแล้ว 🎉`);
+          showToast("เผยแพร่ประกาศของคุณขึ้นหน้าเว็บเรียบร้อยแล้ว 🎉");
         }
         closePropertyModal();
       } catch (err) {
         console.error("Save property error:", err);
-        errText.textContent =
-          err.code === "permission-denied"
-            ? "ไม่มีสิทธิ์เขียนข้อมูล กรุณาตรวจสอบ Firestore Rules และเข้าสู่ระบบแอดมินอีกครั้ง"
-            : `บันทึกข้อมูลไม่สำเร็จ: ${err.message}`;
+        if (err.code === "permission-denied") {
+          showFirestoreRulesBanner("permission-denied");
+          errText.textContent = "ไม่สามารถบันทึกได้เนื่องจากสิทธิ์ Firestore Rules กรุณาตรวจสอบว่าอัปเดตกฎ Rules ตัวใหม่แล้ว";
+        } else {
+          errText.textContent = `บันทึกไม่สำเร็จ: ${err.message}`;
+        }
         errBox.classList.remove("hidden");
       } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span id="pf-submit-text">${escapeHTML(origText)}</span>`;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i><span id="pf-submit-text">${escapeHTML(origText)}</span>`;
       }
     }
 
-    // Delete Confirmation Modal
+    // Delete Modal
     function openDeleteModal(docId) {
-      if (!state.adminUser) {
-        openLoginModal();
+      const item = state.properties.find((p) => p.id === docId);
+      if (!item || !canManage(item)) {
+        showToast("คุณสามารถลบได้เฉพาะประกาศของตัวเองเท่านั้น", "error");
         return;
       }
-      const item = state.properties.find((p) => p.id === docId);
-      if (!item) return;
 
       state.pendingDeleteId = docId;
-      document.getElementById("delete-modal-title").textContent = `ยืนยันการลบ ${item.code || ""}?`;
+      document.getElementById("delete-modal-title").textContent = `ยืนยันการลบ ${item.code || "ประกาศนี้"}?`;
       document.getElementById("delete-modal-desc").textContent =
-        `ต้องการลบ "${item.title}" ออกจากฐานข้อมูล Firebase ถาวรใช่หรือไม่? (หากขายออกแล้ว แนะนำให้เปลี่ยนสถานะเป็น "ปิดการขาย" แทน)`;
+        `ต้องการลบ "${item.title}" ออกจากระบบถาวรใช่หรือไม่? (หากขายออกแล้ว แนะนำให้เปลี่ยนสถานะเป็น "ปิดการขาย" แทน)`;
       document.getElementById("delete-modal").classList.remove("hidden");
     }
 
@@ -2950,7 +3027,8 @@ service cloud.firestore {
 
     async function executeDeleteProperty() {
       const docId = state.pendingDeleteId;
-      if (!docId || !state.adminUser) return;
+      const item = state.properties.find((p) => p.id === docId);
+      if (!docId || !item || !canManage(item)) return;
 
       const btn = document.getElementById("confirm-delete-btn");
       btn.disabled = true;
@@ -2960,9 +3038,12 @@ service cloud.firestore {
         await deleteDoc(doc(db, "properties", docId));
         if (state.activeDetailId === docId) closeDetailModal();
         closeDeleteModal();
-        showToast("ลบประกาศออกจาก Firebase เรียบร้อยแล้ว", "info");
+        showToast("ลบประกาศออกจากระบบเรียบร้อยแล้ว", "info");
       } catch (err) {
         console.error("Delete error:", err);
+        if (err.code === "permission-denied") {
+          showFirestoreRulesBanner("permission-denied");
+        }
         showToast("ลบไม่สำเร็จ กรุณาตรวจสอบสิทธิ์หรือลองใหม่อีกครั้ง", "error");
       } finally {
         btn.disabled = false;
@@ -2971,8 +3052,21 @@ service cloud.firestore {
     }
 
     // =========================================================================
-    // 15. FAVORITES, SEARCH, FILTERS, CAROUSEL & COUNTDOWN TIMER
+    // 14. MY LISTINGS VIEW, FAVORITES, FILTERS & CAROUSEL
     // =========================================================================
+    function toggleMyListingsView(forceState) {
+      if (!state.currentUser) {
+        openAuthModal("เข้าสู่ระบบเพื่อดูและจัดการประกาศของคุณ");
+        return;
+      }
+      state.myListingsOnly = typeof forceState === "boolean" ? forceState : !state.myListingsOnly;
+      updateAuthUI();
+      renderListingsGrid();
+      if (state.myListingsOnly) {
+        document.getElementById("listings-section").scrollIntoView({ behavior: "smooth" });
+      }
+    }
+
     function updateFavoriteBadges() {
       const validIds = new Set(state.properties.map((p) => p.id));
       const count = state.properties.length
@@ -3134,6 +3228,7 @@ service cloud.firestore {
     }
 
     function resetAllFilters() {
+      state.myListingsOnly = false;
       state.searchQuery = "";
       state.selectedCategory = "ALL";
       state.selectedStatus = "ALL";
@@ -3149,12 +3244,13 @@ service cloud.firestore {
       document.getElementById("owner-only-checkbox").checked = false;
       document.getElementById("discount-only-checkbox").checked = false;
 
+      updateAuthUI();
       renderCategories();
       renderListingsGrid();
     }
 
     function goToSlide(index) {
-      const total = 3;
+      const total = 2;
       state.currentSlide = (index + total) % total;
       document.getElementById("carousel-track").style.transform = `translateX(-${state.currentSlide * 100}%)`;
       const dots = document.querySelectorAll("#carousel-dots button");
@@ -3172,17 +3268,7 @@ service cloud.firestore {
 
     function restartCarouselTimer() {
       if (state.carouselTimer) clearInterval(state.carouselTimer);
-      state.carouselTimer = setInterval(() => goToSlide(state.currentSlide + 1), 5500);
-    }
-
-    function startFlashDealTimer() {
-      let remaining = 5 * 3600 + 42 * 60 + 19;
-      setInterval(() => {
-        remaining = remaining > 0 ? remaining - 1 : 6 * 3600;
-        document.getElementById("timer-h").textContent = String(Math.floor(remaining / 3600)).padStart(2, "0");
-        document.getElementById("timer-m").textContent = String(Math.floor((remaining % 3600) / 60)).padStart(2, "0");
-        document.getElementById("timer-s").textContent = String(remaining % 60).padStart(2, "0");
-      }, 1000);
+      state.carouselTimer = setInterval(() => goToSlide(state.currentSlide + 1), 6000);
     }
 
     function handleBackdropClick(event, modalId, closeFn) {
@@ -3193,28 +3279,32 @@ service cloud.firestore {
       if (e.key === "Escape") {
         if (!document.getElementById("delete-modal").classList.contains("hidden")) return closeDeleteModal();
         if (!document.getElementById("property-modal").classList.contains("hidden")) return closePropertyModal();
-        if (!document.getElementById("login-modal").classList.contains("hidden")) return closeLoginModal();
+        if (!document.getElementById("auth-modal").classList.contains("hidden")) return closeAuthModal();
         if (!document.getElementById("detail-modal").classList.contains("hidden")) return closeDetailModal();
         toggleFavoritesDrawer(false);
       }
     });
 
     // =========================================================================
-    // 16. EXPOSE HANDLERS TO WINDOW (สำหรับ inline onclick ใน ES Module)
+    // 15. EXPOSE HANDLERS TO WINDOW
     // =========================================================================
     Object.assign(window, {
       handleImageFallback,
-      handleHeaderAdminClick,
-      openLoginModal,
-      closeLoginModal,
-      handleAdminLoginSubmit,
-      handleAdminLogout,
+      copyFirestoreRules,
+      openAuthModal,
+      closeAuthModal,
+      toggleEmailAuthPanel,
+      setEmailAuthMode,
+      handleSocialLogin,
+      handleEmailAuthSubmit,
+      handleLogout,
+      handlePostListingClick,
+      toggleMyListingsView,
       seedSampleProperties,
       openPropertyModal,
       closePropertyModal,
       handlePropertyFormSubmit,
       handleImageFileSelect,
-      addExternalImageUrl,
       removeFormImage,
       setFormCoverImage,
       quickUpdateStatus,
@@ -3226,7 +3316,7 @@ service cloud.firestore {
       setDetailImage,
       stepDetailImage,
       copyPropertyCode,
-      copyShopPhone,
+      copyTextWithToast,
       toggleFavorite,
       toggleFavoritesDrawer,
       handleSearchInput,
@@ -3249,12 +3339,11 @@ service cloud.firestore {
     });
 
     // =========================================================================
-    // 17. BOOTSTRAP APP
+    // 16. BOOTSTRAP APP
     // =========================================================================
-    applyShopConfig();
+    populateFormProvinceDropdown();
     renderCategories();
     updateFavoriteBadges();
-    startFlashDealTimer();
     restartCarouselTimer();
     startRealtimePropertiesListener();
   </script>
