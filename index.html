@@ -1,0 +1,2632 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LandShop (แลนด์ช้อป) - ตลาดซื้อขายที่ดิน บ้าน สวน และอสังหาฯ</title>
+
+  <!-- Google Fonts: Prompt สำหรับภาษาไทยที่ทันสมัยและอ่านง่าย -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- ตั้งค่า Tailwind Theme สไตล์ Shopee -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+          },
+          colors: {
+            shopee: {
+              DEFAULT: '#ee4d2d',
+              dark: '#d73211',
+              light: '#ff7337',
+              soft: '#fff5f2',
+              yellow: '#ffd839',
+              bg: '#f5f5f5',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* ซ่อน Scrollbar สำหรับแถบเลื่อนแนวนอนแต่ยังเลื่อนได้ปกติ */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* แอนิเมชัน Toast และ Modal */
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes fadeInScale {
+      from { transform: scale(0.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .animate-slide-in-right {
+      animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .animate-fade-scale {
+      animation: fadeInScale 0.2s ease-out forwards;
+    }
+
+    /* ตัดข้อความ 2 บรรทัดให้เรียบร้อยทุกเบราว์เซอร์ */
+    .clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ป้ายส่วนลดมุมขวาบนสไตล์ Shopee */
+    .shopee-discount-flag {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
+    }
+  </style>
+</head>
+
+<body class="bg-shopee-bg text-gray-800 font-sans antialiased overflow-x-hidden selection:bg-shopee selection:text-white">
+
+  <!-- ==================== 1. STICKY SHOPEE-STYLE HEADER ==================== -->
+  <header class="sticky top-0 z-40 bg-gradient-to-b from-[#ee4d2d] to-[#ff6533] text-white shadow-md">
+    <!-- แถบเมนูด้านบน (Top Utility Strip) -->
+    <div class="border-b border-white/15">
+      <div class="max-w-7xl mx-auto px-3 sm:px-4 h-9 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-3 sm:gap-4">
+          <button type="button" onclick="openPostModal()" class="hover:text-yellow-200 transition flex items-center gap-1 font-medium">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+            <span>ลงขายฟรี</span>
+          </button>
+          <span class="text-white/30">|</span>
+          <button type="button" onclick="openMyListingsModal()" class="hover:text-yellow-200 transition flex items-center gap-1.5">
+            <i data-lucide="folder-kanban" class="w-3.5 h-3.5"></i>
+            <span>ประกาศของฉัน</span>
+            <span id="my-listings-badge" class="hidden bg-shopee-yellow text-[#b83214] font-bold px-1.5 py-0.2 rounded-full text-[10px]">0</span>
+          </button>
+          <span class="text-white/30 hidden sm:inline">|</span>
+          <button type="button" onclick="openHelpModal()" class="hover:text-yellow-200 transition hidden sm:flex items-center gap-1">
+            <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+            <span>ศูนย์ช่วยเหลือ</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span class="hidden md:inline-flex items-center gap-1 text-white/90">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-yellow-200"></i>
+            <span>ซื้อขายตรง ไม่บวกราคา</span>
+          </span>
+          <button type="button" onclick="openHelpModal()" class="sm:hidden hover:text-yellow-200 flex items-center gap-1">
+            <i data-lucide="help-circle" class="w-3.5 h-3.5"></i>
+            <span>ช่วยเหลือ</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- แถบหลัก (Logo + Search + Actions) -->
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
+      <div class="flex flex-wrap md:flex-nowrap items-center justify-between gap-3 md:gap-6">
+        <!-- โลโก้ LandShop -->
+        <button type="button" onclick="resetAllFilters()" class="flex items-center gap-2 text-left group shrink-0">
+          <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition">
+            <!-- ไอคอนบ้านผสมหมุดแผนที่ SVG -->
+            <svg class="w-6 h-6 text-[#ee4d2d]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 10.5L12 3l9 7.5" />
+              <path d="M5 9.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" />
+              <path d="M12 11a2 2 0 1 0 0 4 2 2 0 0 0 0-4z" fill="#ff7337" stroke="#ee4d2d" />
+              <path d="M12 15v3" />
+            </svg>
+          </div>
+          <div>
+            <div class="text-xl sm:text-2xl font-bold leading-none tracking-tight flex items-center gap-1">
+              <span>LandShop</span>
+            </div>
+            <p class="text-[10px] sm:text-[11px] text-white/90 font-light">ตลาดซื้อขายที่ดิน & อสังหาฯ</p>
+          </div>
+        </button>
+
+        <!-- ปุ่มขวาสำหรับมือถือ (แสดงแถวเดียวกับโลโก้บนจอเล็ก) -->
+        <div class="flex md:hidden items-center gap-2">
+          <button type="button" onclick="openPostModal()" class="bg-shopee-yellow hover:bg-yellow-300 text-[#b83214] font-semibold text-xs px-3 py-2 rounded-lg shadow-sm flex items-center gap-1 active:scale-95 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>ลงประกาศ</span>
+          </button>
+          <button type="button" onclick="toggleFavoritesDrawer(true)" class="relative p-2.5 bg-white/15 hover:bg-white/25 rounded-lg transition" aria-label="รายการที่สนใจ">
+            <i data-lucide="heart" class="w-5 h-5"></i>
+            <span id="fav-badge-mobile" class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 bg-white text-shopee font-bold text-[11px] rounded-full flex items-center justify-center shadow">0</span>
+          </button>
+        </div>
+
+        <!-- ช่องค้นหาหลัก + คำค้นยอดนิยม -->
+        <div class="w-full md:flex-1 max-w-3xl">
+          <form onsubmit="handleSearchSubmit(event)" class="relative flex items-center bg-white rounded-lg p-1 shadow-sm focus-within:ring-2 focus-within:ring-yellow-300">
+            <input
+              id="search-input"
+              type="text"
+              placeholder="ค้นหาที่ดินเปล่า, บ้าน, สวนทุเรียน, จังหวัด, อำเภอ หรือโฉนดครุฑแดง..."
+              oninput="handleSearchInput(this.value)"
+              class="w-full pl-3 pr-2 py-2 text-sm text-gray-800 placeholder-gray-400 bg-transparent focus:outline-none rounded-l-md"
+            />
+            <button
+              id="clear-search-btn"
+              type="button"
+              onclick="clearSearch()"
+              class="hidden p-1.5 text-gray-400 hover:text-gray-600 transition"
+              aria-label="ล้างคำค้นหา"
+            >
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <button
+              type="submit"
+              class="bg-shopee hover:bg-shopee-dark text-white px-4 sm:px-6 py-2 rounded-md transition flex items-center justify-center shrink-0 active:scale-95"
+              aria-label="ค้นหา"
+            >
+              <i data-lucide="search" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </button>
+          </form>
+
+          <!-- คำค้นหาด่วนใต้ช่องค้นหา -->
+          <div class="flex items-center gap-2 sm:gap-3 mt-1.5 overflow-x-auto no-scrollbar text-[11px] sm:text-xs text-white/95">
+            <button type="button" onclick="quickKeywordSearch('ที่ดินเปล่า')" class="hover:text-yellow-200 whitespace-nowrap transition">ที่ดินเปล่า</button>
+            <button type="button" onclick="quickKeywordSearch('สวนเกษตร')" class="hover:text-yellow-200 whitespace-nowrap transition">สวนเกษตร</button>
+            <button type="button" onclick="quickKeywordSearch('บ้านพร้อมที่ดิน')" class="hover:text-yellow-200 whitespace-nowrap transition">บ้านพร้อมที่ดิน</button>
+            <button type="button" onclick="quickKeywordSearch('ติดถนนใหญ่')" class="hover:text-yellow-200 whitespace-nowrap transition">ติดถนนใหญ่</button>
+            <button type="button" onclick="quickKeywordSearch('โฉนดครุฑแดง')" class="hover:text-yellow-200 whitespace-nowrap transition">โฉนดครุฑแดง</button>
+            <button type="button" onclick="quickKeywordSearch('เขาใหญ่')" class="hover:text-yellow-200 whitespace-nowrap transition">เขาใหญ่</button>
+            <button type="button" onclick="quickKeywordSearch('ติดทะเล')" class="hover:text-yellow-200 whitespace-nowrap transition">ติดทะเล</button>
+          </div>
+        </div>
+
+        <!-- ปุ่มขวาสำหรับเดสก์ท็อป -->
+        <div class="hidden md:flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onclick="openPostModal()"
+            class="bg-shopee-yellow hover:bg-yellow-300 text-[#b83214] font-semibold text-sm px-4 py-2.5 rounded-lg shadow-sm flex items-center gap-1.5 transition active:scale-95"
+          >
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>ลงประกาศขาย</span>
+          </button>
+
+          <button
+            type="button"
+            onclick="toggleFavoritesDrawer(true)"
+            class="relative p-2.5 hover:bg-white/15 rounded-lg transition flex items-center gap-2"
+            title="รายการที่สนใจ"
+          >
+            <div class="relative">
+              <i data-lucide="heart" class="w-6 h-6"></i>
+              <span id="fav-badge-desktop" class="absolute -top-2 -right-2.5 min-w-[20px] h-5 px-1.5 bg-white text-shopee font-bold text-[11px] rounded-full flex items-center justify-center shadow border border-shopee/20">0</span>
+            </div>
+            <span class="hidden lg:inline text-xs font-medium">ที่สนใจ</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-5 space-y-5">
+
+    <!-- ==================== 2. HERO PROMO BANNER (SHOPEE SPLIT LAYOUT) ==================== -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-2.5 sm:gap-3">
+      <!-- แบนเนอร์ซ้าย (Carousel 3 สไลด์) -->
+      <div class="lg:col-span-8 relative rounded-xl overflow-hidden shadow-sm bg-gray-900 h-[210px] sm:h-[270px] md:h-[300px] group" id="hero-carousel">
+        <div id="carousel-track" class="flex h-full transition-transform duration-500 ease-out">
+          <!-- Slide 1 -->
+          <div class="w-full h-full shrink-0 relative">
+            <img
+              src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"
+              onerror="this.src='https://placehold.co/1200x480/ee4d2d/ffffff?text=LandShop+Owner+Direct'"
+              alt="มหกรรมซื้อขายที่ดิน"
+              class="w-full h-full object-cover opacity-80"
+            />
+            <div class="absolute inset-0 bg-gradient-to-r from-[#b82d12]/90 via-[#ee4d2d]/65 to-transparent flex flex-col justify-center px-5 sm:px-9 text-white">
+              <span class="inline-flex items-center gap-1.5 bg-shopee-yellow text-[#a8290f] text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full w-fit mb-2.5 shadow-sm">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> มหกรรมที่ดินไทย 2026
+              </span>
+              <h1 class="text-xl sm:text-3xl font-bold leading-snug max-w-lg drop-shadow-sm">
+                มหกรรมซื้อขายที่ดิน เจ้าของขายเอง ไม่ผ่านนายหน้า
+              </h1>
+              <p class="text-xs sm:text-sm text-white/95 mt-1.5 max-w-md hidden sm:block">
+                คัดสรรแปลงสวย โฉนดครุฑแดงพร้อมโอน เจรจาตรงกับเจ้าของ ลดค่าคอมมิชชั่นทันที
+              </p>
+              <button
+                type="button"
+                onclick="activateOwnerOnlyAndScroll()"
+                class="mt-3 sm:mt-4 bg-white hover:bg-yellow-50 text-shopee font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2 rounded-lg w-fit shadow transition flex items-center gap-1.5"
+              >
+                <span>ดูทรัพย์เจ้าของขายเอง</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Slide 2 -->
+          <div class="w-full h-full shrink-0 relative">
+            <img
+              src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80"
+              onerror="this.src='https://placehold.co/1200x480/15803d/ffffff?text=Orchard+and+Farm+Land'"
+              alt="รวมสวนเกษตรทั่วไทย"
+              class="w-full h-full object-cover opacity-80"
+            />
+            <div class="absolute inset-0 bg-gradient-to-r from-emerald-900/90 via-emerald-800/65 to-transparent flex flex-col justify-center px-5 sm:px-9 text-white">
+              <span class="inline-flex items-center gap-1.5 bg-emerald-300 text-emerald-950 text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full w-fit mb-2.5 shadow-sm">
+                <i data-lucide="trees" class="w-3.5 h-3.5"></i> สายเกษตร & เกษียณสุขใจ
+              </span>
+              <h2 class="text-xl sm:text-3xl font-bold leading-snug max-w-lg drop-shadow-sm">
+                รวมสวนเกษตร สวนผลไม้ พร้อมเก็บเกี่ยวทั่วไทย
+              </h2>
+              <p class="text-xs sm:text-sm text-white/95 mt-1.5 max-w-md hidden sm:block">
+                สวนทุเรียนจันทบุรี สวนปาล์มสุราษฎร์ฯ และบ้านสวนเกษตรพอเพียง น้ำไฟพร้อม
+              </p>
+              <button
+                type="button"
+                onclick="selectCategoryAndScroll('สวนเกษตร / สวนผลไม้')"
+                class="mt-3 sm:mt-4 bg-shopee-yellow hover:bg-yellow-300 text-emerald-950 font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2 rounded-lg w-fit shadow transition flex items-center gap-1.5"
+              >
+                <span>สำรวจสวนเกษตร</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Slide 3 -->
+          <div class="w-full h-full shrink-0 relative">
+            <img
+              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+              onerror="this.src='https://placehold.co/1200x480/1e3a8a/ffffff?text=Post+Free+Listing'"
+              alt="ลงประกาศขายฟรี"
+              class="w-full h-full object-cover opacity-80"
+            />
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-800/65 to-transparent flex flex-col justify-center px-5 sm:px-9 text-white">
+              <span class="inline-flex items-center gap-1.5 bg-shopee text-white text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full w-fit mb-2.5 shadow-sm">
+                <i data-lucide="megaphone" class="w-3.5 h-3.5"></i> ฟรี! ไม่มีค่าธรรมเนียม
+              </span>
+              <h2 class="text-xl sm:text-3xl font-bold leading-snug max-w-lg drop-shadow-sm">
+                ลงประกาศขายที่ดิน บ้าน สวน เข้าถึงผู้ซื้อตัวจริง
+              </h2>
+              <p class="text-xs sm:text-sm text-white/95 mt-1.5 max-w-md hidden sm:block">
+                ลงข้อมูลครบ ระบุเนื้อที่ ไร่-งาน-ตร.วา อัปโหลดรูปได้หลายภาพ ปิดการขายไวขึ้น
+              </p>
+              <button
+                type="button"
+                onclick="openPostModal()"
+                class="mt-3 sm:mt-4 bg-shopee hover:bg-shopee-dark text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2 rounded-lg w-fit shadow transition flex items-center gap-1.5"
+              >
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>ลงประกาศฟรีตอนนี้</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ปุ่มซ้าย-ขวา Carousel -->
+        <button
+          type="button"
+          onclick="moveCarousel(-1)"
+          class="absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 hover:bg-black/60 text-white flex items-center justify-center transition opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
+          aria-label="สไลด์ก่อนหน้า"
+        >
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        <button
+          type="button"
+          onclick="moveCarousel(1)"
+          class="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 hover:bg-black/60 text-white flex items-center justify-center transition opacity-80 sm:opacity-0 sm:group-hover:opacity-100"
+          aria-label="สไลด์ถัดไป"
+        >
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
+
+        <!-- จุดบอกตำแหน่งสไลด์ -->
+        <div id="carousel-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <button type="button" onclick="goToSlide(0)" class="w-6 h-2 rounded-full bg-shopee transition-all"></button>
+          <button type="button" onclick="goToSlide(1)" class="w-2 h-2 rounded-full bg-white/60 hover:bg-white transition-all"></button>
+          <button type="button" onclick="goToSlide(2)" class="w-2 h-2 rounded-full bg-white/60 hover:bg-white transition-all"></button>
+        </div>
+      </div>
+
+      <!-- แบนเนอร์ขวา 2 การ์ดซ้อนกัน (Mini Promo Cards) -->
+      <div class="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-2.5 sm:gap-3">
+        <!-- การ์ดบน: ดีลด่วนต่ำกว่าราคาประเมิน -->
+        <button
+          type="button"
+          onclick="activateDiscountFilterAndScroll()"
+          class="relative rounded-xl overflow-hidden shadow-sm h-[115px] sm:h-[144px] text-left group bg-gradient-to-br from-[#ee4d2d] to-[#ff8c37]"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80"
+            onerror="this.src='https://placehold.co/600x300/ee4d2d/ffffff?text=Flash+Deal'"
+            alt="ดีลด่วนต่ำกว่าราคาประเมิน"
+            class="w-full h-full object-cover opacity-35 group-hover:scale-105 transition duration-500"
+          />
+          <div class="absolute inset-0 p-3.5 sm:p-4 flex flex-col justify-between text-white">
+            <span class="bg-shopee-yellow text-[#b83214] text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded w-fit shadow-sm">
+              🔥 HOT DEAL
+            </span>
+            <div>
+              <h3 class="font-bold text-sm sm:text-lg leading-tight drop-shadow-sm">ดีลด่วน ต่ำกว่าราคาประเมิน</h3>
+              <p class="text-[11px] sm:text-xs text-white/90 mt-0.5 flex items-center gap-1">
+                <span>ลดสูงสุด 20%</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition"></i>
+              </p>
+            </div>
+          </div>
+        </button>
+
+        <!-- การ์ดล่าง: ที่ดินติดถนนใหญ่ ทำเลทอง -->
+        <button
+          type="button"
+          onclick="selectCategoryAndScroll('ที่ดินติดถนนใหญ่')"
+          class="relative rounded-xl overflow-hidden shadow-sm h-[115px] sm:h-[144px] text-left group bg-gradient-to-br from-amber-600 to-orange-700"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=600&q=80"
+            onerror="this.src='https://placehold.co/600x300/d97706/ffffff?text=Main+Road+Land'"
+            alt="ที่ดินติดถนนใหญ่ ทำเลทอง"
+            class="w-full h-full object-cover opacity-35 group-hover:scale-105 transition duration-500"
+          />
+          <div class="absolute inset-0 p-3.5 sm:p-4 flex flex-col justify-between text-white">
+            <span class="bg-white/95 text-amber-800 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded w-fit shadow-sm">
+              📍 ทำเลศักยภาพ
+            </span>
+            <div>
+              <h3 class="font-bold text-sm sm:text-lg leading-tight drop-shadow-sm">ที่ดินติดถนนใหญ่ ทำเลทอง</h3>
+              <p class="text-[11px] sm:text-xs text-white/90 mt-0.5 flex items-center gap-1">
+                <span>เหมาะลงทุน & พาณิชย์</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition"></i>
+              </p>
+            </div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== 3. SHOPEE-STYLE CATEGORY BAR ==================== -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-sm sm:text-base font-semibold text-gray-700 flex items-center gap-2">
+          <i data-lucide="layout-grid" class="w-4 h-4 text-shopee"></i>
+          <span>หมวดหมู่อสังหาฯ</span>
+        </h2>
+        <span class="text-xs text-gray-400 hidden sm:inline">เลือกประเภททรัพย์ที่ต้องการค้นหา</span>
+      </div>
+      <div id="category-grid" class="grid grid-cols-4 lg:grid-cols-8 divide-x divide-y divide-gray-100">
+        <!-- สร้างรายการหมวดหมู่ด้วย JavaScript -->
+      </div>
+    </section>
+
+    <!-- ==================== 4. FLASH DEAL SECTION (SHOPEE FLASH SALE STYLE) ==================== -->
+    <section id="flash-deal-section" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3.5 border-b border-gray-100 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-[#fff8f5] to-white">
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="flex items-center gap-1.5 text-shopee font-bold text-base sm:text-xl tracking-tight">
+            <i data-lucide="zap" class="w-5 h-5 fill-shopee text-shopee"></i>
+            <span>ดีลด่วนราคาพิเศษ</span>
+          </div>
+          <!-- นาฬิกาจับเวลาถอยหลังสไตล์ Shopee -->
+          <div class="flex items-center gap-1 text-xs font-bold" aria-label="เวลาที่เหลือสำหรับดีลด่วน">
+            <span id="timer-h" class="bg-gray-900 text-white px-2 py-0.5 rounded">05</span>
+            <span class="text-gray-800">:</span>
+            <span id="timer-m" class="bg-gray-900 text-white px-2 py-0.5 rounded">42</span>
+            <span class="text-gray-800">:</span>
+            <span id="timer-s" class="bg-gray-900 text-white px-2 py-0.5 rounded">19</span>
+          </div>
+          <span class="text-xs text-gray-500 hidden md:inline">คัดเฉพาะแปลงต่ำกว่าราคาประเมิน พร้อมจบไว</span>
+        </div>
+
+        <button
+          type="button"
+          onclick="activateDiscountFilterAndScroll()"
+          class="text-xs sm:text-sm text-shopee hover:text-shopee-dark font-medium flex items-center gap-0.5 transition"
+        >
+          <span>ดูดีลทั้งหมด</span>
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- แถบเลื่อนแนวนอนสำหรับการ์ด Flash Deal -->
+      <div id="flash-deal-row" class="p-3 sm:p-4 flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory">
+        <!-- สร้างการ์ดดีลด่วนด้วย JavaScript -->
+      </div>
+    </section>
+
+    <!-- ==================== 5. FILTER, SORT & MAIN LISTING GRID ==================== -->
+    <section id="listings-section" class="space-y-3 scroll-mt-28">
+      <!-- หัวข้อ "ทรัพย์แนะนำประจำวัน" สไตล์ Shopee -->
+      <div class="bg-white rounded-t-xl shadow-sm border-b-4 border-shopee px-4 py-3.5 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <h2 class="text-base sm:text-lg font-bold text-shopee tracking-wide">ทรัพย์แนะนำประจำวัน</h2>
+          <span id="result-count-pill" class="text-xs bg-shopee-soft text-shopee font-semibold px-2.5 py-0.5 rounded-full">10 รายการ</span>
+        </div>
+        <button
+          id="reset-filters-btn"
+          type="button"
+          onclick="resetAllFilters()"
+          class="hidden text-xs text-gray-500 hover:text-shopee flex items-center gap-1 transition"
+        >
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          <span>ล้างตัวกรองทั้งหมด</span>
+        </button>
+      </div>
+
+      <!-- แถบกรองและเรียงลำดับสีเทาสไตล์ Shopee -->
+      <div class="bg-[#ededed] rounded-xl p-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <!-- ปุ่มเรียงตาม -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5 lg:pb-0">
+          <span class="text-xs sm:text-sm text-gray-600 shrink-0 mr-1">เรียงตาม</span>
+          <button type="button" data-sort="popular" onclick="setSort('popular')" class="sort-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium shrink-0 transition">ยอดนิยม</button>
+          <button type="button" data-sort="newest" onclick="setSort('newest')" class="sort-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium shrink-0 transition">ล่าสุด</button>
+          <button type="button" data-sort="price_asc" onclick="setSort('price_asc')" class="sort-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium shrink-0 transition">ราคา ต่ำ-สูง</button>
+          <button type="button" data-sort="price_desc" onclick="setSort('price_desc')" class="sort-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium shrink-0 transition">ราคา สูง-ต่ำ</button>
+        </div>
+
+        <!-- กรองจังหวัด + เจ้าของขายเอง + ต่ำกว่าประเมิน -->
+        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <div class="relative flex-1 sm:flex-none">
+            <select
+              id="province-filter"
+              onchange="setProvinceFilter(this.value)"
+              class="w-full sm:w-44 appearance-none bg-white border border-gray-200 hover:border-shopee text-gray-700 text-xs sm:text-sm rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-shopee/30 cursor-pointer"
+            >
+              <option value="ALL">ทุกจังหวัด</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          </div>
+
+          <label class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-shopee px-3 py-2 rounded-lg cursor-pointer select-none text-xs sm:text-sm transition">
+            <input
+              id="owner-only-toggle"
+              type="checkbox"
+              onchange="setOwnerOnly(this.checked)"
+              class="w-4 h-4 accent-[#ee4d2d] rounded cursor-pointer"
+            />
+            <span class="text-gray-700 font-medium">เฉพาะเจ้าของขายเอง</span>
+          </label>
+
+          <label class="inline-flex items-center gap-2 bg-white border border-gray-200 hover:border-shopee px-3 py-2 rounded-lg cursor-pointer select-none text-xs sm:text-sm transition">
+            <input
+              id="discount-only-toggle"
+              type="checkbox"
+              onchange="setDiscountOnly(this.checked)"
+              class="w-4 h-4 accent-[#ee4d2d] rounded cursor-pointer"
+            />
+            <span class="text-gray-700 font-medium">ต่ำกว่าประเมิน</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- แสดงแถบสถานะตัวกรองที่กำลังใช้งาน (Active Filter Chips) -->
+      <div id="active-filter-chips" class="hidden flex-wrap items-center gap-2 text-xs"></div>
+
+      <!-- ตารางแสดงรายการอสังหาฯ (2 คอลัมน์มือถือ, 3-4 แท็บเล็ต, 5 เดสก์ท็อป) -->
+      <div id="listings-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3">
+        <!-- การ์ดรายการอสังหาฯ สร้างด้วย JavaScript -->
+      </div>
+
+      <!-- กรณีไม่พบรายการที่ค้นหา -->
+      <div id="empty-state" class="hidden bg-white rounded-xl p-10 text-center shadow-sm border border-gray-100">
+        <div class="w-16 h-16 bg-shopee-soft text-shopee rounded-full flex items-center justify-center mx-auto mb-3">
+          <i data-lucide="map-pin-off" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800">ไม่พบทรัพย์สินที่ตรงกับเงื่อนไข</h3>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">ลองเปลี่ยนคำค้นหา เลือกจังหวัดอื่น หรือล้างตัวกรองเพื่อดูทรัพย์ทั้งหมด</p>
+        <button
+          type="button"
+          onclick="resetAllFilters()"
+          class="mt-4 bg-shopee hover:bg-shopee-dark text-white text-sm font-medium px-5 py-2.5 rounded-lg shadow-sm transition"
+        >
+          ดูประกาศทั้งหมด
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-white border-t-4 border-shopee mt-12">
+    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
+      <div>
+        <div class="flex items-center gap-2 text-shopee font-bold text-lg mb-2">
+          <i data-lucide="home" class="w-5 h-5"></i>
+          <span>LandShop แลนด์ช้อป</span>
+        </div>
+        <p class="text-xs text-gray-500 leading-relaxed">
+          ตลาดกลางซื้อขายที่ดินเปล่า บ้านพร้อมที่ดิน สวนเกษตร อาคารพาณิชย์ และอสังหาฯ ทั่วประเทศไทย ใช้งานง่าย สะดวก ปลอดภัย เชื่อมต่อผู้ซื้อและผู้ขายโดยตรง
+        </p>
+      </div>
+      <div>
+        <h4 class="font-semibold text-gray-800 mb-2.5">หมวดหมู่ยอดนิยม</h4>
+        <ul class="space-y-1.5 text-xs text-gray-500">
+          <li><button type="button" onclick="selectCategoryAndScroll('ที่ดินเปล่า')" class="hover:text-shopee">ที่ดินเปล่า โฉนดครุฑแดง</button></li>
+          <li><button type="button" onclick="selectCategoryAndScroll('สวนเกษตร / สวนผลไม้')" class="hover:text-shopee">สวนเกษตร & สวนผลไม้</button></li>
+          <li><button type="button" onclick="selectCategoryAndScroll('บ้านพร้อมที่ดิน')" class="hover:text-shopee">บ้านเดี่ยวพร้อมที่ดิน</button></li>
+          <li><button type="button" onclick="selectCategoryAndScroll('ที่ดินติดน้ำ / วิวภูเขา')" class="hover:text-shopee">ที่ดินติดทะเล & วิวภูเขา</button></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-gray-800 mb-2.5">สำหรับผู้ขาย</h4>
+        <ul class="space-y-1.5 text-xs text-gray-500">
+          <li><button type="button" onclick="openPostModal()" class="hover:text-shopee">ลงประกาศขายฟรี</button></li>
+          <li><button type="button" onclick="openMyListingsModal()" class="hover:text-shopee">จัดการประกาศของฉัน</button></li>
+          <li><button type="button" onclick="openHelpModal()" class="hover:text-shopee">คำแนะนำการตรวจสอบโฉนด</button></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-gray-800 mb-2.5">ความมั่นใจจาก LandShop</h4>
+        <div class="space-y-2 text-xs text-gray-500">
+          <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> แยกป้าย "เจ้าของขายเอง" ชัดเจน</div>
+          <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> คำนวณราคาต่อไร่ / ตร.วา อัตโนมัติ</div>
+          <div class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i> ติดต่อและแชทสอบถามผู้ขายได้ทันที</div>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-100 py-4 text-center text-xs text-gray-400">
+      © 2026 LandShop (แลนด์ช้อป) — แพลตฟอร์มตลาดซื้อขายที่ดินและอสังหาริมทรัพย์ออนไลน์
+    </div>
+  </footer>
+
+  <!-- ==================== 6. PROPERTY DETAIL MODAL (SHOPEE PRODUCT PAGE STYLE) ==================== -->
+  <div id="detail-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px] flex items-center justify-center p-2 sm:p-4 overflow-y-auto" onclick="handleBackdropClick(event, 'detail-modal', closeDetailModal)">
+    <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[92vh] overflow-y-auto shadow-2xl animate-fade-scale relative" onclick="event.stopPropagation()">
+      <!-- แถบหัว Modal -->
+      <div class="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-gray-100 px-4 sm:px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-500 truncate">
+          <span class="text-shopee font-semibold">LandShop</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5 shrink-0"></i>
+          <span id="detail-breadcrumb-cat" class="truncate">ที่ดินเปล่า</span>
+        </div>
+        <button type="button" onclick="closeDetailModal()" class="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-800 transition" aria-label="ปิดหน้าต่าง">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- เนื้อหาหลักรายละเอียดทรัพย์ -->
+      <div id="detail-modal-body" class="p-4 sm:p-6">
+        <!-- สร้างด้วย JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 7. POST NEW LISTING MODAL ("ลงประกาศขายอสังหาฯ") ==================== -->
+  <div id="post-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px] flex items-center justify-center p-2 sm:p-4 overflow-y-auto" onclick="handleBackdropClick(event, 'post-modal', closePostModal)">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl animate-fade-scale" onclick="event.stopPropagation()">
+      <!-- หัวฟอร์ม -->
+      <div class="sticky top-0 z-20 bg-gradient-to-r from-[#ee4d2d] to-[#ff7337] text-white px-5 py-4 flex items-center justify-between rounded-t-2xl">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
+            <i data-lucide="file-plus-2" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold leading-tight">ลงประกาศขายอสังหาฯ ฟรี</h2>
+            <p class="text-[11px] sm:text-xs text-white/90">กรอกข้อมูลที่ดิน บ้าน หรือสวนของคุณให้ครบถ้วนเพื่อให้ผู้ซื้อตัดสินใจง่ายขึ้น</p>
+          </div>
+        </div>
+        <button type="button" onclick="closePostModal()" class="p-2 rounded-full hover:bg-white/20 transition" aria-label="ปิดหน้าต่าง">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- ฟอร์มกรอกรายละเอียด -->
+      <form id="post-listing-form" onsubmit="handlePostSubmit(event)" class="p-4 sm:p-6 space-y-5">
+        <!-- ข้อความแจ้งเตือน error ในฟอร์ม -->
+        <div id="post-form-error" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+          <span id="post-form-error-text">กรุณากรอกข้อมูลให้ครบถ้วน</span>
+        </div>
+
+        <!-- หมวด 1: ข้อมูลหลัก -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-semibold text-gray-800 border-l-4 border-shopee pl-2.5">ข้อมูลหลักของประกาศ</h3>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อประกาศ <span class="text-shopee">*</span></label>
+            <input id="f-title" type="text" required maxlength="140" placeholder="เช่น ขายที่ดินเปล่าโฉนดครุฑแดง 2 ไร่ ติดถนนลาดยาง ใกล้เขาใหญ่" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee focus:ring-2 focus:ring-shopee/20" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">ประเภทอสังหาฯ <span class="text-shopee">*</span></label>
+              <select id="f-category" required class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-shopee">
+                <option value="ที่ดินเปล่า">ที่ดินเปล่า</option>
+                <option value="บ้านพร้อมที่ดิน">บ้านพร้อมที่ดิน</option>
+                <option value="สวนเกษตร / สวนผลไม้">สวนเกษตร / สวนผลไม้</option>
+                <option value="อาคารพาณิชย์ / โกดัง">อาคารพาณิชย์ / โกดัง</option>
+                <option value="คอนโด / ทาวน์โฮม">คอนโด / ทาวน์โฮม</option>
+                <option value="ที่ดินติดถนนใหญ่">ที่ดินติดถนนใหญ่</option>
+                <option value="ที่ดินติดน้ำ / วิวภูเขา">ที่ดินติดน้ำ / วิวภูเขา</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">เอกสารสิทธิ์ <span class="text-shopee">*</span></label>
+              <select id="f-deed" required class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-shopee">
+                <option value="โฉนดครุฑแดง (น.ส.4 จ.)">โฉนดครุฑแดง (น.ส.4 จ.)</option>
+                <option value="น.ส.3 ก.">น.ส.3 ก.</option>
+                <option value="น.ส.3">น.ส.3</option>
+                <option value="ส.ป.ก.">ส.ป.ก.</option>
+                <option value="หนังสือกรรมสิทธิ์ห้องชุด (อ.ช.2)">หนังสือกรรมสิทธิ์ห้องชุด (อ.ช.2)</option>
+                <option value="อื่นๆ">อื่นๆ</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- หมวด 2: ราคาและเนื้อที่ -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-semibold text-gray-800 border-l-4 border-shopee pl-2.5">ราคาและขนาดเนื้อที่</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">ราคาขาย (บาท) <span class="text-shopee">*</span></label>
+              <input id="f-price" type="number" min="10000" step="1000" required placeholder="เช่น 3500000" oninput="updateFormDiscountPreview()" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">ราคาประเมิน (บาท) <span class="text-gray-400 font-normal">(ไม่บังคับ - เพื่อแสดงป้ายลดราคา)</span></label>
+              <input id="f-appraised" type="number" min="0" step="1000" placeholder="เช่น 4200000" oninput="updateFormDiscountPreview()" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+            </div>
+          </div>
+          <div id="form-discount-preview" class="hidden text-xs bg-amber-50 text-amber-800 border border-amber-200 px-3 py-2 rounded-lg"></div>
+
+          <!-- เนื้อที่ ไร่ / งาน / ตร.วา -->
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">เนื้อที่ดิน (กรอกอย่างน้อย 1 ช่อง) <span class="text-shopee">*</span></label>
+            <div class="grid grid-cols-3 gap-2.5">
+              <div class="relative">
+                <input id="f-rai" type="number" min="0" value="0" class="w-full border border-gray-300 rounded-xl pl-3 pr-10 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">ไร่</span>
+              </div>
+              <div class="relative">
+                <input id="f-ngan" type="number" min="0" max="3" value="0" class="w-full border border-gray-300 rounded-xl pl-3 pr-10 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">งาน</span>
+              </div>
+              <div class="relative">
+                <input id="f-wah" type="number" min="0" max="99" value="0" class="w-full border border-gray-300 rounded-xl pl-3 pr-12 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">ตร.วา</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- หมวด 3: ที่ตั้งและจุดเด่น -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-semibold text-gray-800 border-l-4 border-shopee pl-2.5">ที่ตั้งและจุดเด่น</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">จังหวัด <span class="text-shopee">*</span></label>
+              <input id="f-province" type="text" required list="thai-provinces-list" placeholder="เช่น นครราชสีมา" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+              <datalist id="thai-provinces-list">
+                <option value="กรุงเทพมหานคร"></option>
+                <option value="นครราชสีมา"></option>
+                <option value="เชียงใหม่"></option>
+                <option value="ชลบุรี"></option>
+                <option value="จันทบุรี"></option>
+                <option value="สุราษฎร์ธานี"></option>
+                <option value="ปทุมธานี"></option>
+                <option value="ขอนแก่น"></option>
+                <option value="ราชบุรี"></option>
+                <option value="นนทบุรี"></option>
+                <option value="สมุทรปราการ"></option>
+                <option value="ระยอง"></option>
+                <option value="ภูเก็ต"></option>
+                <option value="เชียงราย"></option>
+                <option value="นครปฐม"></option>
+                <option value="ประจวบคีรีขันธ์"></option>
+                <option value="สระบุรี"></option>
+                <option value="กาญจนบุรี"></option>
+                <option value="อุดรธานี"></option>
+                <option value="สงขลา"></option>
+                <option value="พระนครศรีอยุธยา"></option>
+                <option value="เพชรบุรี"></option>
+              </datalist>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">อำเภอ / เขต <span class="text-shopee">*</span></label>
+              <input id="f-district" type="text" required placeholder="เช่น ปากช่อง" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">ตำบล / แขวง</label>
+              <input id="f-subdistrict" type="text" placeholder="เช่น หมูสี" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">จุดเด่น / หน้ากว้าง (สั้นๆ)</label>
+            <input id="f-highlight" type="text" placeholder="เช่น หน้ากว้าง 35 เมตร ติดถนนลาดยาง ไฟฟ้า-ประปาพร้อม ถมแล้ว" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">รายละเอียดเพิ่มเติม <span class="text-shopee">*</span></label>
+            <textarea id="f-description" rows="3" required placeholder="บรรยายสภาพพื้นที่ เส้นทางเข้าออก สถานที่ใกล้เคียง เงื่อนไขค่าโอน ฯลฯ" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee"></textarea>
+          </div>
+        </div>
+
+        <!-- หมวด 4: อัปโหลดรูปภาพ (Multi-Image Upload + Canvas Compression) -->
+        <div class="space-y-2.5">
+          <h3 class="text-sm font-semibold text-gray-800 border-l-4 border-shopee pl-2.5">รูปภาพอสังหาฯ (เลือกได้หลายภาพ สูงสุด 5 ภาพ)</h3>
+          <label class="block border-2 border-dashed border-gray-300 hover:border-shopee bg-gray-50 hover:bg-shopee-soft/40 rounded-xl p-5 text-center cursor-pointer transition">
+            <input id="f-images" type="file" multiple accept="image/*" onchange="handleImageUpload(event)" class="hidden" />
+            <i data-lucide="image-plus" class="w-8 h-8 text-shopee mx-auto mb-1.5"></i>
+            <p class="text-sm font-medium text-gray-700">คลิกเพื่อเลือกรูปภาพจากเครื่องของคุณ</p>
+            <p class="text-xs text-gray-400 mt-0.5">รองรับ JPG, PNG, WebP (ระบบจะย่อขนาดอัตโนมัติเพื่อให้แสดงผลรวดเร็ว)</p>
+          </label>
+          <div id="upload-preview-grid" class="grid grid-cols-3 sm:grid-cols-5 gap-2.5"></div>
+        </div>
+
+        <!-- หมวด 5: ข้อมูลผู้ติดต่อ -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-semibold text-gray-800 border-l-4 border-shopee pl-2.5">ข้อมูลผู้ประกาศ</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">สถานะผู้ขาย</label>
+              <select id="f-seller-type" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-shopee">
+                <option value="เจ้าของขายเอง">เจ้าของขายเอง</option>
+                <option value="นายหน้า">นายหน้า / ตัวแทนขาย</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อผู้ติดต่อ <span class="text-shopee">*</span></label>
+              <input id="f-seller-name" type="text" required placeholder="เช่น คุณสมชาย" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ <span class="text-shopee">*</span></label>
+              <input id="f-seller-phone" type="tel" required placeholder="เช่น 081-234-5678" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-shopee" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ปุ่มส่งฟอร์ม -->
+        <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-3">
+          <button type="button" onclick="closePostModal()" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 text-sm font-medium transition">
+            ยกเลิก
+          </button>
+          <button type="submit" class="px-6 py-2.5 rounded-xl bg-shopee hover:bg-shopee-dark text-white text-sm font-semibold shadow-md transition flex items-center gap-2">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>เผยแพร่ประกาศทันที</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== 8. MY LISTINGS MODAL ("ประกาศของฉัน") ==================== -->
+  <div id="my-listings-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px] flex items-center justify-center p-3" onclick="handleBackdropClick(event, 'my-listings-modal', closeMyListingsModal)">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl animate-fade-scale overflow-hidden" onclick="event.stopPropagation()">
+      <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-shopee-soft/60">
+        <div class="flex items-center gap-2">
+          <i data-lucide="folder-kanban" class="w-5 h-5 text-shopee"></i>
+          <h2 class="text-base sm:text-lg font-bold text-gray-800">ประกาศของฉัน</h2>
+        </div>
+        <button type="button" onclick="closeMyListingsModal()" class="p-1.5 rounded-full hover:bg-gray-200 text-gray-500 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="my-listings-body" class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3">
+        <!-- สร้างด้วย JavaScript -->
+      </div>
+      <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+        <button type="button" onclick="closeMyListingsModal(); openPostModal();" class="bg-shopee hover:bg-shopee-dark text-white text-sm font-medium px-4 py-2 rounded-xl flex items-center gap-1.5 transition">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>ลงประกาศใหม่</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 9. FAVORITES SLIDE-OVER DRAWER ("รายการที่สนใจ") ==================== -->
+  <div id="favorites-drawer-backdrop" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-[1px] flex justify-end" onclick="toggleFavoritesDrawer(false)">
+    <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col animate-slide-in-right" onclick="event.stopPropagation()">
+      <div class="px-5 py-4 bg-gradient-to-r from-[#ee4d2d] to-[#ff7337] text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="heart" class="w-5 h-5 fill-white"></i>
+          <h2 class="text-base font-bold">รายการที่สนใจ</h2>
+          <span id="drawer-fav-count" class="bg-white/25 text-xs px-2 py-0.5 rounded-full font-semibold">0</span>
+        </div>
+        <button type="button" onclick="toggleFavoritesDrawer(false)" class="p-1.5 rounded-full hover:bg-white/20 transition" aria-label="ปิดแถบรายการที่สนใจ">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="favorites-drawer-list" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#f8f8f8]">
+        <!-- รายการที่บันทึกไว้ -->
+      </div>
+
+      <div class="p-4 bg-white border-t border-gray-100 text-center text-xs text-gray-400">
+        รายการที่สนใจจะถูกบันทึกไว้ในอุปกรณ์ของคุณอัตโนมัติ
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 10. HELP CENTER MODAL ("ศูนย์ช่วยเหลือ") ==================== -->
+  <div id="help-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px] flex items-center justify-center p-3" onclick="handleBackdropClick(event, 'help-modal', closeHelpModal)">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[85vh] overflow-y-auto shadow-2xl animate-fade-scale" onclick="event.stopPropagation()">
+      <div class="px-5 py-4 bg-shopee text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+          <h2 class="text-base font-bold">ศูนย์ช่วยเหลือ LandShop</h2>
+        </div>
+        <button type="button" onclick="closeHelpModal()" class="p-1.5 rounded-full hover:bg-white/20 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-4 text-sm text-gray-700">
+        <div class="bg-shopee-soft p-3.5 rounded-xl border border-shopee/20">
+          <h3 class="font-semibold text-shopee mb-1">1. ลงประกาศขายที่ดินมีค่าใช้จ่ายหรือไม่?</h3>
+          <p class="text-xs text-gray-600 leading-relaxed">ลงประกาศฟรี 100% ไม่มีค่าธรรมเนียมและไม่มีค่านายหน้า เพียงคลิกปุ่ม "ลงประกาศขาย" กรอกข้อมูลและอัปโหลดรูปภาพ ระบบจะแสดงประกาศของคุณทันที</p>
+        </div>
+        <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-200">
+          <h3 class="font-semibold text-gray-800 mb-1">2. คำแนะนำการซื้อขายที่ดินอย่างปลอดภัย</h3>
+          <ul class="text-xs text-gray-600 list-disc pl-4 space-y-1 leading-relaxed">
+            <li>ตรวจสอบเอกสารสิทธิ์ตัวจริง โดยเฉพาะ <strong>โฉนดครุฑแดง (น.ส.4 จ.)</strong> และเช็กตำแหน่งแปลงกับกรมที่ดิน (LandsMaps)</li>
+            <li>นัดลงพื้นที่ดูที่ดินจริงและตรวจสอบแนวเขตหลักหมุดก่อนวางเงินมัดจำทุกครั้ง</li>
+            <li>ทำสัญญาจะซื้อจะขายเป็นลายลักษณ์อักษรชัดเจน และโอนกรรมสิทธิ์ ณ สำนักงานที่ดินเท่านั้น</li>
+          </ul>
+        </div>
+        <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-200">
+          <h3 class="font-semibold text-gray-800 mb-1">3. ความหมายของหน่วยวัดพื้นที่ดินไทย</h3>
+          <p class="text-xs text-gray-600 leading-relaxed">1 ไร่ = 4 งาน = 400 ตารางวา (1,600 ตารางเมตร) | 1 งาน = 100 ตารางวา (400 ตารางเมตร)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 11. INTERACTIVE SIMULATED CHAT BOX (SHOPEE CHAT) ==================== -->
+  <div id="chat-widget" class="hidden fixed bottom-0 right-0 sm:bottom-4 sm:right-4 z-[60] w-full sm:w-[360px] bg-white sm:rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-fade-scale">
+    <!-- ส่วนหัวแชท -->
+    <div class="bg-gradient-to-r from-[#ee4d2d] to-[#ff7337] text-white px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center font-bold text-sm shrink-0" id="chat-avatar">ส</div>
+        <div class="min-w-0">
+          <div class="text-sm font-semibold truncate" id="chat-seller-name">ผู้ขาย</div>
+          <div class="text-[11px] text-white/90 flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-300 inline-block"></span>
+            <span>ออนไลน์ • ตอบกลับไว</span>
+          </div>
+        </div>
+      </div>
+      <button type="button" onclick="closeChatWidget()" class="p-1.5 rounded-full hover:bg-white/20 transition" aria-label="ปิดแชท">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- การ์ดทรัพย์ที่กำลังคุยอยู่ -->
+    <div id="chat-property-banner" class="bg-shopee-soft/80 border-b border-orange-100 px-3 py-2 flex items-center gap-2.5">
+      <!-- เติมด้วย JS -->
+    </div>
+
+    <!-- พื้นที่ข้อความแชท -->
+    <div id="chat-messages" class="h-64 sm:h-72 overflow-y-auto p-3 space-y-2.5 bg-[#f5f5f5] text-xs sm:text-sm">
+      <!-- เติมข้อความด้วย JS -->
+    </div>
+
+    <!-- ปุ่มคำถามด่วน -->
+    <div class="px-3 py-2 bg-white border-t border-gray-100 flex gap-1.5 overflow-x-auto no-scrollbar">
+      <button type="button" onclick="sendQuickChat('ราคานี้ยังต่อรองได้อีกไหมครับ?')" class="shrink-0 text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee border border-orange-200 px-2.5 py-1 rounded-full transition">ต่อรองราคาได้ไหม?</button>
+      <button type="button" onclick="sendQuickChat('ขอพิกัดแปลงและรูปโฉนดเพิ่มเติมหน่อยครับ')" class="shrink-0 text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee border border-orange-200 px-2.5 py-1 rounded-full transition">ขอพิกัด/รูปโฉนด</button>
+      <button type="button" onclick="sendQuickChat('นัดเข้าไปดูพื้นที่จริงช่วงเสาร์-อาทิตย์ได้ไหมครับ?')" class="shrink-0 text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee border border-orange-200 px-2.5 py-1 rounded-full transition">ขอนัดดูที่จริง</button>
+    </div>
+
+    <!-- ช่องพิมพ์ส่งข้อความ -->
+    <form onsubmit="handleChatSend(event)" class="p-2.5 bg-white border-t border-gray-100 flex items-center gap-2">
+      <input
+        id="chat-input"
+        type="text"
+        placeholder="พิมพ์ข้อความถึงผู้ขาย..."
+        class="flex-1 bg-gray-100 rounded-full px-3.5 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-shopee/30"
+      />
+      <button type="submit" class="bg-shopee hover:bg-shopee-dark text-white p-2 rounded-full transition shrink-0" aria-label="ส่งข้อความ">
+        <i data-lucide="send" class="w-4 h-4"></i>
+      </button>
+    </form>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toast-container" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] flex flex-col items-center gap-2 pointer-events-none w-[92%] max-w-sm"></div>
+
+  <!-- ==================== APPLICATION JAVASCRIPT ==================== -->
+  <script>
+    // =========================================================================
+    // 1. ข้อมูลหมวดหมู่และข้อมูลตัวอย่างอสังหาฯ 10 รายการทั่วไทย
+    // =========================================================================
+    const FALLBACK_IMG = 'https://placehold.co/800x600/ffe6de/ee4d2d?text=LandShop';
+
+    const CATEGORIES = [
+      { id: 'ALL', label: 'ทั้งหมด', icon: 'layout-grid', color: 'text-shopee bg-orange-50' },
+      { id: 'ที่ดินเปล่า', label: 'ที่ดินเปล่า', icon: 'map', color: 'text-amber-600 bg-amber-50' },
+      { id: 'บ้านพร้อมที่ดิน', label: 'บ้านพร้อมที่ดิน', icon: 'home', color: 'text-blue-600 bg-blue-50' },
+      { id: 'สวนเกษตร / สวนผลไม้', label: 'สวนเกษตร / ผลไม้', icon: 'trees', color: 'text-emerald-600 bg-emerald-50' },
+      { id: 'อาคารพาณิชย์ / โกดัง', label: 'อาคารพาณิชย์ / โกดัง', icon: 'warehouse', color: 'text-indigo-600 bg-indigo-50' },
+      { id: 'คอนโด / ทาวน์โฮม', label: 'คอนโด / ทาวน์โฮม', icon: 'building-2', color: 'text-purple-600 bg-purple-50' },
+      { id: 'ที่ดินติดถนนใหญ่', label: 'ที่ดินติดถนนใหญ่', icon: 'milestone', color: 'text-rose-600 bg-rose-50' },
+      { id: 'ที่ดินติดน้ำ / วิวภูเขา', label: 'ติดน้ำ / วิวภูเขา', icon: 'mountain', color: 'text-cyan-600 bg-cyan-50' },
+    ];
+
+    const SAMPLE_LISTINGS = [
+      {
+        id: 'prop-101',
+        title: 'ขายด่วน! ที่ดินเปล่าโฉนดครุฑแดง แปลงสวยถมแล้วพร้อมปลูกสร้าง ใกล้เขาใหญ่',
+        category: 'ที่ดินเปล่า',
+        price: 4200000,
+        appraisedPrice: 5200000,
+        rai: 2,
+        ngan: 1,
+        wah: 50,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'นครราชสีมา',
+        district: 'ปากช่อง',
+        subdistrict: 'ขนงพระ',
+        highlight: 'หน้ากว้าง 42 เมตร ติดถนนลาดยาง น้ำ-ไฟ 3 เฟสพร้อม ถมสูงกว่าระดับถนน',
+        sellerType: 'เจ้าของขายเอง',
+        verified: true,
+        sellerName: 'คุณกิตติพงษ์ วัฒนา',
+        sellerPhone: '089-452-8910',
+        views: 1840,
+        interestedCount: 24,
+        isFlashDeal: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 5,
+        images: [
+          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'ที่ดินแปลงสวยรูปสี่เหลี่ยมผืนผ้า ถมเรียบร้อยแล้วทั้งแปลง อากาศดีตลอดปี วิวทิวเขาสวยงาม เดินทางจากถนนธนะรัชต์เพียง 8 นาที เหมาะสำหรับสร้างบ้านพักตากอากาศ พูลวิลล่า หรือซื้อเก็บลงทุน โฉนดครุฑแดง น.ส.4 จ. ไม่ติดภาระจำนอง พร้อมโอนทันที เจ้าของขายเอง ฟรีค่าโอนกรรมสิทธิ์'
+      },
+      {
+        id: 'prop-102',
+        title: 'สวนทุเรียนหมอนทอง 120 ต้น พร้อมบ้านพักตากอากาศ ระบบน้ำสปริงเกลอร์ครบ เก็บผลผลิตได้เลย',
+        category: 'สวนเกษตร / สวนผลไม้',
+        price: 12500000,
+        appraisedPrice: 15200000,
+        rai: 8,
+        ngan: 0,
+        wah: 0,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'จันทบุรี',
+        district: 'ท่าใหม่',
+        subdistrict: 'ทุ่งเบญจา',
+        highlight: 'ทุเรียนอายุ 7 ปี ให้ผลผลิตเฉลี่ยปีละ 2-3 ล้านบาท มีสระน้ำขนาดใหญ่ใช้ตลอดปี',
+        sellerType: 'เจ้าของขายเอง',
+        verified: true,
+        sellerName: 'สวนลุงสมหมาย จันทบุรี',
+        sellerPhone: '081-784-3321',
+        views: 2650,
+        interestedCount: 31,
+        isFlashDeal: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 12,
+        images: [
+          'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'ขายสวนทุเรียนหมอนทองเกรดส่งออกดูแลอย่างดี 120 ต้น แซมมังคุดและเงาะอีกกว่า 40 ต้น มาพร้อมบ้านพัก 2 ห้องนอน 1 ห้องน้ำ โรงเก็บอุปกรณ์ และระบบน้ำสปริงเกลอร์อัตโนมัติทั่วแปลง มีแหล่งน้ำธรรมชาติและสระกักเก็บขนาดใหญ่ ไม่เคยขาดน้ำ เข้าออกสะดวก รถบรรทุก 6 ล้อเข้าถึงในสวน'
+      },
+      {
+        id: 'prop-103',
+        title: 'บ้านเดี่ยวสไตล์โมเดิร์นทรอปิคอลพร้อมที่ดินกว้าง วิวทุ่งนา บรรยากาศเงียบสงบ ใกล้สนามบิน',
+        category: 'บ้านพร้อมที่ดิน',
+        price: 6890000,
+        appraisedPrice: 7600000,
+        rai: 0,
+        ngan: 2,
+        wah: 20,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'เชียงใหม่',
+        district: 'หางดง',
+        subdistrict: 'น้ำแพร่',
+        highlight: '3 ห้องนอน 4 ห้องน้ำ พื้นที่ใช้สอย 265 ตร.ม. แถมเฟอร์นิเจอร์บิวท์อินทั้งหลัง',
+        sellerType: 'เจ้าของขายเอง',
+        verified: true,
+        sellerName: 'คุณพิมพ์ชนก อารีรัตน์',
+        sellerPhone: '092-615-4409',
+        views: 1420,
+        interestedCount: 15,
+        isFlashDeal: false,
+        createdAt: Date.now() - 1000 * 60 * 60 * 22,
+        images: [
+          'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'บ้านเดี่ยวสร้างเองด้วยวัสดุเกรดพรีเมียม บนที่ดิน 220 ตารางวา มีสนามหญ้ากว้างร่มรื่นและศาลานั่งเล่นชมวิวดอยสุเทพ เดินทางเข้าตัวเมืองและสนามบินเชียงใหม่เพียง 20 นาที ใกล้โรงเรียนนานาชาติหลายแห่ง ขายพร้อมเฟอร์นิเจอร์และเครื่องปรับอากาศทุกห้อง'
+      },
+      {
+        id: 'prop-104',
+        title: 'สวนปาล์มน้ำมันพันธุ์ดีให้ผลผลิตเต็มแปลง ติดถนนใหญ่ 4 เลน หน้ากว้าง 80 เมตร ทำเลทอง',
+        category: 'ที่ดินติดถนนใหญ่',
+        price: 9800000,
+        appraisedPrice: 11800000,
+        rai: 15,
+        ngan: 2,
+        wah: 0,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'สุราษฎร์ธานี',
+        district: 'พุนพิน',
+        subdistrict: 'ท่าโรงช้าง',
+        highlight: 'ติดทางหลวง 4 เลน หน้ากว้าง 80 เมตร มีรายได้จากปาล์มทันทีทุก 15 วัน',
+        sellerType: 'เจ้าของขายเอง',
+        verified: true,
+        sellerName: 'คุณประเสริฐ สุวรรณภูมิ',
+        sellerPhone: '084-990-1125',
+        views: 1190,
+        interestedCount: 19,
+        isFlashDeal: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 30,
+        images: [
+          'https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'ที่ดินสวนปาล์มน้ำมันอายุ 6 ปี เก็บเกี่ยวผลผลิตได้ตลอดทั้งปี ทำเลโดดเด่นติดถนนใหญ่สายหลัก ใกล้สนามบินสุราษฎร์ธานีเพียง 15 นาที เหมาะทั้งทำเกษตรต่อเนื่อง หรือพัฒนาเป็นลานรับซื้อผลผลิต โกดังกระจายสินค้า หรือปั๊มน้ำมันในอนาคต'
+      },
+      {
+        id: 'prop-105',
+        title: 'ที่ดินแปลงงามติดทะเลหาดส่วนตัว หน้าหาดกว้าง 45 เมตร เหมาะทำพูลวิลล่าและรีสอร์ทหรู',
+        category: 'ที่ดินติดน้ำ / วิวภูเขา',
+        price: 38000000,
+        appraisedPrice: 38000000,
+        rai: 3,
+        ngan: 0,
+        wah: 40,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'ชลบุรี',
+        district: 'สัตหีบ',
+        subdistrict: 'บางเสร่',
+        highlight: 'ติดชายหาดทรายขาว น้ำใส เป็นส่วนตัวสูง ห่างมอเตอร์เวย์เพียง 12 นาที',
+        sellerType: 'นายหน้า',
+        verified: true,
+        sellerName: 'Eastern Coast Property',
+        sellerPhone: '095-332-7788',
+        views: 3120,
+        interestedCount: 27,
+        isFlashDeal: false,
+        createdAt: Date.now() - 1000 * 60 * 60 * 48,
+        images: [
+          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'ที่ดินติดทะเลแปลงหายากย่านบางเสร่ สัตหีบ หาดทรายขาวสะอาดเล่นน้ำได้จริง สาธารณูปโภคครบ ไฟฟ้า ประปา ถนนคอนกรีตถึงหน้าแปลง โซนนี้มีโครงการบ้านพักตากอากาศระดับไฮเอนด์และร้านอาหารทะเลชื่อดังมากมาย ศักยภาพเติบโตสูง'
+      },
+      {
+        id: 'prop-106',
+        title: 'โกดังพร้อมสำนักงาน 2 ชั้น พื้นที่จอดรถเทรลเลอร์ได้ ใกล้ทางด่วนและตลาดไท',
+        category: 'อาคารพาณิชย์ / โกดัง',
+        price: 16900000,
+        appraisedPrice: 19800000,
+        rai: 1,
+        ngan: 1,
+        wah: 0,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'ปทุมธานี',
+        district: 'คลองหลวง',
+        subdistrict: 'คลองหนึ่ง',
+        highlight: 'พื้นรับน้ำหนัก 3 ตัน/ตร.ม. ไฟฟ้า 3 เฟส ใบอนุญาต รง.4 ขอได้',
+        sellerType: 'เจ้าของขายเอง',
+        verified: true,
+        sellerName: 'หจก. พัฒนาคลังสินค้า',
+        sellerPhone: '081-902-5541',
+        views: 980,
+        interestedCount: 14,
+        isFlashDeal: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 55,
+        images: [
+          'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'ขายด่วนโกดังสภาพใหม่เอี่ยม พร้อมออฟฟิศ 2 ชั้นตกแต่งครบ บนที่ดิน 1 ไร่ 1 งาน ลานคอนกรีตเสริมเหล็กกว้าง รถพ่วงและรถเทรลเลอร์กลับรถได้สบาย ห่างถนนพหลโยธินเพียง 1.2 กม. เหมาะสำหรับศูนย์กระจายสินค้า อีคอมเมิร์ซ หรือโรงงานขนาดย่อม'
+      },
+      {
+        id: 'prop-107',
+        title: 'ที่ดินวิวภูเขา 360 องศา เขาใหญ่ อากาศเย็นสบายตลอดปี โฉนดครุฑแดง เหมาะทำรีสอร์ท',
+        category: 'ที่ดินติดน้ำ / วิวภูเขา',
+        price: 14500000,
+        appraisedPrice: 16000000,
+        rai: 4,
+        ngan: 3,
+        wah: 0,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'นครราชสีมา',
+        district: 'ปากช่อง',
+        subdistrict: 'หมูสี',
+        highlight: 'วิวเขาล้อมรอบ 360 องศา สูงจากระดับน้ำทะเล 420 ม. ใกล้คาเฟ่ดัง',
+        sellerType: 'เจ้าของขายเอง',
+        verified: true,
+        sellerName: 'คุณธนากร สุขเจริญ',
+        sellerPhone: '086-771-2234',
+        views: 2150,
+        interestedCount: 22,
+        isFlashDeal: false,
+        createdAt: Date.now() - 1000 * 60 * 60 * 70,
+        images: [
+          'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'ที่ดินเนินสวยธรรมชาติ โอบล้อมด้วยวิวภูเขาเขาใหญ่แบบพาโนรามา 360 องศา ช่วงเช้ามีหมอกบางๆ บรรยากาศเงียบสงบเป็นส่วนตัว แต่เดินทางสะดวกใกล้ร้านอาหารและแหล่งท่องเที่ยวสำคัญ เหมาะสร้างบ้านพักตากอากาศระดับพรีเมียมหรือแกลมปิ้งรีสอร์ท'
+      },
+      {
+        id: 'prop-108',
+        title: 'ทาวน์โฮม 3 ชั้น รีโนเวทใหม่สไตล์มินิมอล พร้อมอยู่ ใกล้รถไฟฟ้า BTS บางนา 500 ม.',
+        category: 'คอนโด / ทาวน์โฮม',
+        price: 4650000,
+        appraisedPrice: 5150000,
+        rai: 0,
+        ngan: 0,
+        wah: 24,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'กรุงเทพมหานคร',
+        district: 'บางนา',
+        subdistrict: 'บางนาใต้',
+        highlight: '3 ห้องนอน 3 ห้องน้ำ จอดรถ 2 คัน เดินไป BTS ได้ เหมาะทำโฮมออฟฟิศ',
+        sellerType: 'นายหน้า',
+        verified: true,
+        sellerName: 'BKK Prime Living',
+        sellerPhone: '098-112-6655',
+        views: 1670,
+        interestedCount: 16,
+        isFlashDeal: false,
+        createdAt: Date.now() - 1000 * 60 * 60 * 80,
+        images: [
+          'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'ทาวน์โฮม 3 ชั้นหน้ากว้าง 5.5 เมตร รีโนเวทใหม่ทั้งระบบ เดินสายไฟ-ประปาใหม่ ปูพื้นกระเบื้องยาง SPC ลายไม้ ครัวบิวท์อินพร้อมเครื่องดูดควัน ทำเลศักยภาพใกล้ไบเทคบางนา ทางด่วนบางนา และโรงเรียนนานาชาติเบิร์คลีย์ ยื่นกู้ธนาคารได้เต็ม 100%'
+      },
+      {
+        id: 'prop-109',
+        title: 'ที่ดินเปล่าทำเลทองติดถนนมิตรภาพ เหมาะสร้างโชว์รูม ปั๊มน้ำมัน หรือคอมมูนิตี้มอลล์',
+        category: 'ที่ดินติดถนนใหญ่',
+        price: 22500000,
+        appraisedPrice: 24000000,
+        rai: 5,
+        ngan: 0,
+        wah: 0,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'ขอนแก่น',
+        district: 'เมืองขอนแก่น',
+        subdistrict: 'สำราญ',
+        highlight: 'ติดถนนมิตรภาพขาเข้าเมือง หน้ากว้าง 65 เมตร ผังเมืองสีชมพู',
+        sellerType: 'เจ้าของขายเอง',
+        verified: true,
+        sellerName: 'คุณวิชัย ศรีอีสาน',
+        sellerPhone: '081-544-9090',
+        views: 1320,
+        interestedCount: 11,
+        isFlashDeal: false,
+        createdAt: Date.now() - 1000 * 60 * 60 * 96,
+        images: [
+          'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'ที่ดินแปลงใหญ่หน้ากว้างติดถนนมิตรภาพ ใกล้ ม.ขอนแก่น และโรงพยาบาลศรีนครินทร์เพียง 10 นาที ใกล้จุดกลับรถ เดินทางสะดวกมาก เหมาะสำหรับนักลงทุนที่ต้องการเปิดโชว์รูมรถยนต์ สถานีบริการน้ำมัน คลังสินค้า หรือโครงการจัดสรร'
+      },
+      {
+        id: 'prop-110',
+        title: 'บ้านสวนเกษตรพอเพียง พร้อมสระน้ำและไม้ผลผสม ร่มรื่น เดินทางจาก กทม. เพียง 1.5 ชม.',
+        category: 'สวนเกษตร / สวนผลไม้',
+        price: 3290000,
+        appraisedPrice: 4100000,
+        rai: 3,
+        ngan: 2,
+        wah: 80,
+        deed: 'โฉนดครุฑแดง (น.ส.4 จ.)',
+        province: 'ราชบุรี',
+        district: 'สวนผึ้ง',
+        subdistrict: 'ท่าเคย',
+        highlight: 'มีบ้านพัก 1 หลัง บ่อปลา 2 บ่อ มะม่วง มะพร้าวน้ำหอม กล้วย ครบพร้อมอยู่',
+        sellerType: 'เจ้าของขายเอง',
+        verified: true,
+        sellerName: 'คุณนภาวรรณ บ้านสวน',
+        sellerPhone: '087-321-6540',
+        views: 2490,
+        interestedCount: 28,
+        isFlashDeal: true,
+        createdAt: Date.now() - 1000 * 60 * 60 * 18,
+        images: [
+          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'บ้านสวนโคกหนองนาออกแบบไว้ลงตัวมาก เจ้าของดูแลเองอย่างดีแต่ต้องย้ายไปอยู่กับลูกหลาน จึงขอส่งต่อในราคาต่ำกว่าประเมิน พื้นที่มีไม้ผลหลากหลายพันธุ์ เก็บกินได้ตลอดปี อากาศดีเย็นสบายสไตล์สวนผึ้ง มีเพื่อนบ้านไม่เปลี่ยว น้ำประปา-ไฟฟ้าพร้อมใช้งาน'
+      }
+    ];
+
+    // =========================================================================
+    // 2. STATE & SAFE LOCALSTORAGE HELPERS
+    // =========================================================================
+    const STORAGE_KEYS = {
+      USER_LISTINGS: 'landshop_user_listings_v1',
+      SAVED_IDS: 'landshop_saved_ids_v1',
+    };
+
+    function safeGetStorage(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (err) {
+        console.warn('localStorage read failed:', err);
+        return fallback;
+      }
+    }
+
+    function safeSetStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+      } catch (err) {
+        console.warn('localStorage write failed:', err);
+        return false;
+      }
+    }
+
+    const state = {
+      userListings: safeGetStorage(STORAGE_KEYS.USER_LISTINGS, []),
+      savedIds: safeGetStorage(STORAGE_KEYS.SAVED_IDS, ['prop-101', 'prop-102']),
+      searchQuery: '',
+      selectedCategory: 'ALL',
+      selectedProvince: 'ALL',
+      sortBy: 'popular',
+      ownerOnly: false,
+      discountOnly: false,
+      activeListingId: null,
+      activeImageIndex: 0,
+      revealedPhoneIds: new Set(),
+      uploadedImages: [],
+      currentSlide: 0,
+      carouselTimer: null,
+      chatListingId: null,
+      chatHistory: {},
+      pendingDeleteId: null,
+    };
+
+    // รวมประกาศของผู้ใช้ไว้ด้านบน + ประกาศตัวอย่าง
+    function getAllListings() {
+      return [...state.userListings, ...SAMPLE_LISTINGS];
+    }
+
+    // =========================================================================
+    // 3. UTILITY FORMATTERS (ราคา, เนื้อที่ไทย, ราคาต่อไร่/ตร.วา, ส่วนลด)
+    // =========================================================================
+    function formatPrice(num) {
+      const n = Number(num) || 0;
+      return '฿' + n.toLocaleString('th-TH');
+    }
+
+    function formatArea(rai = 0, ngan = 0, wah = 0) {
+      const parts = [];
+      if (Number(rai) > 0) parts.push(`${Number(rai).toLocaleString('th-TH')} ไร่`);
+      if (Number(ngan) > 0) parts.push(`${Number(ngan)} งาน`);
+      if (Number(wah) > 0) parts.push(`${Number(wah)} ตร.วา`);
+      return parts.length ? parts.join(' ') : 'ไม่ระบุเนื้อที่';
+    }
+
+    function getTotalSqWah(rai = 0, ngan = 0, wah = 0) {
+      return (Number(rai) || 0) * 400 + (Number(ngan) || 0) * 100 + (Number(wah) || 0);
+    }
+
+    function getUnitPriceText(price, rai, ngan, wah) {
+      const totalWah = getTotalSqWah(rai, ngan, wah);
+      if (totalWah <= 0) return '';
+      if (totalWah >= 400) {
+        const perRai = Math.round(price / (totalWah / 400));
+        return `เฉลี่ย ${formatPrice(perRai)} / ไร่ (${formatPrice(Math.round(price / totalWah))} / ตร.วา)`;
+      }
+      const perWah = Math.round(price / totalWah);
+      return `เฉลี่ย ${formatPrice(perWah)} / ตร.วา`;
+    }
+
+    function getDiscountPercent(price, appraisedPrice) {
+      if (!appraisedPrice || appraisedPrice <= price) return 0;
+      return Math.round(((appraisedPrice - price) / appraisedPrice) * 100);
+    }
+
+    function formatViews(num) {
+      if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+      return String(num);
+    }
+
+    function escapeHTML(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // คัดลอกข้อความลงคลิปบอร์ดแบบรองรับ iFrame (ใช้ document.execCommand('copy'))
+    function copyToClipboard(text) {
+      try {
+        const tempInput = document.createElement('textarea');
+        tempInput.value = text;
+        tempInput.style.position = 'fixed';
+        tempInput.style.opacity = '0';
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    // แสดง Toast แจ้งเตือน (ไม่ใช้ alert() เด็ดขาด)
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const styles = {
+        success: 'bg-gray-900/95 text-white border-l-4 border-emerald-400',
+        info: 'bg-gray-900/95 text-white border-l-4 border-shopee',
+        error: 'bg-red-600 text-white border-l-4 border-white',
+      };
+      const iconName = type === 'error' ? 'alert-circle' : type === 'info' ? 'info' : 'check-circle-2';
+      toast.className = `${styles[type] || styles.success} px-4 py-3 rounded-xl shadow-xl text-xs sm:text-sm font-medium flex items-center gap-2.5 animate-fade-scale pointer-events-auto w-full`;
+      toast.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4 shrink-0"></i><span>${escapeHTML(message)}</span>`;
+      container.appendChild(toast);
+      lucide.createIcons({ nodes: [toast] });
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(() => toast.remove(), 260);
+      }, 2800);
+    }
+
+    // =========================================================================
+    // 4. RENDER FUNCTIONS: CATEGORIES, FLASH DEALS, PROVINCES & MAIN GRID
+    // =========================================================================
+    function renderCategories() {
+      const grid = document.getElementById('category-grid');
+      grid.innerHTML = CATEGORIES.map((cat) => {
+        const isActive = state.selectedCategory === cat.id;
+        return `
+          <button
+            type="button"
+            onclick="selectCategory('${cat.id}')"
+            class="p-3 sm:p-4 flex flex-col items-center justify-center gap-2 text-center transition hover:bg-shopee-soft/60 relative ${
+              isActive ? 'bg-shopee-soft text-shopee font-semibold ring-2 ring-inset ring-shopee' : 'text-gray-700 bg-white'
+            }"
+          >
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center transition ${
+              isActive ? 'bg-shopee text-white shadow-sm' : cat.color
+            }">
+              <i data-lucide="${cat.icon}" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+            </div>
+            <span class="text-[11px] sm:text-xs leading-tight">${escapeHTML(cat.label)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderFlashDeals() {
+      const row = document.getElementById('flash-deal-row');
+      const deals = getAllListings()
+        .filter((item) => getDiscountPercent(item.price, item.appraisedPrice) > 0)
+        .sort((a, b) => getDiscountPercent(b.price, b.appraisedPrice) - getDiscountPercent(a.price, a.appraisedPrice))
+        .slice(0, 6);
+
+      if (!deals.length) {
+        document.getElementById('flash-deal-section').classList.add('hidden');
+        return;
+      }
+
+      document.getElementById('flash-deal-section').classList.remove('hidden');
+      row.innerHTML = deals.map((item) => {
+        const discount = getDiscountPercent(item.price, item.appraisedPrice);
+        const interest = item.interestedCount || 12;
+        const progressPct = Math.min(94, Math.max(38, interest * 3));
+        const imgUrl = (item.images && item.images[0]) || FALLBACK_IMG;
+
+        return `
+          <article
+            onclick="openDetailModal('${item.id}')"
+            class="snap-start shrink-0 w-[195px] sm:w-[225px] bg-white rounded-xl border border-gray-100 hover:border-shopee hover:shadow-md hover:-translate-y-0.5 transition cursor-pointer overflow-hidden flex flex-col"
+          >
+            <div class="relative aspect-[4/3] bg-gray-100 overflow-hidden">
+              <img src="${imgUrl}" onerror="this.src='${FALLBACK_IMG}'" alt="${escapeHTML(item.title)}" class="w-full h-full object-cover" />
+              <span class="absolute top-2 left-2 bg-shopee text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-0.5">
+                <i data-lucide="zap" class="w-3 h-3 fill-white"></i> ดีลด่วน
+              </span>
+              <!-- ป้ายมุมขวาบนสีเหลืองสไตล์ Shopee -->
+              <div class="absolute top-0 right-0 bg-shopee-yellow text-shopee px-1.5 pt-1 pb-2.5 text-center leading-none shopee-discount-flag shadow-sm">
+                <div class="text-xs font-extrabold">-${discount}%</div>
+                <div class="text-[8px] font-semibold text-gray-800 mt-0.5">ต่ำกว่าประเมิน</div>
+              </div>
+              <span class="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded backdrop-blur-[1px]">
+                ${escapeHTML(formatArea(item.rai, item.ngan, item.wah))}
+              </span>
+            </div>
+
+            <div class="p-2.5 flex-1 flex flex-col justify-between gap-2">
+              <div>
+                <h3 class="text-xs font-medium text-gray-800 clamp-2 min-h-[2rem]">${escapeHTML(item.title)}</h3>
+                <div class="text-[11px] text-gray-400 flex items-center gap-1 mt-1 truncate">
+                  <i data-lucide="map-pin" class="w-3 h-3 shrink-0 text-gray-400"></i>
+                  <span class="truncate">${escapeHTML(item.district)}, ${escapeHTML(item.province)}</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="text-[11px] text-gray-400 line-through leading-none">${formatPrice(item.appraisedPrice)}</div>
+                <div class="text-base font-bold text-shopee leading-tight mt-0.5">${formatPrice(item.price)}</div>
+
+                <!-- แถบความสนใจสไตล์ Shopee Flash Sale -->
+                <div class="mt-2 relative h-4 bg-orange-100 rounded-full overflow-hidden flex items-center justify-center">
+                  <div class="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-[#ee4d2d] to-[#ff7b3a] rounded-full" style="width: ${progressPct}%"></div>
+                  <span class="relative z-10 text-[10px] font-semibold text-white drop-shadow-sm flex items-center gap-1">
+                    🔥 มีผู้สนใจแล้ว ${interest} ราย
+                  </span>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function populateProvinceDropdown() {
+      const select = document.getElementById('province-filter');
+      const provinces = Array.from(new Set(getAllListings().map((i) => i.province).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'th'));
+      const current = state.selectedProvince;
+      select.innerHTML = `<option value="ALL">ทุกจังหวัด (${provinces.length})</option>` +
+        provinces.map((p) => `<option value="${escapeHTML(p)}" ${current === p ? 'selected' : ''}>จ.${escapeHTML(p)}</option>`).join('');
+    }
+
+    function getFilteredAndSortedListings() {
+      let list = getAllListings();
+
+      // กรองตามหมวดหมู่
+      if (state.selectedCategory !== 'ALL') {
+        list = list.filter((item) => item.category === state.selectedCategory);
+      }
+
+      // กรองตามจังหวัด
+      if (state.selectedProvince !== 'ALL') {
+        list = list.filter((item) => item.province === state.selectedProvince);
+      }
+
+      // กรองเฉพาะเจ้าของขายเอง
+      if (state.ownerOnly) {
+        list = list.filter((item) => item.sellerType === 'เจ้าของขายเอง');
+      }
+
+      // กรองเฉพาะต่ำกว่าราคาประเมิน
+      if (state.discountOnly) {
+        list = list.filter((item) => getDiscountPercent(item.price, item.appraisedPrice) > 0);
+      }
+
+      // กรองตามคำค้นหา
+      const q = state.searchQuery.trim().toLowerCase();
+      if (q) {
+        list = list.filter((item) => {
+          const hay = [
+            item.title,
+            item.category,
+            item.province,
+            item.district,
+            item.subdistrict,
+            item.deed,
+            item.highlight,
+            item.description,
+            item.sellerType,
+          ].join(' ').toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      // เรียงลำดับ
+      if (state.sortBy === 'newest') {
+        list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } else if (state.sortBy === 'price_asc') {
+        list.sort((a, b) => a.price - b.price);
+      } else if (state.sortBy === 'price_desc') {
+        list.sort((a, b) => b.price - a.price);
+      } else {
+        // ยอดนิยม
+        list.sort((a, b) => (b.views || 0) - (a.views || 0));
+      }
+
+      return list;
+    }
+
+    function updateSortButtonsUI() {
+      document.querySelectorAll('.sort-btn').forEach((btn) => {
+        const active = btn.dataset.sort === state.sortBy;
+        btn.className = `sort-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium shrink-0 transition ${
+          active ? 'bg-shopee text-white shadow-sm' : 'bg-white text-gray-700 hover:text-shopee border border-gray-200'
+        }`;
+      });
+    }
+
+    function renderActiveFilterChips() {
+      const chipsEl = document.getElementById('active-filter-chips');
+      const resetBtn = document.getElementById('reset-filters-btn');
+      const chips = [];
+
+      if (state.searchQuery.trim()) {
+        chips.push({ label: `คำค้น: "${state.searchQuery.trim()}"`, action: 'clearSearch()' });
+      }
+      if (state.selectedCategory !== 'ALL') {
+        chips.push({ label: `หมวดหมู่: ${state.selectedCategory}`, action: "selectCategory('ALL')" });
+      }
+      if (state.selectedProvince !== 'ALL') {
+        chips.push({ label: `จังหวัด: ${state.selectedProvince}`, action: "setProvinceFilter('ALL')" });
+      }
+      if (state.ownerOnly) {
+        chips.push({ label: 'เจ้าของขายเอง', action: 'setOwnerOnly(false)' });
+      }
+      if (state.discountOnly) {
+        chips.push({ label: 'ต่ำกว่าราคาประเมิน', action: 'setDiscountOnly(false)' });
+      }
+
+      if (chips.length) {
+        chipsEl.classList.remove('hidden');
+        chipsEl.classList.add('flex');
+        resetBtn.classList.remove('hidden');
+        chipsEl.innerHTML = chips.map((c) => `
+          <span class="inline-flex items-center gap-1.5 bg-white border border-shopee/40 text-shopee px-2.5 py-1 rounded-full shadow-sm">
+            <span>${escapeHTML(c.label)}</span>
+            <button type="button" onclick="${c.action}" class="hover:bg-shopee-soft rounded-full p-0.5"><i data-lucide="x" class="w-3 h-3"></i></button>
+          </span>
+        `).join('');
+      } else {
+        chipsEl.classList.add('hidden');
+        chipsEl.classList.remove('flex');
+        resetBtn.classList.add('hidden');
+      }
+    }
+
+    function renderListingsGrid() {
+      const grid = document.getElementById('listings-grid');
+      const emptyState = document.getElementById('empty-state');
+      const countPill = document.getElementById('result-count-pill');
+
+      const items = getFilteredAndSortedListings();
+      countPill.textContent = `${items.length} รายการ`;
+
+      updateSortButtonsUI();
+      renderActiveFilterChips();
+
+      if (!items.length) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        lucide.createIcons();
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      grid.innerHTML = items.map((item) => {
+        const discount = getDiscountPercent(item.price, item.appraisedPrice);
+        const isSaved = state.savedIds.includes(item.id);
+        const imgUrl = (item.images && item.images[0]) || FALLBACK_IMG;
+        const isOwner = item.sellerType === 'เจ้าของขายเอง';
+        const shortDeed = item.deed.includes('ครุฑแดง') ? 'โฉนดครุฑแดง' : item.deed;
+
+        return `
+          <article
+            onclick="openDetailModal('${item.id}')"
+            class="bg-white rounded-xl border border-transparent hover:border-shopee shadow-sm hover:shadow-md hover:-translate-y-0.5 transition duration-200 cursor-pointer overflow-hidden flex flex-col group"
+          >
+            <!-- รูปภาพ 4:3 พร้อมป้ายมุม -->
+            <div class="relative aspect-[4/3] bg-gray-100 overflow-hidden">
+              <img
+                src="${imgUrl}"
+                onerror="this.src='${FALLBACK_IMG}'"
+                alt="${escapeHTML(item.title)}"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+              />
+
+              <!-- ป้ายซ้ายบน: เจ้าของขายเอง / ยืนยันแล้ว -->
+              <span class="absolute top-2 left-0 ${
+                isOwner ? 'bg-shopee text-white' : 'bg-emerald-600 text-white'
+              } text-[10px] font-semibold px-2 py-0.5 rounded-r-md shadow-sm">
+                ${isOwner ? 'เจ้าของขายเอง' : 'ยืนยันแล้ว'}
+              </span>
+
+              <!-- ป้ายขวาบน: ส่วนลดสีเหลืองสไตล์ Shopee -->
+              ${
+                discount > 0
+                  ? `<div class="absolute top-0 right-0 bg-shopee-yellow text-shopee px-1.5 pt-1 pb-2 text-center leading-none shopee-discount-flag shadow-sm">
+                      <div class="text-[11px] font-extrabold">-${discount}%</div>
+                      <div class="text-[8px] font-semibold text-gray-800">ลดพิเศษ</div>
+                    </div>`
+                  : ''
+              }
+
+              <!-- ป้ายซ้ายล่าง: เอกสารสิทธิ์ -->
+              <span class="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md backdrop-blur-[1px]">
+                ${escapeHTML(shortDeed)}
+              </span>
+            </div>
+
+            <!-- เนื้อหาการ์ด -->
+            <div class="p-2.5 sm:p-3 flex-1 flex flex-col justify-between gap-2">
+              <div>
+                <h3 class="text-xs sm:text-[13px] text-gray-800 font-normal leading-snug clamp-2 min-h-[2.3rem]">
+                  ${escapeHTML(item.title)}
+                </h3>
+
+                <!-- ป้ายขนาดเนื้อที่ดินแบบหน่วยไทย -->
+                <div class="mt-1.5 flex flex-wrap items-center gap-1">
+                  <span class="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-shopee bg-shopee-soft border border-shopee/30 px-1.5 py-0.5 rounded">
+                    <i data-lucide="maximize-2" class="w-2.5 h-2.5"></i>
+                    ${escapeHTML(formatArea(item.rai, item.ngan, item.wah))}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <!-- ราคา -->
+                <div class="flex items-baseline gap-1.5 flex-wrap">
+                  <span class="text-sm sm:text-base font-bold text-shopee">${formatPrice(item.price)}</span>
+                  ${
+                    discount > 0
+                      ? `<span class="text-[10px] sm:text-[11px] text-gray-400 line-through">${formatPrice(item.appraisedPrice)}</span>`
+                      : ''
+                  }
+                </div>
+
+                <!-- แถวล่าง: ที่ตั้ง + ยอดเข้าชม + ปุ่มหัวใจ -->
+                <div class="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between gap-1 text-[10px] sm:text-[11px] text-gray-500">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-0.5 truncate">
+                      <i data-lucide="map-pin" class="w-3 h-3 text-gray-400 shrink-0"></i>
+                      <span class="truncate">${escapeHTML(item.district)}, ${escapeHTML(item.province)}</span>
+                    </div>
+                    <div class="text-[10px] text-gray-400 mt-0.5">เข้าชม ${formatViews(item.views || 120)}</div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onclick="toggleFavorite(event, '${item.id}')"
+                    class="p-1.5 rounded-full hover:bg-shopee-soft transition shrink-0 ${isSaved ? 'text-shopee' : 'text-gray-300 hover:text-shopee'}"
+                    aria-label="บันทึกที่สนใจ"
+                  >
+                    <i data-lucide="heart" class="w-4 h-4 ${isSaved ? 'fill-shopee' : ''}"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // 5. FILTER, SEARCH & CAROUSEL HANDLERS
+    // =========================================================================
+    function handleSearchInput(val) {
+      state.searchQuery = val;
+      document.getElementById('clear-search-btn').classList.toggle('hidden', !val.trim());
+      renderListingsGrid();
+    }
+
+    function handleSearchSubmit(e) {
+      e.preventDefault();
+      document.getElementById('listings-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('search-input');
+      input.value = '';
+      state.searchQuery = '';
+      document.getElementById('clear-search-btn').classList.add('hidden');
+      renderListingsGrid();
+    }
+
+    function quickKeywordSearch(keyword) {
+      const input = document.getElementById('search-input');
+      input.value = keyword;
+      state.searchQuery = keyword;
+      document.getElementById('clear-search-btn').classList.remove('hidden');
+      renderListingsGrid();
+      document.getElementById('listings-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function selectCategory(catId) {
+      state.selectedCategory = catId;
+      renderCategories();
+      renderListingsGrid();
+    }
+
+    function selectCategoryAndScroll(catId) {
+      selectCategory(catId);
+      document.getElementById('listings-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function setSort(sortBy) {
+      state.sortBy = sortBy;
+      renderListingsGrid();
+    }
+
+    function setProvinceFilter(prov) {
+      state.selectedProvince = prov;
+      document.getElementById('province-filter').value = prov;
+      renderListingsGrid();
+    }
+
+    function setOwnerOnly(checked) {
+      state.ownerOnly = checked;
+      document.getElementById('owner-only-toggle').checked = checked;
+      renderListingsGrid();
+    }
+
+    function setDiscountOnly(checked) {
+      state.discountOnly = checked;
+      document.getElementById('discount-only-toggle').checked = checked;
+      renderListingsGrid();
+    }
+
+    function activateOwnerOnlyAndScroll() {
+      setOwnerOnly(true);
+      document.getElementById('listings-section').scrollIntoView({ behavior: 'smooth' });
+      showToast('แสดงเฉพาะประกาศเจ้าของขายเอง', 'info');
+    }
+
+    function activateDiscountFilterAndScroll() {
+      setDiscountOnly(true);
+      document.getElementById('listings-section').scrollIntoView({ behavior: 'smooth' });
+      showToast('แสดงเฉพาะทรัพย์ราคาต่ำกว่าประเมิน', 'info');
+    }
+
+    function resetAllFilters() {
+      state.searchQuery = '';
+      state.selectedCategory = 'ALL';
+      state.selectedProvince = 'ALL';
+      state.sortBy = 'popular';
+      state.ownerOnly = false;
+      state.discountOnly = false;
+
+      document.getElementById('search-input').value = '';
+      document.getElementById('clear-search-btn').classList.add('hidden');
+      document.getElementById('province-filter').value = 'ALL';
+      document.getElementById('owner-only-toggle').checked = false;
+      document.getElementById('discount-only-toggle').checked = false;
+
+      renderCategories();
+      renderListingsGrid();
+    }
+
+    // Carousel ควบคุมสไลด์แบนเนอร์
+    function goToSlide(index) {
+      const total = 3;
+      state.currentSlide = (index + total) % total;
+      const track = document.getElementById('carousel-track');
+      track.style.transform = `translateX(-${state.currentSlide * 100}%)`;
+
+      const dots = document.querySelectorAll('#carousel-dots button');
+      dots.forEach((dot, idx) => {
+        dot.className = idx === state.currentSlide
+          ? 'w-6 h-2 rounded-full bg-shopee transition-all'
+          : 'w-2 h-2 rounded-full bg-white/60 hover:bg-white transition-all';
+      });
+    }
+
+    function moveCarousel(step) {
+      goToSlide(state.currentSlide + step);
+      restartCarouselTimer();
+    }
+
+    function restartCarouselTimer() {
+      if (state.carouselTimer) clearInterval(state.carouselTimer);
+      state.carouselTimer = setInterval(() => goToSlide(state.currentSlide + 1), 5500);
+    }
+
+    // นาฬิกานับถอยหลังดีลด่วน
+    function startFlashDealTimer() {
+      let remainingSeconds = 5 * 3600 + 42 * 60 + 19;
+      setInterval(() => {
+        remainingSeconds = remainingSeconds > 0 ? remainingSeconds - 1 : 6 * 3600;
+        const h = String(Math.floor(remainingSeconds / 3600)).padStart(2, '0');
+        const m = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, '0');
+        const s = String(remainingSeconds % 60).padStart(2, '0');
+        document.getElementById('timer-h').textContent = h;
+        document.getElementById('timer-m').textContent = m;
+        document.getElementById('timer-s').textContent = s;
+      }, 1000);
+    }
+
+    // =========================================================================
+    // 6. FAVORITES (รายการที่สนใจ)
+    // =========================================================================
+    function updateFavoriteBadges() {
+      const count = state.savedIds.length;
+      document.getElementById('fav-badge-desktop').textContent = count;
+      document.getElementById('fav-badge-mobile').textContent = count;
+      document.getElementById('drawer-fav-count').textContent = count;
+    }
+
+    function toggleFavorite(event, id) {
+      if (event) event.stopPropagation();
+      const idx = state.savedIds.indexOf(id);
+      if (idx === -1) {
+        state.savedIds.unshift(id);
+        showToast('บันทึกในรายการที่สนใจแล้ว ❤️');
+      } else {
+        state.savedIds.splice(idx, 1);
+        showToast('นำออกจากรายการที่สนใจแล้ว', 'info');
+      }
+      safeSetStorage(STORAGE_KEYS.SAVED_IDS, state.savedIds);
+      updateFavoriteBadges();
+      renderListingsGrid();
+      renderFavoritesDrawer();
+      if (state.activeListingId === id) {
+        renderDetailModalContent(id);
+      }
+    }
+
+    function toggleFavoritesDrawer(open) {
+      const drawer = document.getElementById('favorites-drawer-backdrop');
+      if (open) {
+        renderFavoritesDrawer();
+        drawer.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      } else {
+        drawer.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function renderFavoritesDrawer() {
+      const container = document.getElementById('favorites-drawer-list');
+      const all = getAllListings();
+      const savedItems = state.savedIds.map((id) => all.find((x) => x.id === id)).filter(Boolean);
+
+      if (!savedItems.length) {
+        container.innerHTML = `
+          <div class="text-center py-14 px-4">
+            <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300 shadow-sm">
+              <i data-lucide="heart" class="w-8 h-8"></i>
+            </div>
+            <p class="text-sm font-semibold text-gray-700">ยังไม่มีรายการที่สนใจ</p>
+            <p class="text-xs text-gray-400 mt-1">กดปุ่มรูปหัวใจบนประกาศที่ชอบเพื่อเก็บไว้เปรียบเทียบภายหลัง</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = savedItems.map((item) => {
+        const imgUrl = (item.images && item.images[0]) || FALLBACK_IMG;
+        return `
+          <div class="bg-white rounded-xl p-3 shadow-sm border border-gray-100 flex gap-3 hover:border-shopee transition">
+            <img
+              src="${imgUrl}"
+              onerror="this.src='${FALLBACK_IMG}'"
+              onclick="toggleFavoritesDrawer(false); openDetailModal('${item.id}');"
+              class="w-24 h-20 rounded-lg object-cover shrink-0 cursor-pointer"
+              alt="${escapeHTML(item.title)}"
+            />
+            <div class="flex-1 min-w-0 flex flex-col justify-between">
+              <div>
+                <h4 onclick="toggleFavoritesDrawer(false); openDetailModal('${item.id}');" class="text-xs font-medium text-gray-800 clamp-2 cursor-pointer hover:text-shopee">${escapeHTML(item.title)}</h4>
+                <div class="text-[11px] text-gray-400 mt-0.5">${escapeHTML(formatArea(item.rai, item.ngan, item.wah))} • จ.${escapeHTML(item.province)}</div>
+              </div>
+              <div class="flex items-center justify-between mt-1.5">
+                <span class="text-sm font-bold text-shopee">${formatPrice(item.price)}</span>
+                <button type="button" onclick="toggleFavorite(event, '${item.id}')" class="text-xs text-gray-400 hover:text-red-500 flex items-center gap-0.5 px-1.5 py-0.5 rounded hover:bg-red-50 transition">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  <span>ลบ</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // 7. PROPERTY DETAIL MODAL (SHOPEE PRODUCT PAGE STYLE)
+    // =========================================================================
+    function openDetailModal(id) {
+      const item = getAllListings().find((x) => x.id === id);
+      if (!item) return;
+
+      // เพิ่มยอดเข้าชมเมื่อเปิดดู
+      item.views = (item.views || 0) + 1;
+      state.activeListingId = id;
+      state.activeImageIndex = 0;
+
+      document.getElementById('detail-breadcrumb-cat').textContent = item.category;
+      renderDetailModalContent(id);
+
+      document.getElementById('detail-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      renderListingsGrid();
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').classList.add('hidden');
+      state.activeListingId = null;
+      document.body.style.overflow = '';
+    }
+
+    function setDetailImage(idx) {
+      state.activeImageIndex = idx;
+      renderDetailModalContent(state.activeListingId);
+    }
+
+    function stepDetailImage(delta) {
+      const item = getAllListings().find((x) => x.id === state.activeListingId);
+      if (!item || !item.images || !item.images.length) return;
+      state.activeImageIndex = (state.activeImageIndex + delta + item.images.length) % item.images.length;
+      renderDetailModalContent(state.activeListingId);
+    }
+
+    function revealAndCopyPhone(id) {
+      const item = getAllListings().find((x) => x.id === id);
+      if (!item) return;
+      state.revealedPhoneIds.add(id);
+      copyToClipboard(item.sellerPhone);
+      renderDetailModalContent(id);
+      showToast(`คัดลอกเบอร์โทร ${item.sellerPhone} แล้ว! พร้อมโทรติดต่อผู้ขาย`);
+    }
+
+    function renderDetailModalContent(id) {
+      const item = getAllListings().find((x) => x.id === id);
+      if (!item) return;
+
+      const images = item.images && item.images.length ? item.images : [FALLBACK_IMG];
+      const activeImg = images[state.activeImageIndex] || images[0];
+      const discount = getDiscountPercent(item.price, item.appraisedPrice);
+      const isSaved = state.savedIds.includes(item.id);
+      const isPhoneRevealed = state.revealedPhoneIds.has(item.id);
+      const totalWah = getTotalSqWah(item.rai, item.ngan, item.wah);
+      const unitPrice = getUnitPriceText(item.price, item.rai, item.ngan, item.wah);
+      const maskedPhone = item.sellerPhone.replace(/(\d{3})-?(\d{3})-?(\d{4})/, '$1-XXX-XXXX');
+      const sellerInitial = (item.sellerName || 'ผ').trim().charAt(0);
+
+      const body = document.getElementById('detail-modal-body');
+      body.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- ซ้าย: แกลเลอรีรูปภาพ -->
+          <div class="lg:col-span-5 space-y-3">
+            <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 border border-gray-200 group">
+              <img src="${activeImg}" onerror="this.src='${FALLBACK_IMG}'" alt="${escapeHTML(item.title)}" class="w-full h-full object-cover" />
+              ${
+                images.length > 1
+                  ? `
+                    <button type="button" onclick="stepDetailImage(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/45 hover:bg-black/70 text-white flex items-center justify-center transition">
+                      <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </button>
+                    <button type="button" onclick="stepDetailImage(1)" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/45 hover:bg-black/70 text-white flex items-center justify-center transition">
+                      <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </button>
+                    <span class="absolute bottom-2 right-2 bg-black/60 text-white text-[11px] px-2 py-0.5 rounded-full">
+                      ${state.activeImageIndex + 1} / ${images.length}
+                    </span>
+                  `
+                  : ''
+              }
+            </div>
+
+            <!-- ภาพย่อ Thumbnails -->
+            ${
+              images.length > 1
+                ? `
+                  <div class="grid grid-cols-5 gap-2">
+                    ${images
+                      .map(
+                        (img, idx) => `
+                          <button type="button" onclick="setDetailImage(${idx})" class="aspect-square rounded-lg overflow-hidden border-2 transition ${
+                            idx === state.activeImageIndex ? 'border-shopee ring-2 ring-shopee/20' : 'border-gray-200 opacity-75 hover:opacity-100'
+                          }">
+                            <img src="${img}" onerror="this.src='${FALLBACK_IMG}'" class="w-full h-full object-cover" alt="ภาพที่ ${idx + 1}" />
+                          </button>
+                        `
+                      )
+                      .join('')}
+                  </div>
+                `
+                : ''
+            }
+          </div>
+
+          <!-- ขวา: ข้อมูลหลัก ราคา สเปค และปุ่มติดต่อ -->
+          <div class="lg:col-span-7 flex flex-col justify-between space-y-4">
+            <div class="space-y-3.5">
+              <!-- แบดจ์สถานะ -->
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="${item.sellerType === 'เจ้าของขายเอง' ? 'bg-shopee text-white' : 'bg-blue-600 text-white'} text-xs font-semibold px-2.5 py-0.5 rounded-md">
+                  ${escapeHTML(item.sellerType)}
+                </span>
+                <span class="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium px-2.5 py-0.5 rounded-md flex items-center gap-1">
+                  <i data-lucide="file-check-2" class="w-3.5 h-3.5"></i>
+                  ${escapeHTML(item.deed)}
+                </span>
+                <span class="bg-gray-100 text-gray-600 text-xs px-2.5 py-0.5 rounded-md">${escapeHTML(item.category)}</span>
+              </div>
+
+              <!-- ชื่อประกาศ -->
+              <h2 class="text-lg sm:text-xl font-bold text-gray-900 leading-snug">${escapeHTML(item.title)}</h2>
+
+              <!-- สถิติการเข้าชม -->
+              <div class="flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                <span class="flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-gray-400"></i> เข้าชม ${(item.views || 0).toLocaleString('th-TH')} ครั้ง</span>
+                <span>|</span>
+                <span class="flex items-center gap-1"><i data-lucide="flame" class="w-3.5 h-3.5 text-shopee"></i> มีผู้สนใจ ${item.interestedCount || 8} ราย</span>
+                <span>|</span>
+                <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-shopee"></i> จ.${escapeHTML(item.province)}</span>
+              </div>
+
+              <!-- กล่องราคาสไตล์ Shopee -->
+              <div class="bg-[#fafafa] border border-gray-100 rounded-xl p-4">
+                ${
+                  discount > 0
+                    ? `
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="text-sm text-gray-400 line-through">${formatPrice(item.appraisedPrice)}</span>
+                        <span class="bg-shopee text-white text-[11px] font-bold px-2 py-0.5 rounded">ประหยัด ${discount}% ต่ำกว่าราคาประเมิน</span>
+                      </div>
+                    `
+                    : ''
+                }
+                <div class="text-2xl sm:text-3xl font-bold text-shopee">${formatPrice(item.price)}</div>
+                ${unitPrice ? `<div class="text-xs text-gray-500 mt-1">${unitPrice}</div>` : ''}
+              </div>
+
+              <!-- ตารางข้อมูลจำเพาะ -->
+              <div class="grid grid-cols-2 gap-2.5 text-xs sm:text-sm">
+                <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <div class="text-[11px] text-gray-400">เนื้อที่ดินรวม</div>
+                  <div class="font-semibold text-gray-800 mt-0.5">${escapeHTML(formatArea(item.rai, item.ngan, item.wah))}</div>
+                  ${totalWah > 0 ? `<div class="text-[11px] text-gray-500">(${totalWah.toLocaleString('th-TH')} ตร.วา)</div>` : ''}
+                </div>
+                <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                  <div class="text-[11px] text-gray-400">ที่ตั้งทรัพย์</div>
+                  <div class="font-semibold text-gray-800 mt-0.5">
+                    ${item.subdistrict ? `ต.${escapeHTML(item.subdistrict)} ` : ''}อ.${escapeHTML(item.district)}
+                  </div>
+                  <div class="text-[11px] text-gray-500">จ.${escapeHTML(item.province)}</div>
+                </div>
+              </div>
+
+              ${
+                item.highlight
+                  ? `
+                    <div class="bg-orange-50/70 border border-orange-100 rounded-xl p-3 flex items-start gap-2 text-xs sm:text-sm text-gray-700">
+                      <i data-lucide="sparkles" class="w-4 h-4 text-shopee shrink-0 mt-0.5"></i>
+                      <div><span class="font-semibold text-shopee">จุดเด่น: </span>${escapeHTML(item.highlight)}</div>
+                    </div>
+                  `
+                  : ''
+              }
+            </div>
+
+            <!-- ปุ่มดำเนินการหลัก (สไตล์ Shopee: แชท + โทร + บันทึก) -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-2">
+              <button
+                type="button"
+                onclick="openChatForListing('${item.id}')"
+                class="sm:col-span-5 bg-[#ffeee8] hover:bg-[#ffe1d6] text-shopee border border-shopee font-semibold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 transition active:scale-[0.99]"
+              >
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                <span>แชทกับผู้ขาย</span>
+              </button>
+
+              <button
+                type="button"
+                onclick="revealAndCopyPhone('${item.id}')"
+                class="sm:col-span-5 bg-shopee hover:bg-shopee-dark text-white font-semibold py-3 px-4 rounded-xl text-sm shadow-md flex items-center justify-center gap-2 transition active:scale-[0.99]"
+              >
+                <i data-lucide="phone-call" class="w-4 h-4"></i>
+                <span>${isPhoneRevealed ? escapeHTML(item.sellerPhone) : 'โทรหาผู้ขาย'}</span>
+              </button>
+
+              <button
+                type="button"
+                onclick="toggleFavorite(event, '${item.id}')"
+                class="sm:col-span-2 py-3 px-3 rounded-xl border ${
+                  isSaved ? 'border-shopee bg-shopee-soft text-shopee' : 'border-gray-300 text-gray-600 hover:border-shopee hover:text-shopee'
+                } flex items-center justify-center gap-1.5 text-sm font-medium transition"
+                title="บันทึกที่สนใจ"
+              >
+                <i data-lucide="heart" class="w-4 h-4 ${isSaved ? 'fill-shopee' : ''}"></i>
+                <span class="sm:hidden">${isSaved ? 'บันทึกแล้ว' : 'บันทึกที่สนใจ'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- การ์ดข้อมูลผู้ขาย -->
+        <div class="mt-6 bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[#ee4d2d] to-[#ff8547] text-white font-bold text-lg flex items-center justify-center shadow-sm">
+              ${escapeHTML(sellerInitial)}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-gray-800">${escapeHTML(item.sellerName)}</span>
+                <span class="text-[11px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-0.5">
+                  <i data-lucide="badge-check" class="w-3 h-3"></i> ยืนยันตัวตนแล้ว
+                </span>
+              </div>
+              <div class="text-xs text-gray-500 mt-0.5 flex flex-wrap items-center gap-3">
+                <span>เบอร์โทร: <strong class="text-gray-700">${isPhoneRevealed ? escapeHTML(item.sellerPhone) : escapeHTML(maskedPhone)}</strong></span>
+                <span class="text-emerald-600">● ตอบกลับไวภายใน 15 นาที</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onclick="revealAndCopyPhone('${item.id}')"
+            class="text-xs font-medium text-shopee hover:underline flex items-center gap-1"
+          >
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>${isPhoneRevealed ? 'คัดลอกเบอร์อีกครั้ง' : 'คลิกดูและคัดลอกเบอร์โทร'}</span>
+          </button>
+        </div>
+
+        <!-- รายละเอียดเพิ่มเติม -->
+        <div class="mt-5 border-t border-gray-100 pt-5">
+          <h3 class="text-sm sm:text-base font-bold text-gray-800 mb-2 flex items-center gap-2">
+            <i data-lucide="align-left" class="w-4 h-4 text-shopee"></i>
+            <span>รายละเอียดอสังหาริมทรัพย์</span>
+          </h3>
+          <p class="text-xs sm:text-sm text-gray-600 leading-relaxed whitespace-pre-line">${escapeHTML(item.description)}</p>
+        </div>
+      `;
+
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // 8. SIMULATED CHAT WIDGET (แชทจำลองกับผู้ขาย)
+    // =========================================================================
+    function openChatForListing(id) {
+      const item = getAllListings().find((x) => x.id === id);
+      if (!item) return;
+
+      state.chatListingId = id;
+      if (!state.chatHistory[id]) {
+        state.chatHistory[id] = [
+          {
+            sender: 'seller',
+            text: `สวัสดีครับ สนใจ "${item.title}" ที่ จ.${item.province} สอบถามรายละเอียดเพิ่มเติมหรือนัดดูพื้นที่จริงได้เลยนะครับ 😊`,
+            time: getCurrentTimeStr(),
+          },
+        ];
+      }
+
+      document.getElementById('chat-seller-name').textContent = item.sellerName;
+      document.getElementById('chat-avatar').textContent = (item.sellerName || 'ผ').charAt(0);
+
+      const imgUrl = (item.images && item.images[0]) || FALLBACK_IMG;
+      document.getElementById('chat-property-banner').innerHTML = `
+        <img src="${imgUrl}" onerror="this.src='${FALLBACK_IMG}'" class="w-11 h-11 rounded-lg object-cover shrink-0" />
+        <div class="min-w-0 flex-1">
+          <div class="text-xs font-medium text-gray-800 truncate">${escapeHTML(item.title)}</div>
+          <div class="text-xs font-bold text-shopee">${formatPrice(item.price)} <span class="text-[10px] text-gray-500 font-normal">• ${escapeHTML(formatArea(item.rai, item.ngan, item.wah))}</span></div>
+        </div>
+      `;
+
+      renderChatMessages();
+      document.getElementById('chat-widget').classList.remove('hidden');
+      document.getElementById('chat-input').focus();
+      lucide.createIcons();
+    }
+
+    function closeChatWidget() {
+      document.getElementById('chat-widget').classList.add('hidden');
+    }
+
+    function getCurrentTimeStr() {
+      const now = new Date();
+      return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    }
+
+    function renderChatMessages() {
+      const container = document.getElementById('chat-messages');
+      const messages = state.chatHistory[state.chatListingId] || [];
+
+      container.innerHTML = messages
+        .map((msg) => {
+          const isMe = msg.sender === 'me';
+          return `
+            <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+              <div class="max-w-[82%] ${
+                isMe ? 'bg-shopee text-white rounded-2xl rounded-tr-sm' : 'bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-tl-sm'
+              } px-3.5 py-2 shadow-sm">
+                <p class="leading-relaxed">${escapeHTML(msg.text)}</p>
+                <div class="text-[10px] mt-1 text-right ${isMe ? 'text-white/80' : 'text-gray-400'}">${msg.time}</div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function sendQuickChat(text) {
+      document.getElementById('chat-input').value = text;
+      handleChatSend(new Event('submit'));
+    }
+
+    function handleChatSend(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text || !state.chatListingId) return;
+
+      const id = state.chatListingId;
+      const item = getAllListings().find((x) => x.id === id);
+
+      state.chatHistory[id].push({ sender: 'me', text, time: getCurrentTimeStr() });
+      input.value = '';
+      renderChatMessages();
+
+      // สร้างข้อความตอบกลับอัตโนมัติแบบสมจริง
+      setTimeout(() => {
+        if (state.chatListingId !== id) return;
+        let reply = `ขอบคุณที่ทักมานะครับ แปลงนี้ยังมีสถานะว่างอยู่ครับ หากสะดวกสามารถโทรคุยรายละเอียดเพิ่มเติมที่เบอร์ ${item ? item.sellerPhone : ''} ได้เลยครับ`;
+
+        if (text.includes('ลด') || text.includes('ต่อรอง') || text.includes('ราคา')) {
+          reply = `ถ้าสนใจจริงและพร้อมนัดดูพื้นที่ สามารถคุยต่อรองราคากันหน้างานได้อีกนิดหน่อยครับ ค่าโอนเดี๋ยวช่วยดูแลให้ครับ`;
+        } else if (text.includes('โฉนด') || text.includes('พิกัด') || text.includes('แผนที่')) {
+          reply = `เอกสารสิทธิ์เป็น ${item ? item.deed : 'โฉนดถูกต้อง'} ชื่อพร้อมโอนครับ สามารถแอดไลน์เบอร์ ${item ? item.sellerPhone : ''} เพื่อรับพิกัด GPS และรูปหน้าโฉนดได้เลยครับ`;
+        } else if (text.includes('นัด') || text.includes('ดูที่') || text.includes('เสาร์') || text.includes('อาทิตย์')) {
+          reply = `ยินดีเลยครับ เสาร์-อาทิตย์นี้ผมสะดวกระหว่าง 09:30 - 16:30 น. แจ้งเวลาที่สะดวกไว้ได้เลยครับ เดี๋ยวพาเดินดูแนวเขตและพื้นที่รอบๆ ครับ`;
+        }
+
+        state.chatHistory[id].push({ sender: 'seller', text: reply, time: getCurrentTimeStr() });
+        renderChatMessages();
+      }, 750);
+    }
+
+    // =========================================================================
+    // 9. POST NEW LISTING MODAL & IMAGE COMPRESSION
+    // =========================================================================
+    function openPostModal() {
+      document.getElementById('post-form-error').classList.add('hidden');
+      document.getElementById('post-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closePostModal() {
+      document.getElementById('post-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function updateFormDiscountPreview() {
+      const price = Number(document.getElementById('f-price').value) || 0;
+      const appraised = Number(document.getElementById('f-appraised').value) || 0;
+      const box = document.getElementById('form-discount-preview');
+      const pct = getDiscountPercent(price, appraised);
+      if (price > 0 && pct > 0) {
+        box.classList.remove('hidden');
+        box.textContent = `✨ ประกาศของคุณจะแสดงป้าย "ลดพิเศษ -${pct}% ต่ำกว่าราคาประเมิน" และมีสิทธิ์ขึ้นแถบดีลด่วนอัตโนมัติ`;
+      } else {
+        box.classList.add('hidden');
+      }
+    }
+
+    // บีบอัดรูปภาพด้วย Canvas เพื่อไม่ให้เกินขนาด localStorage
+    function compressImageFile(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const maxW = 720;
+            const scale = Math.min(1, maxW / img.width);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.72));
+          };
+          img.onerror = () => resolve(null);
+          img.src = ev.target.result;
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleImageUpload(event) {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+
+      const remainingSlots = Math.max(0, 5 - state.uploadedImages.length);
+      if (remainingSlots === 0) {
+        showToast('อัปโหลดได้สูงสุด 5 รูปภาพต่อประกาศ', 'info');
+        return;
+      }
+
+      const selected = files.slice(0, remainingSlots);
+      for (const file of selected) {
+        const compressed = await compressImageFile(file);
+        if (compressed) state.uploadedImages.push(compressed);
+      }
+
+      event.target.value = '';
+      renderUploadPreviews();
+    }
+
+    function removeUploadedImage(idx) {
+      state.uploadedImages.splice(idx, 1);
+      renderUploadPreviews();
+    }
+
+    function renderUploadPreviews() {
+      const grid = document.getElementById('upload-preview-grid');
+      grid.innerHTML = state.uploadedImages
+        .map(
+          (src, idx) => `
+            <div class="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group">
+              <img src="${src}" class="w-full h-full object-cover" alt="ภาพตัวอย่าง ${idx + 1}" />
+              <button type="button" onclick="removeUploadedImage(${idx})" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 text-white flex items-center justify-center hover:bg-red-600 transition">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+              ${idx === 0 ? '<span class="absolute bottom-1 left-1 bg-shopee text-white text-[9px] px-1.5 py-0.5 rounded">ภาพปก</span>' : ''}
+            </div>
+          `
+        )
+        .join('');
+      lucide.createIcons();
+    }
+
+    function showPostFormError(msg) {
+      const box = document.getElementById('post-form-error');
+      document.getElementById('post-form-error-text').textContent = msg;
+      box.classList.remove('hidden');
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function handlePostSubmit(event) {
+      event.preventDefault();
+      document.getElementById('post-form-error').classList.add('hidden');
+
+      const title = document.getElementById('f-title').value.trim();
+      const category = document.getElementById('f-category').value;
+      const deed = document.getElementById('f-deed').value;
+      const price = Number(document.getElementById('f-price').value) || 0;
+      const appraisedPrice = Number(document.getElementById('f-appraised').value) || 0;
+      const rai = Number(document.getElementById('f-rai').value) || 0;
+      const ngan = Number(document.getElementById('f-ngan').value) || 0;
+      const wah = Number(document.getElementById('f-wah').value) || 0;
+      const province = document.getElementById('f-province').value.trim();
+      const district = document.getElementById('f-district').value.trim();
+      const subdistrict = document.getElementById('f-subdistrict').value.trim();
+      const highlight = document.getElementById('f-highlight').value.trim();
+      const description = document.getElementById('f-description').value.trim();
+      const sellerType = document.getElementById('f-seller-type').value;
+      const sellerName = document.getElementById('f-seller-name').value.trim();
+      const sellerPhone = document.getElementById('f-seller-phone').value.trim();
+
+      if (price <= 0) {
+        return showPostFormError('กรุณาระบุราคาขายให้ถูกต้อง');
+      }
+      if (getTotalSqWah(rai, ngan, wah) <= 0) {
+        return showPostFormError('กรุณาระบุขนาดเนื้อที่อย่างน้อย 1 ช่อง (ไร่, งาน หรือ ตารางวา)');
+      }
+
+      // เลือกรูปภาพเริ่มต้นสวยๆ ตามหมวดหมู่หากผู้ใช้ไม่ได้อัปโหลด
+      const defaultCategoryImages = {
+        'ที่ดินเปล่า': 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80',
+        'บ้านพร้อมที่ดิน': 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80',
+        'สวนเกษตร / สวนผลไม้': 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',
+        'อาคารพาณิชย์ / โกดัง': 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=900&q=80',
+        'คอนโด / ทาวน์โฮม': 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80',
+        'ที่ดินติดถนนใหญ่': 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=80',
+        'ที่ดินติดน้ำ / วิวภูเขา': 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80',
+      };
+
+      const newListing = {
+        id: 'user-' + Date.now(),
+        title,
+        category,
+        price,
+        appraisedPrice: appraisedPrice > price ? appraisedPrice : 0,
+        rai,
+        ngan,
+        wah,
+        deed,
+        province,
+        district,
+        subdistrict,
+        highlight,
+        sellerType,
+        verified: true,
+        sellerName,
+        sellerPhone,
+        views: 1,
+        interestedCount: 1,
+        isUserCreated: true,
+        createdAt: Date.now(),
+        images: state.uploadedImages.length ? [...state.uploadedImages] : [defaultCategoryImages[category] || FALLBACK_IMG],
+        description,
+      };
+
+      state.userListings.unshift(newListing);
+      const savedOk = safeSetStorage(STORAGE_KEYS.USER_LISTINGS, state.userListings);
+      if (!savedOk) {
+        // กรณีรูปใหญ่เกินโควตา localStorage ให้บันทึกโดยใช้รูป fallback แทน
+        newListing.images = [defaultCategoryImages[category] || FALLBACK_IMG];
+        safeSetStorage(STORAGE_KEYS.USER_LISTINGS, state.userListings);
+        showToast('บันทึกประกาศแล้ว (พื้นที่เก็บข้อมูลเต็ม จึงใช้ภาพเริ่มต้นแทน)', 'info');
+      } else {
+        showToast('เผยแพร่ประกาศขายเรียบร้อยแล้ว! 🎉');
+      }
+
+      // รีเซ็ตฟอร์มและอัปเดตหน้าเว็บ
+      document.getElementById('post-listing-form').reset();
+      document.getElementById('form-discount-preview').classList.add('hidden');
+      state.uploadedImages = [];
+      renderUploadPreviews();
+
+      closePostModal();
+      updateMyListingsBadge();
+      populateProvinceDropdown();
+      renderFlashDeals();
+
+      // สลับไปเรียงตาม "ล่าสุด" เพื่อให้เห็นประกาศที่เพิ่งลงทันที
+      resetAllFilters();
+      setSort('newest');
+      document.getElementById('listings-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // =========================================================================
+    // 10. MY LISTINGS MODAL ("ประกาศของฉัน") & HELP MODAL
+    // =========================================================================
+    function updateMyListingsBadge() {
+      const badge = document.getElementById('my-listings-badge');
+      const count = state.userListings.length;
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function openMyListingsModal() {
+      state.pendingDeleteId = null;
+      renderMyListingsBody();
+      document.getElementById('my-listings-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMyListingsModal() {
+      document.getElementById('my-listings-modal').classList.add('hidden');
+      state.pendingDeleteId = null;
+      document.body.style.overflow = '';
+    }
+
+    function requestDeleteMyListing(id) {
+      state.pendingDeleteId = id;
+      renderMyListingsBody();
+    }
+
+    function confirmDeleteMyListing(id) {
+      state.userListings = state.userListings.filter((item) => item.id !== id);
+      state.savedIds = state.savedIds.filter((savedId) => savedId !== id);
+      safeSetStorage(STORAGE_KEYS.USER_LISTINGS, state.userListings);
+      safeSetStorage(STORAGE_KEYS.SAVED_IDS, state.savedIds);
+      state.pendingDeleteId = null;
+
+      updateMyListingsBadge();
+      updateFavoriteBadges();
+      populateProvinceDropdown();
+      renderFlashDeals();
+      renderListingsGrid();
+      renderMyListingsBody();
+      showToast('ลบประกาศเรียบร้อยแล้ว', 'info');
+    }
+
+    function renderMyListingsBody() {
+      const body = document.getElementById('my-listings-body');
+      if (!state.userListings.length) {
+        body.innerHTML = `
+          <div class="text-center py-10 px-4">
+            <div class="w-16 h-16 bg-shopee-soft text-shopee rounded-full flex items-center justify-center mx-auto mb-3">
+              <i data-lucide="file-plus" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-base font-semibold text-gray-800">คุณยังไม่มีประกาศที่ลงขาย</h3>
+            <p class="text-xs text-gray-500 mt-1">เริ่มต้นลงขายที่ดิน บ้าน หรือสวนของคุณได้ฟรีทันที ใช้เวลาไม่ถึง 2 นาที</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      body.innerHTML = state.userListings
+        .map((item) => {
+          const imgUrl = (item.images && item.images[0]) || FALLBACK_IMG;
+          const isConfirming = state.pendingDeleteId === item.id;
+          return `
+            <div class="bg-white border border-gray-200 rounded-xl p-3 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+              <div class="flex gap-3 items-center min-w-0 flex-1 cursor-pointer" onclick="closeMyListingsModal(); openDetailModal('${item.id}');">
+                <img src="${imgUrl}" onerror="this.src='${FALLBACK_IMG}'" class="w-20 h-16 rounded-lg object-cover shrink-0" />
+                <div class="min-w-0">
+                  <h4 class="text-sm font-semibold text-gray-800 truncate hover:text-shopee">${escapeHTML(item.title)}</h4>
+                  <div class="text-xs text-gray-500 mt-0.5">${escapeHTML(formatArea(item.rai, item.ngan, item.wah))} • จ.${escapeHTML(item.province)}</div>
+                  <div class="text-sm font-bold text-shopee mt-0.5">${formatPrice(item.price)}</div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+                ${
+                  isConfirming
+                    ? `
+                      <button type="button" onclick="confirmDeleteMyListing('${item.id}')" class="bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition">ยืนยันลบ</button>
+                      <button type="button" onclick="state.pendingDeleteId=null; renderMyListingsBody();" class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-2.5 py-1.5 rounded-lg transition">ยกเลิก</button>
+                    `
+                    : `
+                      <button type="button" onclick="closeMyListingsModal(); openDetailModal('${item.id}');" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg transition">ดูประกาศ</button>
+                      <button type="button" onclick="requestDeleteMyListing('${item.id}')" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg flex items-center gap-1 transition">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> ลบ
+                      </button>
+                    `
+                }
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+      lucide.createIcons();
+    }
+
+    function openHelpModal() {
+      document.getElementById('help-modal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lucide.createIcons();
+    }
+
+    function closeHelpModal() {
+      document.getElementById('help-modal').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function handleBackdropClick(event, modalId, closeFn) {
+      if (event.target.id === modalId) closeFn();
+    }
+
+    // ปิด Modal ด้วยปุ่ม Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDetailModal();
+        closePostModal();
+        closeMyListingsModal();
+        closeHelpModal();
+        toggleFavoritesDrawer(false);
+        closeChatWidget();
+      }
+    });
+
+    // =========================================================================
+    // 11. INITIALIZE APP
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCategories();
+      populateProvinceDropdown();
+      renderFlashDeals();
+      renderListingsGrid();
+      updateFavoriteBadges();
+      updateMyListingsBadge();
+      startFlashDealTimer();
+      restartCarouselTimer();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
