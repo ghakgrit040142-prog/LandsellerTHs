@@ -1093,8 +1093,8 @@
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   // ============================================================
-  // 1. ตั้งค่า Firebase และการเชื่อมต่อพื้นฐาน (รองรับกฎความปลอดภัยทุกข้อ)
-  // ============================================================
+// 1. ตั้งค่า Firebase และการเชื่อมต่อพื้นฐาน (รองรับกฎความปลอดภัยทุกข้อ)
+// ============================================================
 const appId = 'landseller-th';
 const firebaseConfig = {
   apiKey: "AIzaSyCjMkhu5I2hy8VvyzgxgwRIEmG8qoZttzI",
@@ -1104,10 +1104,15 @@ const firebaseConfig = {
   messagingSenderId: "518588544694",
   appId: "1:518588544694:web:70483394cdf134a474d817"
 };
+
 let firebaseApp = null;
 let auth = null;
 let db = null;
 let isFirebaseReady = false;
+
+// ฟังก์ชันช่วยสร้าง Path มาตรฐานของ Firestore ตามโครงสร้าง artifacts/{appId}/public/data/{col}
+const pubCol = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
+const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
 // ฟังก์ชันช่วยสร้าง Path มาตรฐานของ Firestore ตามโครงสร้าง artifacts/{appId}/public/data/{col}
 const pubCol = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
 const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
