@@ -47,12 +47,12 @@
       overflow-x: hidden;
     }
 
-    /* พื้นหลังแถบด้านบนไล่เฉดสีส้มแดงสไตล์ Shopee แท้ */
+    /* พื้นหลังแถบด้านบนไล่เฉดสีส้มแดงสไตล์ Shopee */
     .shopee-header-gradient {
       background: linear-gradient(-180deg, #EE4D2D 0%, #FF7337 100%);
     }
 
-    /* การ์ดทรัพย์สินสไตล์ Shopee เมื่อชี้เมาส์จะยกขึ้นและมีขอบสีส้ม */
+    /* การ์ดทรัพย์สินสไตล์ Shopee เมื่อชี้เมาส์จะยกขึ้นและขึ้นขอบสีส้ม */
     .shopee-card {
       transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
       border: 1px solid transparent;
@@ -72,7 +72,13 @@
       scrollbar-width: none;
     }
 
-    /* ตัดข้อความ 2 บรรทัดให้สม่ำเสมอ */
+    /* ตัดข้อความให้สม่ำเสมอ */
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     .line-clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -100,7 +106,7 @@
       animation: fadeInUp 0.22s ease-out forwards;
     }
 
-    /* สกอร์ลบาร์สวยงามสำหรับหน้าต่างแชท */
+    /* สกอร์ลบาร์สำหรับหน้าต่างแชท */
     .chat-scroll::-webkit-scrollbar {
       width: 6px;
     }
@@ -158,19 +164,18 @@
 
     <!-- แถบค้นหาหลัก (Custom Landseller SVG Logo + Search Bar + Saved) -->
     <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3.5 flex items-center gap-3 sm:gap-6">
-      <!-- โลโก้ Landseller ออกแบบพิเศษ (Shopping Bag + House Roof + Land Pin) -->
+      <!-- โลโก้ Landseller ออกแบบพิเศษ (ถุงช้อปปิ้งผสมหลังคาบ้านและหมุดทำเล) -->
       <button onclick="window.app.resetAndGoHome()" class="flex items-center gap-2.5 shrink-0 group text-left">
         <div class="relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center group-hover:scale-105 transition">
           <svg viewBox="0 0 64 64" class="w-10 h-10 sm:w-12 sm:h-12 drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Landseller Logo">
-            <!-- หูหิ้วถุงช้อปปิ้งโค้งมนสไตล์มาร์เก็ตเพลส -->
+            <!-- หูหิ้วถุงช้อปปิ้ง -->
             <path d="M22 21C22 14.3726 26.4772 9 32 9C37.5228 9 42 14.3726 42 21" stroke="white" stroke-width="4" stroke-linecap="round"/>
-            <!-- ตัวถุงช้อปปิ้งผสมรูปทรงบ้านและที่ดิน -->
+            <!-- ตัวถุงช้อปปิ้งสีขาว -->
             <path d="M12 24C12 20.6863 14.6863 18 18 18H46C49.3137 18 52 20.6863 52 24L54.8 49.5C55.25 53.6 52.05 57.2 47.9 57.2H16.1C11.95 57.2 8.75 53.6 9.2 49.5L12 24Z" fill="white"/>
-            <!-- หลังคาบ้าน (House Roof) ด้านบนภายในไอคอน -->
+            <!-- หลังคาบ้าน -->
             <path d="M19 35.5L32 24.5L45 35.5" stroke="#EE4D2D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- หมุดปักทำเลที่ดิน (Location Pin) ผสานในตัวบ้าน -->
+            <!-- หมุดปักทำเลที่ดิน -->
             <path d="M32 31.5C27.5817 31.5 24 35.0817 24 39.5C24 44.8 32 52 32 52C32 52 40 44.8 40 39.5C40 35.0817 36.4183 31.5 32 31.5Z" fill="#EE4D2D"/>
-            <!-- จุดกลางหมุดสีขาวทรงสี่เหลี่ยมเพชร/วงกลม -->
             <circle cx="32" cy="39.5" r="3.4" fill="white"/>
           </svg>
         </div>
@@ -179,7 +184,7 @@
             <span>Land<span class="text-yellow-200">seller</span></span>
           </div>
           <div class="text-[10px] font-medium text-white/95 tracking-wide -mt-0.5 flex items-center gap-1">
-            <span class="bg-white/20 px-1.5 py-0.2 rounded">อสังหาฯ &amp; ที่ดิน</span>
+            <span class="bg-white/20 px-1.5 py-0.2 rounded">อสังหาฯ &amp; ที่ดิน 77 จังหวัด</span>
           </div>
         </div>
       </button>
@@ -217,9 +222,9 @@
           <button onclick="window.app.quickSearch('คอนโด')" class="hover:underline whitespace-nowrap">คอนโดใกล้ BTS</button>
           <button onclick="window.app.quickSearch('ที่ดิน')" class="hover:underline whitespace-nowrap">ที่ดินติดถนนใหญ่</button>
           <button onclick="window.app.quickSearch('คาเฟ่')" class="hover:underline whitespace-nowrap">เซ้งกิจการคาเฟ่</button>
+          <button onclick="window.app.selectProvince('สุราษฎร์ธานี')" class="hover:underline whitespace-nowrap">ทรัพย์สุราษฎร์ธานี</button>
           <button onclick="window.app.selectProvince('เชียงใหม่')" class="hover:underline whitespace-nowrap">ทรัพย์เชียงใหม่</button>
           <button onclick="window.app.selectProvince('ภูเก็ต')" class="hover:underline whitespace-nowrap">ทรัพย์ภูเก็ต</button>
-          <button onclick="window.app.selectProvince('ประจวบคีรีขันธ์')" class="hover:underline whitespace-nowrap">หัวหิน-ประจวบฯ</button>
           <button onclick="window.app.selectProvince('ชลบุรี')" class="hover:underline whitespace-nowrap">พูลวิลล่าชลบุรี</button>
         </div>
       </div>
@@ -240,6 +245,17 @@
 
   <!-- ==================== 2. MAIN CONTENT (หน้าแรกหน้าร้าน LANDSELLER) ==================== -->
   <main id="storefrontView" class="flex-1 w-full max-w-7xl mx-auto px-2 sm:px-4 py-4 space-y-5">
+
+    <!-- แถบแจ้งสถานะเมื่อฐานข้อมูลยังไม่มีประกาศจริง (กำลังแสดงตัวอย่าง 12 รายการ) -->
+    <div id="seedPreviewBanner" class="hidden bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-sparkles text-amber-500 text-sm"></i>
+        <span>กำลังแสดง <strong>ประกาศตัวอย่างเริ่มต้น 12 รายการ</strong> (ฐานข้อมูลจริงยังว่างอยู่) — เจ้าของเว็บสามารถเข้า <strong>Landseller Seller Centre</strong> เพื่อนำเข้าตัวอย่างหรือลงประกาศจริงได้ทันที</span>
+      </div>
+      <button onclick="window.app.handleSellerCentreClick()" class="bg-shopee hover:bg-shopee-dark text-white px-3 py-1.5 rounded-lg font-medium shrink-0 transition">
+        เปิด Seller Centre
+      </button>
+    </div>
 
     <!-- 2.1 แบนเนอร์โปรโมชั่น + ปุ่มทางลัดสไตล์ Shopee -->
     <section class="bg-white rounded-xl shadow-sm p-3 sm:p-4 space-y-4">
@@ -380,7 +396,7 @@
       <div class="bg-white rounded-t-xl shadow-sm border-b-4 border-shopee px-4 py-3.5 flex items-center justify-between flex-wrap gap-2">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="text-shopee font-bold text-base sm:text-lg">รายการทรัพย์แนะนำ</span>
-          <span id="activeFilterSummary" class="text-xs bg-shopee-tint text-shopee px-2.5 py-0.5 rounded-full font-medium">ทั้งหมด</span>
+          <span id="activeFilterSummary" class="text-xs bg-shopee-tint text-shopee px-2.5 py-0.5 rounded-full font-medium">ทั้งหมดทั่วไทย</span>
         </div>
         <div class="text-xs text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
           พบ <span id="resultCount" class="font-bold text-shopee">0</span> รายการ
@@ -512,10 +528,23 @@
       </div>
     </div>
 
+    <!-- กล่องปุ่มนำเข้าข้อมูลตัวอย่าง 12 รายการลง Firestore (แสดงเมื่อยังไม่มีประกาศจริงในฐานข้อมูล) -->
+    <div id="adminSeedImportBanner" class="hidden bg-gradient-to-r from-orange-50 to-amber-50 border border-shopee-border rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="space-y-0.5">
+        <h3 class="font-bold text-shopee-dark text-sm flex items-center gap-1.5">
+          <i class="fa-solid fa-database"></i> ฐานข้อมูลจริง (Firestore) ยังไม่มีรายการประกาศ
+        </h3>
+        <p class="text-xs text-gray-600">คุณสามารถกดปุ่ม <strong>"เพิ่มประกาศทรัพย์ใหม่"</strong> เพื่อลงทรัพย์จริงของคุณเอง หรือกดนำเข้าประกาศตัวอย่าง 12 รายการลงฐานข้อมูลเพื่อนำมาแก้ไขต่อได้เลย</p>
+      </div>
+      <button id="importSeedBtn" onclick="window.app.importSeedPropertiesToFirestore()" class="bg-gray-900 hover:bg-black text-white px-4 py-2.5 rounded-lg text-xs font-medium shadow-sm shrink-0 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-cloud-arrow-up text-yellow-400"></i> นำเข้าประกาศตัวอย่าง 12 รายการลง Firestore
+      </button>
+    </div>
+
     <!-- การ์ดสถิติ KPI -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
       <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <div class="text-xs text-gray-500">ประกาศทั้งหมด</div>
+        <div class="text-xs text-gray-500">ประกาศในฐานข้อมูล</div>
         <div id="kpiTotal" class="text-2xl font-bold text-gray-800 mt-1">0</div>
       </div>
       <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
@@ -669,6 +698,12 @@
       </div>
 
       <div class="p-5">
+        <!-- กล่องแสดงข้อความ Error ชัดเจนใน Modal -->
+        <div id="authErrorBox" class="hidden mb-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-3 py-2 text-xs flex items-start gap-2">
+          <i class="fa-solid fa-circle-exclamation mt-0.5 shrink-0"></i>
+          <span id="authErrorText"></span>
+        </div>
+
         <!-- ฟอร์มเข้าสู่ระบบ (สมาชิก & เจ้าของเว็บ) -->
         <form id="loginForm" onsubmit="window.app.handleLoginSubmit(event)" class="space-y-3.5">
           <div>
@@ -716,7 +751,7 @@
           <form id="adminClaimForm" onsubmit="window.app.handleAdminClaimSubmit(event)" class="hidden space-y-3">
             <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-800">
               <div class="font-bold flex items-center gap-1.5 mb-1"><i class="fa-solid fa-crown text-amber-500"></i> ตั้งค่าเจ้าของ Landseller (ครั้งแรกเท่านั้น)</div>
-              ยังไม่มีการตั้งค่าบัญชีเจ้าของระบบ กรอกข้อมูลด้านล่างเพื่อยืนยันสิทธิ์เป็น <strong>เจ้าของเว็บ Landseller เพียงผู้เดียว</strong> หลังจากบันทึกแล้ว บุคคลอื่นจะไม่สามารถตั้งค่าซ้ำหรือแก้ไขประกาศได้
+              ยังไม่มีการตั้งค่าบัญชีเจ้าของระบบ กรอกอีเมล รหัสผ่าน (ใช้บัญชีที่มีอยู่แล้วหรือสมัครใหม่ได้) และตั้งรหัสลับ <strong>Admin PIN</strong> เพื่อยืนยันสิทธิ์เป็นเจ้าของเว็บเพียงผู้เดียว
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-1">ชื่อเจ้าของเว็บ / ชื่อร้านค้า</label>
@@ -724,11 +759,11 @@
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-1">อีเมลเจ้าของเว็บ</label>
-              <input id="claimEmail" type="email" required placeholder="owner@landseller.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
+              <input id="claimEmail" type="email" required placeholder="owner@email.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-1">รหัสผ่านเจ้าของเว็บ (อย่างน้อย 6 ตัวอักษร)</label>
-              <input id="claimPassword" type="password" required minlength="6" placeholder="ตั้งรหัสผ่านสำหรับล็อกอิน" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
+              <input id="claimPassword" type="password" required minlength="6" placeholder="รหัสผ่านสำหรับล็อกอิน" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-shopee" />
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-700 mb-1">รหัสลับเจ้าของ (Admin Secret PIN 4-12 ตัว)</label>
@@ -783,7 +818,7 @@
 
         <div>
           <label class="block font-medium text-gray-700 mb-1">ชื่อประกาศทรัพย์ <span class="text-red-500">*</span></label>
-          <input id="propTitle" type="text" required placeholder="เช่น บ้านเดี่ยว 2 ชั้นพร้อมสวนสวย ใกล้รถไฟฟ้า..." class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-shopee" />
+          <input id="propTitle" type="text" required placeholder="เช่น บ้านเดี่ยว 2 ชั้นพร้อมสวนสวย ใกล้ถนนใหญ่..." class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-shopee" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -835,7 +870,7 @@
           </div>
           <div>
             <label class="block font-medium text-gray-700 mb-1">อำเภอ / เขต / แขวง / ย่าน <span class="text-red-500">*</span></label>
-            <input id="propLocation" type="text" required placeholder="เช่น บางนา, หัวหิน, แม่ริม, นิมมานเหมินท์" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-shopee" />
+            <input id="propLocation" type="text" required placeholder="เช่น บางนา, ท่าฉาง, แม่ริม, หัวหิน" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-shopee" />
           </div>
         </div>
 
@@ -874,7 +909,7 @@
           </label>
         </div>
 
-        <!-- จัดการรูปภาพ (อัปโหลดจากเครื่อง ย่อ Base64 + วาง URL) -->
+        <!-- จัดการรูปภาพ (อัปโหลดจากเครื่อง ย่อขนาดอัตโนมัติ + วาง URL) -->
         <div class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-3">
           <div class="flex items-center justify-between flex-wrap gap-2">
             <label class="font-semibold text-gray-800">รูปภาพทรัพย์สิน (สูงสุด 5 รูป)</label>
@@ -892,7 +927,7 @@
           <div id="formImagesPreview" class="grid grid-cols-3 sm:grid-cols-5 gap-2">
             <!-- Render ด้วย JS -->
           </div>
-          <p class="text-[11px] text-gray-500">ระบบจะย่อขนาดรูปที่อัปโหลดจากเครื่องอัตโนมัติเพื่อเก็บลงฐานข้อมูลอย่างรวดเร็ว (รูปแรกจะเป็นภาพปก)</p>
+          <p class="text-[11px] text-gray-500">ระบบจะย่อขนาดรูปที่อัปโหลดจากเครื่องอัตโนมัติเพื่อให้ไม่เกินขีดจำกัด Firestore 1MB (รูปแรกจะเป็นภาพปก)</p>
         </div>
 
         <div>
@@ -1003,7 +1038,7 @@
     <span>แชท</span>
   </button>
 
-  <!-- หน้าต่างแชท Landseller (Member = 1 ฝั่ง, Admin = 2 ฝั่งเห็นลูกค้าทุกคน) -->
+  <!-- หน้าต่างแชท Landseller (Member = 1 คอลัมน์, Admin = 2 คอลัมน์เห็นลูกค้าทุกคน) -->
   <div id="chatWindow" class="hidden fixed bottom-4 right-3 sm:right-4 z-50 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col animate-fade-up w-[calc(100vw-24px)] sm:w-[400px] h-[500px] max-h-[82vh]">
     <!-- หัวหน้าต่างแชท -->
     <div class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shrink-0">
@@ -1069,15 +1104,16 @@
   <!-- Toast แจ้งเตือนมุมขวาบน -->
   <div id="toastContainer" class="fixed top-20 right-4 z-[70] space-y-2 pointer-events-none"></div>
 
-  <!-- ==================== 12. FIREBASE & APPLICATION LOGIC ==================== -->
+  <!-- ==================== 12. FIREBASE (โปรเจกต์ landshop-th) & APPLICATION LOGIC ==================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import {
       getAuth,
-      signInAnonymously,
-      signInWithCustomToken,
+      onAuthStateChanged,
       createUserWithEmailAndPassword,
-      signInWithEmailAndPassword
+      signInWithEmailAndPassword,
+      signOut,
+      updateProfile
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import {
       getFirestore,
@@ -1088,34 +1124,66 @@
       updateDoc,
       deleteDoc,
       onSnapshot,
-      collection,
-      getDocs
+      collection
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-  // ============================================================
-// 1. ตั้งค่า Firebase และการเชื่อมต่อพื้นฐาน (รองรับกฎความปลอดภัยทุกข้อ)
-// ============================================================
-const appId = 'landseller-th';
-const firebaseConfig = {
-  apiKey: "AIzaSyCjMkhu5I2hy8VvyzgxgwRIEmG8qoZttzI",
-  authDomain: "landshop-th.firebaseapp.com",
-  projectId: "landshop-th",
-  storageBucket: "landshop-th.firebasestorage.app",
-  messagingSenderId: "518588544694",
-  appId: "1:518588544694:web:70483394cdf134a474d817"
-};
+    // =========================================================================
+    // 1. ตั้งค่า Firebase ของโปรเจกต์ landshop-th โดยตรง (ไม่พึ่งพา __firebase_config)
+    // =========================================================================
+    const appId = 'landseller-th';
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjMkhu5I2hy8VvyzgxgwRIEmG8qoZttzI",
+      authDomain: "landshop-th.firebaseapp.com",
+      projectId: "landshop-th",
+      storageBucket: "landshop-th.firebasestorage.app",
+      messagingSenderId: "518588544694",
+      appId: "1:518588544694:web:70483394cdf134a474d817"
+    };
 
-let firebaseApp = null;
-let auth = null;
-let db = null;
-let isFirebaseReady = false;
+    // เริ่มต้นระบบ Firebase ทันทีที่โหลดหน้าเว็บ (ไม่บังคับเรียก signInAnonymously)
+    const firebaseApp = initializeApp(firebaseConfig);
+    const auth = getAuth(firebaseApp);
+    const db = getFirestore(firebaseApp);
 
-// ฟังก์ชันช่วยสร้าง Path มาตรฐานของ Firestore ตามโครงสร้าง artifacts/{appId}/public/data/{col}
-const pubCol = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
-const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
-// ฟังก์ชันช่วยสร้าง Path มาตรฐานของ Firestore ตามโครงสร้าง artifacts/{appId}/public/data/{col}
-const pubCol = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
-const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
+    // ฟังก์ชันสร้าง Path มาตรฐานตรงกับ Firestore Security Rules ของโปรเจกต์ landshop-th
+    const propertiesCol = () => collection(db, 'artifacts', appId, 'public', 'data', 'properties');
+    const propertyDoc = (id) => doc(db, 'artifacts', appId, 'public', 'data', 'properties', id);
+    const adminSettingsDoc = () => doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'admin');
+    const chatsCol = () => collection(db, 'artifacts', appId, 'public', 'data', 'chats');
+    const chatRoomDoc = (roomId) => doc(db, 'artifacts', appId, 'public', 'data', 'chats', roomId);
+    const chatMessagesCol = () => collection(db, 'artifacts', appId, 'public', 'data', 'chat_messages');
+    const userProfileDoc = (uid) => doc(db, 'artifacts', appId, 'users', uid, 'profile', 'main');
+
+    // แปลงรหัส Error จาก Firebase Auth & Firestore เป็นข้อความภาษาไทยที่ชัดเจน
+    function getThaiFirebaseError(err) {
+      const code = err?.code || '';
+      switch (code) {
+        case 'auth/operation-not-allowed':
+          return 'กรุณาเปิดใช้งาน Email/Password ใน Firebase Authentication ก่อนใช้งาน';
+        case 'auth/email-already-in-use':
+          return 'อีเมลนี้ถูกใช้งานแล้ว กรุณาเข้าสู่ระบบแทน';
+        case 'auth/weak-password':
+          return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+        case 'auth/invalid-email':
+          return 'รูปแบบอีเมลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง';
+        case 'auth/invalid-credential':
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+          return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+        case 'auth/too-many-requests':
+          return 'ลองเข้าสู่ระบบผิดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่';
+        case 'auth/unauthorized-domain':
+          return 'โดเมนนี้ยังไม่ได้รับอนุญาตใน Firebase Authentication → Authorized domains';
+        case 'auth/network-request-failed':
+          return 'เชื่อมต่อเครือข่ายไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตหรือปิดตัวบล็อกโฆษณาชั่วคราว';
+        case 'permission-denied':
+          return 'ไม่มีสิทธิ์เข้าถึงฐานข้อมูล กรุณาตรวจสอบและกด Publish Firestore Rules';
+        case 'unavailable':
+          return 'ไม่สามารถติดต่อเซิร์ฟเวอร์ฐานข้อมูลได้ชั่วคราว กรุณาลองใหม่อีกครั้ง';
+        default:
+          return err?.message ? `เกิดข้อผิดพลาด (${code || 'unknown'}): ${err.message}` : 'เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง';
+      }
+    }
 
     // =========================================================================
     // 2. รายชื่อจังหวัดประเทศไทยครบทั้ง 77 จังหวัด + จังหวัดยอดนิยม
@@ -1127,11 +1195,10 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       'ชลบุรี',
       'เชียงใหม่',
       'ภูเก็ต',
+      'สุราษฎร์ธานี',
       'นครราชสีมา',
-      'ขอนแก่น',
-      'ระยอง',
       'ประจวบคีรีขันธ์',
-      'สุราษฎร์ธานี'
+      'สงขลา'
     ];
 
     const ALL_THAI_PROVINCES = [
@@ -1153,20 +1220,20 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       'อุทัยธานี', 'อุบลราชธานี'
     ];
 
-    // ชิปจังหวัดยอดนิยมสำหรับกดกรองไวบนหน้าแรก
+    // ปุ่มเลือกด่วนจังหวัดยอดนิยมบนหน้าแรก
     const QUICK_CHIP_PROVINCES = [
       'ทั้งหมด',
       'กรุงเทพมหานคร',
+      'สุราษฎร์ธานี',
       'เชียงใหม่',
       'ชลบุรี',
       'ภูเก็ต',
-      'ประจวบคีรีขันธ์',
       'นนทบุรี',
       'ปทุมธานี',
+      'ประจวบคีรีขันธ์',
       'นครราชสีมา'
     ];
 
-    // แปลงหรือดึงชื่อจังหวัดให้ตรงมาตรฐาน 77 จังหวัด (รองรับประกาศเก่าที่อาจยังไม่มีฟิลด์ province)
     function resolvePropertyProvince(item) {
       if (item.province && ALL_THAI_PROVINCES.includes(item.province)) {
         return item.province;
@@ -1189,7 +1256,6 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       return `${loc}, ${prov}`;
     }
 
-    // สร้างตัวเลือก HTML <optgroup> สำหรับ Dropdown จังหวัดทั้ง 77 จังหวัด
     function populateProvinceSelect(selectId, includeAllOption = true, allLabel = 'ทุกจังหวัด (77 จังหวัด)') {
       const sel = document.getElementById(selectId);
       if (!sel) return;
@@ -1210,7 +1276,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
     }
 
     // =========================================================================
-    // 3. ข้อมูลตัวอย่าง 13 รายการคุณภาพสูง ครบทั้ง 5 หมวดหมู่ กระจายหลายจังหวัด
+    // 3. ข้อมูลตัวอย่างเริ่มต้น 12 รายการ ครบ 5 หมวดหมู่ กระจายหลายจังหวัด
     // =========================================================================
     const SEED_PROPERTIES = [
       {
@@ -1233,8 +1299,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         likes: 94,
         images: [
           'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=900&q=80',
-          'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80',
-          'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80'
+          'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80'
         ],
         description: 'บ้านเดี่ยวหลังมุม โครงการคุณภาพสังคมเงียบสงบ 4 ห้องนอน 4 ห้องน้ำ จอดรถได้ 3 คัน แถมฟรีเฟอร์นิเจอร์บิวท์อินและเครื่องปรับอากาศ 5 เครื่อง เดินทางสะดวกใกล้ทางด่วนบูรพาวิถี เมกาบางนา และสนามบินสุวรรณภูมิ ขายตรงจากเจ้าของ Landseller พร้อมโอน',
         createdAt: Date.now() - 86400000 * 1
@@ -1266,6 +1331,31 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       },
       {
         id: 'seed_03',
+        title: 'ขายที่ดินแปลงสวยติดถนนสายเอเชีย 41 ทำเลทอง อ.ท่าฉาง สุราษฎร์ธานี โฉนดครุฑแดงพร้อมโอน',
+        category: 'ที่ดิน',
+        txType: 'sell',
+        price: 6500000,
+        originalPrice: 7400000,
+        province: 'สุราษฎร์ธานี',
+        location: 'ท่าฉาง',
+        areaValue: '5',
+        areaUnit: 'ไร่',
+        bedrooms: 0,
+        bathrooms: 0,
+        status: 'available',
+        isFlashDeal: true,
+        isMall: true,
+        views: 2680,
+        likes: 164,
+        images: [
+          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80',
+          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80'
+        ],
+        description: 'ที่ดินแปลงศักยภาพติดถนนสายหลัก เดินทางเข้าตัวเมืองสุราษฎร์ธานีและสนามบินสุราษฎร์ธานีสะดวกมาก ไฟฟ้า-ประปาผ่านหน้าแปลง เหมาะทำปั๊มน้ำมัน คลังสินค้า ลานรับซื้อผลผลิตเกษตร หรือสร้างบ้านสวนอยู่อาศัย เจ้าของขายเองราคาคุยได้',
+        createdAt: Date.now() - 86400000 * 3
+      },
+      {
+        id: 'seed_04',
         title: 'ขายที่ดินเปล่าถมแล้ว ทำเลทองติดถนนใหญ่ 4 เลน ใกล้รถไฟฟ้าสายสีม่วง ราชพฤกษ์',
         category: 'ที่ดิน',
         txType: 'sell',
@@ -1283,14 +1373,13 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         views: 2150,
         likes: 112,
         images: [
-          'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=900&q=80',
           'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80'
         ],
-        description: 'ที่ดินแปลงสวยรูปสี่เหลี่ยมผืนผ้า หน้ากว้าง 20 เมตร ลึก 40 เมตร ถมดินสูงกว่าถนนแล้ว น้ำ-ไฟพร้อม เหมาะสร้างโชว์รูม คอมมูนิตี้มอลล์ อาคารสำนักงาน หรือบ้านพักอาศัยขนาดใหญ่ โฉนดครุฑแดงพร้อมโอนไม่ติดภาระ',
-        createdAt: Date.now() - 86400000 * 3
+        description: 'ที่ดินแปลงสวยรูปสี่เหลี่ยมผืนผ้า หน้ากว้าง 20 เมตร ลึก 40 เมตร ถมดินสูงกว่าถนนแล้ว น้ำ-ไฟพร้อม เหมาะสร้างโชว์รูม คอมมูนิตี้มอลล์ อาคารสำนักงาน หรือบ้านพักอาศัยขนาดใหญ่ โฉนดครุฑแดงไม่ติดภาระ',
+        createdAt: Date.now() - 86400000 * 4
       },
       {
-        id: 'seed_04',
+        id: 'seed_05',
         title: 'ให้เช่าที่ดินเปล่า 2 ไร่ ติดถนนพหลโยธิน-รังสิต เหมาะทำโกดัง ลานจอดรถ หรือตลาดนัด',
         category: 'ที่ดิน',
         txType: 'rent',
@@ -1311,10 +1400,10 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80'
         ],
         description: 'ที่ดินให้เช่าระยะยาว 3-10 ปี ทำเลศักยภาพสูง รถบรรทุก 10 ล้อเข้าออกสะดวก ใกล้ฟิวเจอร์พาร์ครังสิตและมหาวิทยาลัยธรรมศาสตร์ รังสิต สามารถปรับพื้นที่สร้างสิ่งปลูกสร้างตามธุรกิจได้',
-        createdAt: Date.now() - 86400000 * 4
+        createdAt: Date.now() - 86400000 * 5
       },
       {
-        id: 'seed_05',
+        id: 'seed_06',
         title: 'คอนโดหรูวิวแม่น้ำเจ้าพระยา 2 ห้องนอน ชั้น 28 ใกล้ BTS สะพานตากสิน ส่วนกลางระดับ 5 ดาว',
         category: 'คอนโด',
         txType: 'sell',
@@ -1336,10 +1425,10 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=900&q=80'
         ],
         description: 'ห้องมุมวิวโค้งแม่น้ำเจ้าพระยาและไอคอนสยามแบบพาโนรามา ตกแต่งครบด้วยวัสดุเกรดพรีเมียม สระว่ายน้ำ Infinity Pool ฟิตเนส Sky Lounge และเรือรับส่งถึงท่าเรือสาทร ขายต่ำกว่าราคาโครงการ',
-        createdAt: Date.now() - 86400000 * 5
+        createdAt: Date.now() - 86400000 * 6
       },
       {
-        id: 'seed_06',
+        id: 'seed_07',
         title: 'ให้เช่าคอนโดพร้อมอยู่ แต่งสวยสไตล์มูจิ เดินเพียง 3 นาทีถึง BTS อ่อนนุช ใกล้โลตัส',
         category: 'คอนโด',
         txType: 'rent',
@@ -1352,7 +1441,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         bedrooms: 1,
         bathrooms: 1,
         status: 'available',
-        isFlashDeal: true,
+        isFlashDeal: false,
         isMall: true,
         views: 2540,
         likes: 146,
@@ -1361,10 +1450,10 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=900&q=80'
         ],
         description: 'คอนโด 1 ห้องนอน 1 ห้องน้ำ ชั้น 15 วิวเมืองโล่งไม่บล็อก เครื่องซักผ้า ทีวี ตู้เย็น ไมโครเวฟ ครบพร้อมหิ้วกระเป๋าเข้าอยู่ได้ทันที มีคีย์การ์ดล็อกชั้นและ รปภ. 24 ชม.',
-        createdAt: Date.now() - 86400000 * 6
+        createdAt: Date.now() - 86400000 * 7
       },
       {
-        id: 'seed_07',
+        id: 'seed_08',
         title: 'บ้านพร้อมสวนผลไม้และบ่อปลา 1 ไร่ วิวภูเขาอากาศดีตลอดปี อ.แม่ริม เชียงใหม่',
         category: 'บ้านพร้อมสวน',
         txType: 'sell',
@@ -1385,11 +1474,11 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=900&q=80',
           'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=900&q=80'
         ],
-        description: 'บ้านเดี่ยวสไตล์ล้านนาโมเดิร์นบนเนื้อที่ 1 ไร่เต็ม พร้อมสวนผลไม้ให้ผลผลิตแล้ว (มะม่วง อะโวคาโด ลิ้นจี่) ศาลานั่งเล่นริมบ่อปลาคราฟ วิวภูเขาดอยสุเทพ เหมาะสำหรับพักผ่อนวัยเกษียณหรือทำโฮมสเตย์',
-        createdAt: Date.now() - 86400000 * 7
+        description: 'บ้านเดี่ยวสไตล์ล้านนาโมเดิร์นบนเนื้อที่ 1 ไร่เต็ม พร้อมสวนผลไม้ให้ผลผลิตแล้ว ศาลานั่งเล่นริมบ่อปลาคราฟ วิวภูเขาดอยสุเทพ เหมาะสำหรับพักผ่อนวัยเกษียณหรือทำโฮมสเตย์',
+        createdAt: Date.now() - 86400000 * 8
       },
       {
-        id: 'seed_08',
+        id: 'seed_09',
         title: 'พูลวิลล่าหรูพร้อมสวนทรอปิคอลส่วนตัว สระระบบเกลือ ใกล้หาดจอมเทียน พัทยา',
         category: 'บ้านพร้อมสวน',
         txType: 'sell',
@@ -1411,10 +1500,10 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&w=900&q=80'
         ],
         description: 'พูลวิลล่าสร้างใหม่พร้อมสวนสวยร่มรื่นรอบบ้าน สระว่ายน้ำส่วนตัวขนาด 4x9 เมตร ครัวยุโรปและครัวไทยแยกส่วน ทำเลเงียบสงบห่างหาดจอมเทียนเพียง 10 นาที ปล่อยเช่ารายวัน/รายเดือนได้ผลตอบแทนสูง',
-        createdAt: Date.now() - 86400000 * 8
+        createdAt: Date.now() - 86400000 * 9
       },
       {
-        id: 'seed_09',
+        id: 'seed_10',
         title: 'ให้เช่าบ้านสวนบรรยากาศร่มรื่น 2 ห้องนอน พร้อมลานสนามหญ้ากว้าง โซนเขาใหญ่',
         category: 'บ้านพร้อมสวน',
         txType: 'rent',
@@ -1435,10 +1524,10 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           'https://images.unsplash.com/photo-1598228723793-52759bba239c?auto=format&fit=crop&w=900&q=80'
         ],
         description: 'บ้านพักตากอากาศพร้อมสวนไม้ดอกไม้ประดับ อากาศเย็นสบายทั้งปี มีระเบียงนั่งจิบกาแฟชมหมอกยามเช้า Wi-Fi ความเร็วสูง เหมาะสำหรับ Work From Home หรือครอบครัวที่รักธรรมชาติ',
-        createdAt: Date.now() - 86400000 * 9
+        createdAt: Date.now() - 86400000 * 10
       },
       {
-        id: 'seed_10',
+        id: 'seed_11',
         title: 'ขาย/เซ้งกิจการคาเฟ่สไตล์ญี่ปุ่น พร้อมเครื่องชงกาแฟและสูตรทั้งหมด ทำเลนิมมาน เชียงใหม่',
         category: 'กิจการ',
         txType: 'sell',
@@ -1460,10 +1549,10 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=900&q=80'
         ],
         description: 'กิจการคาเฟ่ชื่อดังย่านนิมมาน เปิดดำเนินการอยู่มีรายได้เฉลี่ย 350,000+ บาท/เดือน เพจผู้ติดตามกว่า 25,000 คน ให้เครื่องชง La Marzocco อุปกรณ์ครัว ตกแต่งทั้งหมด และสอนสูตรจนเป็น สามารถเปิดขายต่อได้ทันที',
-        createdAt: Date.now() - 86400000 * 10
+        createdAt: Date.now() - 86400000 * 11
       },
       {
-        id: 'seed_11',
+        id: 'seed_12',
         title: 'ขายกิจการรีสอร์ทบูทีค 12 ห้องพัก พร้อมสระว่ายน้ำ ใบอนุญาตโรงแรมครบ และที่ดินโฉนด ภูเก็ต',
         category: 'กิจการ',
         txType: 'sell',
@@ -1485,56 +1574,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=80'
         ],
         description: 'รีสอร์ทบูทีคดำเนินกิจการอยู่ อัตราการเข้าพักเฉลี่ย 80% ตลอดปี คะแนนรีวิว Booking & Agoda 9.2/10 ขายพร้อมที่ดิน สิ่งปลูกสร้าง ระบบบริหารจัดการและทีมงานมืออาชีพ เจ้าของต้องการเกษียณ',
-        createdAt: Date.now() - 86400000 * 11
-      },
-      {
-        id: 'seed_12',
-        title: 'ให้เช่ากิจการร้านอาหารและบาร์ตกแต่งหรู อุปกรณ์ครัวครบชุด ทำเลทองซอยทองหล่อ',
-        category: 'กิจการ',
-        txType: 'rent',
-        price: 85000,
-        originalPrice: 95000,
-        province: 'กรุงเทพมหานคร',
-        location: 'ทองหล่อ',
-        areaValue: '180',
-        areaUnit: 'ตร.ม.',
-        bedrooms: 0,
-        bathrooms: 3,
-        status: 'available',
-        isFlashDeal: false,
-        isMall: true,
-        views: 1190,
-        likes: 64,
-        images: [
-          'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80'
-        ],
-        description: 'พื้นที่ร้านอาหารพร้อมบาร์ตกแต่งเสร็จสมบูรณ์ รองรับลูกค้าได้ 60 ที่นั่ง มีระบบดูดควัน ตู้แช่ เคาน์เตอร์บาร์ ระบบ POS และที่จอดรถสำหรับลูกค้า ทำเลกลุ่มกำลังซื้อสูง เข้าดำเนินกิจการได้ทันทีไม่ต้องลงทุนแต่งเพิ่ม',
         createdAt: Date.now() - 86400000 * 12
-      },
-      {
-        id: 'seed_13',
-        title: 'ขายบ้านพูลวิลล่าพร้อมสวนสวยหัวหิน 3 ห้องนอน ใกล้ชายหาดและบลูพอร์ต โฉนดครุฑแดง',
-        category: 'บ้าน',
-        txType: 'sell',
-        price: 7850000,
-        originalPrice: 8600000,
-        province: 'ประจวบคีรีขันธ์',
-        location: 'หัวหิน',
-        areaValue: '130',
-        areaUnit: 'ตร.ว.',
-        bedrooms: 3,
-        bathrooms: 3,
-        status: 'available',
-        isFlashDeal: true,
-        isMall: true,
-        views: 2430,
-        likes: 158,
-        images: [
-          'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=900&q=80',
-          'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?auto=format&fit=crop&w=900&q=80'
-        ],
-        description: 'บ้านตากอากาศหัวหินพร้อมสระว่ายน้ำส่วนตัวและสวนร่มรื่น ขับรถเพียง 8 นาทีถึงชายหาดหัวหินและศูนย์การค้าบลูพอร์ต ตกแต่งพร้อมเฟอร์นิเจอร์ครบทั้งหลัง เหมาะพักผ่อนครอบครัวหรือปล่อยเช่ารายวันสร้างรายได้ตลอดปี',
-        createdAt: Date.now() - 86400000 * 2
       }
     ];
 
@@ -1549,22 +1589,22 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'
       },
       {
+        badge: 'ทำเลเด่นภาคใต้ & ทั่วไทย',
+        title: 'ที่ดินแปลงสวย สุราษฎร์ธานี ภูเก็ต & ชลบุรี',
+        subtitle: 'คัดสรรทำเลศักยภาพ โฉนดครุฑแดงพร้อมโอน แชทคุยตรงกับเจ้าของได้ทันที',
+        cta: 'ดูทรัพย์สุราษฎร์ธานี',
+        action: () => app.selectProvince('สุราษฎร์ธานี'),
+        gradient: 'from-[#0369A1]/95 via-[#0369A1]/70 to-transparent',
+        img: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80'
+      },
+      {
         badge: 'โอกาสทองนักลงทุน',
-        title: 'ที่ดินเปล่า & กิจการพร้อมทำต่อ',
-        subtitle: 'คัดสรรทำเลศักยภาพ คาเฟ่ รีสอร์ท ที่ดินติดถนนใหญ่ พร้อมโฉนดครุฑแดง',
-        cta: 'ดูกิจการและที่ดิน',
+        title: 'กิจการพร้อมทำต่อ คาเฟ่ & รีสอร์ท',
+        subtitle: 'เซ้งหรือซื้อกิจการมีฐานลูกค้าพร้อมรายได้ทันที คัดสรรโดย Landseller',
+        cta: 'ดูกิจการทั้งหมด',
         action: () => app.selectCategory('กิจการ'),
         gradient: 'from-[#1E293B]/95 via-[#1E293B]/70 to-transparent',
         img: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80'
-      },
-      {
-        badge: 'Landseller เที่ยวและลงทุน',
-        title: 'บ้านพักตากอากาศ หัวหิน เชียงใหม่ ภูเก็ต',
-        subtitle: 'เลือกกรองตามจังหวัดได้ทันทีทั้ง 77 จังหวัด พร้อมแชทคุยตรงกับเจ้าของ',
-        cta: 'ดูทรัพย์ประจวบฯ - หัวหิน',
-        action: () => app.selectProvince('ประจวบคีรีขันธ์'),
-        gradient: 'from-[#0369A1]/95 via-[#0369A1]/70 to-transparent',
-        img: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80'
       }
     ];
 
@@ -1578,18 +1618,24 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
     ];
 
     // =========================================================================
-    // 4. สถานะของแอปพลิเคชันทั้งหมด (In-Memory State ซิงค์กับ Firestore)
+    // 4. สถานะของแอปพลิเคชันทั้งหมด (In-Memory State ซิงค์เรียลไทม์กับ Firestore)
     // =========================================================================
     const state = {
-      properties: [],
-      adminSettings: null,
-      currentUser: null,
+      dbProperties: [],          // ประกาศจริงจาก Firestore
+      properties: [],            // ประกาศที่แสดงหน้าเว็บ (ใช้ SEED หาก dbProperties ว่าง)
+      usingSeedFallback: false,
+      propertiesLoaded: false,
+      adminSettings: null,       // ข้อมูลสิทธิ์เจ้าของเว็บจาก settings/admin
+      authUser: null,            // Firebase Auth User ปัจจุบัน
+      userProfile: null,         // โปรไฟล์และรายการโปรดจาก users/{uid}/profile/main
+      currentUser: null,         // อ็อบเจกต์ผู้ใช้รวมสิทธิ์ (isAdmin, favorites, displayName)
+      unsubscribeProfile: null,
+
       chatRooms: [],
       chatMessages: [],
       activeChatRoomId: null,
       chatOpen: false,
 
-      // ตัวกรองหน้าร้าน (รวมฟิลเตอร์จังหวัด)
       filters: {
         search: '',
         category: 'ทั้งหมด',
@@ -1655,7 +1701,8 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       return { text: txType === 'rent' ? 'พร้อมเช่า' : 'พร้อมขาย', cls: 'bg-emerald-500 text-white' };
     }
 
-    function compressImageToBase64(file, maxWidth = 760, quality = 0.68) {
+    // ย่อขนาดรูปที่อัปโหลดจากเครื่องอัตโนมัติ เพื่อให้เก็บลง Firestore ได้อย่างรวดเร็วและไม่เกิน 1MB
+    function compressImageToBase64(file, maxWidth = 680, quality = 0.65) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -1686,8 +1733,8 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
     // 6. คอนโทรลเลอร์หลักของแอปพลิเคชัน (window.app)
     // =========================================================================
     const app = {
-      async init() {
-        // เติมรายชื่อจังหวัดครบ 77 จังหวัดลงใน Dropdown ทั้ง 3 จุด
+      init() {
+        // เติมจังหวัดทั้ง 77 จังหวัดใน Dropdown ทั้งหมด
         populateProvinceSelect('provinceFilterSelect', true, 'ทุกจังหวัด (77 จังหวัด)');
         populateProvinceSelect('adminProvinceFilter', true, 'ทุกจังหวัด');
         populateProvinceSelect('propProvince', false);
@@ -1699,78 +1746,95 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
 
         setInterval(() => this.nextSlide(), 5500);
 
-        if (!firebaseConfig) {
-          this.showToast('โหมดพรีวิวออฟไลน์: กำลังแสดงข้อมูลตัวอย่าง Landseller', 'info');
-          state.properties = [...SEED_PROPERTIES];
-          this.renderAllStorefront();
-          return;
-        }
+        // เชื่อมต่อ Firestore Listeners ทันทีโดยไม่บังคับ signInAnonymously
+        this.attachRealtimeListeners();
 
-        try {
-          firebaseApp = initializeApp(firebaseConfig);
-          auth = getAuth(firebaseApp);
-          db = getFirestore(firebaseApp);
-
-          // กฎข้อ 3: ยืนยันตัวตน Firebase ให้เสร็จก่อนเรียกใช้ Firestore เสมอ
-          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(auth, __initial_auth_token);
-          } else {
-            await signInAnonymously(auth);
+        // ติดตามสถานะการล็อกอิน Firebase Auth เพื่อให้รีเฟรชหน้าแล้วไม่หลุดออกจากระบบ
+        onAuthStateChanged(auth, (fbUser) => {
+          state.authUser = fbUser || null;
+          if (state.unsubscribeProfile) {
+            state.unsubscribeProfile();
+            state.unsubscribeProfile = null;
           }
 
-          isFirebaseReady = true;
-          await this.seedInitialPropertiesIfEmpty();
-          this.attachRealtimeListeners();
-        } catch (err) {
-          console.error('Firebase init error:', err);
-          this.showToast('เชื่อมต่อฐานข้อมูลไม่สำเร็จ กำลังแสดงข้อมูลตัวอย่าง', 'error');
-          state.properties = [...SEED_PROPERTIES];
-          this.renderAllStorefront();
+          if (!fbUser) {
+            state.userProfile = null;
+            this.syncCurrentUserState();
+            return;
+          }
+
+          // ดึงข้อมูลส่วนตัวและรายการโปรดของสมาชิกจาก users/{uid}/profile/main แบบเรียลไทม์
+          state.unsubscribeProfile = onSnapshot(
+            userProfileDoc(fbUser.uid),
+            (snap) => {
+              state.userProfile = snap.exists() ? snap.data() : {
+                uid: fbUser.uid,
+                email: fbUser.email || '',
+                displayName: fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : 'สมาชิก'),
+                favorites: []
+              };
+              this.syncCurrentUserState();
+            },
+            (err) => {
+              console.error('User profile listener error:', err);
+              state.userProfile = {
+                uid: fbUser.uid,
+                email: fbUser.email || '',
+                displayName: fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : 'สมาชิก'),
+                favorites: []
+              };
+              this.syncCurrentUserState();
+            }
+          );
+        });
+      },
+
+      // อัปเดตสถานะผู้ใช้ปัจจุบันและสิทธิ์เจ้าของเว็บ (Admin)
+      syncCurrentUserState() {
+        if (!state.authUser) {
+          state.currentUser = null;
+        } else {
+          const emailLower = (state.authUser.email || '').toLowerCase();
+          const isAdmin = Boolean(
+            state.adminSettings &&
+            (
+              state.adminSettings.adminUid === state.authUser.uid ||
+              (state.adminSettings.email && state.adminSettings.email.toLowerCase() === emailLower)
+            )
+          );
+          const fallbackName = isAdmin
+            ? (state.adminSettings?.displayName || 'Landseller')
+            : (state.authUser.displayName || emailLower.split('@')[0] || 'สมาชิก');
+
+          state.currentUser = {
+            uid: state.authUser.uid,
+            email: state.authUser.email || '',
+            displayName: state.userProfile?.displayName || fallbackName,
+            phone: state.userProfile?.phone || '',
+            favorites: Array.isArray(state.userProfile?.favorites) ? state.userProfile.favorites : [],
+            isAdmin
+          };
+        }
+
+        this.renderHeaderAuth();
+        this.updateSavedCounter();
+        this.updateChatBadges();
+        if (state.propertiesLoaded) {
+          this.renderPropertyGrid();
+        }
+        if (state.currentUser?.isAdmin && !document.getElementById('sellerCentreView').classList.contains('hidden')) {
+          this.renderAdminDashboard();
+        }
+        if (state.chatOpen && state.currentUser) {
+          this.setupChatUIForRole();
         }
       },
 
-      async seedInitialPropertiesIfEmpty() {
-        if (!auth?.currentUser) return;
-        try {
-          const snap = await getDocs(pubCol('properties'));
-          if (snap.empty) {
-            const writes = SEED_PROPERTIES.map(item => {
-              const { id, ...data } = item;
-              return setDoc(pubDoc('properties', id), data);
-            });
-            await Promise.all(writes);
-          } else {
-            // ตรวจสอบและเติมรายการหัวหิน (ประจวบคีรีขันธ์) และฟิลด์ province ให้ประกาศตัวอย่างเดิมถ้ายังไม่มี
-            const existingIds = new Set();
-            const updates = [];
-            snap.forEach(docSnap => {
-              existingIds.add(docSnap.id);
-              const d = docSnap.data();
-              if (!d.province) {
-                updates.push(updateDoc(pubDoc('properties', docSnap.id), { province: resolvePropertyProvince(d) }));
-              }
-            });
-            if (!existingIds.has('seed_13')) {
-              const huahin = SEED_PROPERTIES.find(p => p.id === 'seed_13');
-              if (huahin) {
-                const { id, ...data } = huahin;
-                updates.push(setDoc(pubDoc('properties', id), data));
-              }
-            }
-            if (updates.length > 0) {
-              await Promise.all(updates).catch(() => {});
-            }
-          }
-        } catch (err) {
-          console.error('Seed properties error:', err);
-        }
-      },
-
+      // เปิดรับข้อมูลเรียลไทม์จาก Firestore ตาม Path ของโปรเจกต์ landshop-th
       attachRealtimeListeners() {
-        if (!auth?.currentUser) return;
-
+        // 1) ประกาศทรัพย์ทั้งหมด (allow read: if true)
         onSnapshot(
-          pubCol('properties'),
+          propertiesCol(),
           (snapshot) => {
             const list = [];
             snapshot.forEach(docSnap => {
@@ -1781,8 +1845,22 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
                 province: resolvePropertyProvince(raw)
               });
             });
-            state.properties = list;
+
+            state.dbProperties = list;
+            state.propertiesLoaded = true;
+
+            // หากฐานข้อมูลจริงยังว่าง ให้แสดงข้อมูลตัวอย่าง 12 รายการทันทีเพื่อให้หน้าร้านสวยงามพร้อมทดสอบ
+            if (list.length === 0) {
+              state.usingSeedFallback = true;
+              state.properties = SEED_PROPERTIES.map(item => ({ ...item, isSeedPreview: true }));
+            } else {
+              state.usingSeedFallback = false;
+              state.properties = list;
+            }
+
+            document.getElementById('seedPreviewBanner').classList.toggle('hidden', !state.usingSeedFallback);
             this.renderAllStorefront();
+
             if (state.currentUser?.isAdmin) {
               this.renderAdminDashboard();
             }
@@ -1791,24 +1869,32 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
             }
           },
           (error) => {
-            console.error('Properties listener error:', error);
+            console.error('Properties snapshot error:', error);
+            state.propertiesLoaded = true;
+            state.usingSeedFallback = true;
+            state.properties = SEED_PROPERTIES.map(item => ({ ...item, isSeedPreview: true }));
+            this.renderAllStorefront();
+            this.showToast(getThaiFirebaseError(error), 'error');
           }
         );
 
+        // 2) ข้อมูลเจ้าของเว็บและข้อมูลร้านค้า
         onSnapshot(
-          pubDoc('settings', 'admin'),
+          adminSettingsDoc(),
           (docSnap) => {
             state.adminSettings = docSnap.exists() ? docSnap.data() : null;
             this.updateShopBrandingUI();
             this.updateAdminAuthView();
+            this.syncCurrentUserState();
           },
           (error) => {
             console.error('Admin settings listener error:', error);
           }
         );
 
+        // 3) ห้องแชททั้งหมด (chats)
         onSnapshot(
-          pubCol('chat_rooms'),
+          chatsCol(),
           (snapshot) => {
             const rooms = [];
             snapshot.forEach(docSnap => {
@@ -1822,12 +1908,13 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
             }
           },
           (error) => {
-            console.error('Chat rooms listener error:', error);
+            console.error('Chats listener error:', error);
           }
         );
 
+        // 4) ข้อความแชททั้งหมด (chat_messages)
         onSnapshot(
-          pubCol('chat_messages'),
+          chatMessagesCol(),
           (snapshot) => {
             const msgs = [];
             snapshot.forEach(docSnap => {
@@ -1861,14 +1948,26 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           warning: 'fa-triangle-exclamation'
         };
         const el = document.createElement('div');
-        el.className = `${colors[type] || colors.info} px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm font-medium flex items-center gap-2 pointer-events-auto animate-fade-up max-w-xs`;
-        el.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${escapeHtml(message)}</span>`;
+        el.className = `${colors[type] || colors.info} px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm font-medium flex items-center gap-2 pointer-events-auto animate-fade-up max-w-xs sm:max-w-sm`;
+        el.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} shrink-0"></i><span>${escapeHtml(message)}</span>`;
         container.appendChild(el);
         setTimeout(() => {
           el.style.opacity = '0';
           el.style.transition = 'opacity 0.25s ease';
           setTimeout(() => el.remove(), 260);
-        }, 3200);
+        }, 3800);
+      },
+
+      showAuthError(msg) {
+        const box = document.getElementById('authErrorBox');
+        const text = document.getElementById('authErrorText');
+        if (!msg) {
+          box.classList.add('hidden');
+          text.textContent = '';
+          return;
+        }
+        text.textContent = msg;
+        box.classList.remove('hidden');
       },
 
       openModal(id) {
@@ -1879,6 +1978,9 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         document.getElementById(id)?.classList.add('hidden');
         if (id === 'propertyDetailModal') {
           state.viewingPropertyId = null;
+        }
+        if (id === 'authModal') {
+          this.showAuthError('');
         }
       },
 
@@ -2366,10 +2468,11 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         this.renderPropertyDetailContent(propId);
         this.openModal('propertyDetailModal');
 
-        if (isFirebaseReady && auth?.currentUser) {
+        // บันทึกยอดเข้าชมเฉพาะเมื่อผู้ใช้ล็อกอินอยู่และเป็นประกาศจริงใน Firestore
+        if (auth.currentUser && !prop.isSeedPreview) {
           try {
-            await updateDoc(pubDoc('properties', propId), { views: (prop.views || 0) + 1 });
-          } catch (_) { /* ignore */ }
+            await updateDoc(propertyDoc(propId), { views: (prop.views || 0) + 1 });
+          } catch (_) { /* ignore non-critical view update */ }
         }
       },
 
@@ -2465,7 +2568,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
                   </div>
                 </div>
 
-                <!-- ข้อมูลจำเพาะย่อ (รวมจังหวัดและทำเลชัดเจน) -->
+                <!-- ข้อมูลจำเพาะย่อ -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
                   <div class="bg-gray-50 rounded-lg p-2.5 border border-gray-100">
                     <div class="text-gray-400 text-[10px]">ขนาดพื้นที่</div>
@@ -2539,7 +2642,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       copyPropertyShareLink(propId) {
         const prop = state.properties.find(p => p.id === propId);
         const text = prop
-          ? `${prop.title} | ราคา ฿${formatPrice(prop.price)} (${formatDisplayLocation(prop)}) - Landseller`
+          ? `${prop.title} | ราคา ฿${formatPrice(prop.price)} (${formatDisplayLocation(prop)}) - Landseller ${window.location.href}`
           : window.location.href;
         const ta = document.createElement('textarea');
         ta.value = text;
@@ -2547,10 +2650,10 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         ta.select();
         document.execCommand('copy');
         ta.remove();
-        this.showToast('คัดลอกข้อมูลสำหรับแชร์เรียบร้อยแล้ว', 'success');
+        this.showToast('คัดลอกข้อมูลและลิงก์สำหรับแชร์เรียบร้อยแล้ว', 'success');
       },
 
-      // ---------- ระบบสมาชิก & ยืนยันตัวตนเจ้าของเว็บ (Admin Claim) ----------
+      // ---------- ระบบสมาชิก & ยืนยันตัวตนเจ้าของเว็บ (Firebase Auth + Admin PIN) ----------
       renderHeaderAuth() {
         const area = document.getElementById('headerAuthArea');
         const adminPill = document.getElementById('adminHeaderPill');
@@ -2589,6 +2692,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       },
 
       openAuthModal(tab = 'login', promptText = '') {
+        this.showAuthError('');
         const banner = document.getElementById('authPromptBanner');
         if (promptText) {
           document.getElementById('authPromptText').textContent = promptText;
@@ -2601,6 +2705,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       },
 
       switchAuthTab(tab) {
+        this.showAuthError('');
         const tabs = ['login', 'register', 'admin'];
         tabs.forEach(t => {
           const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -2621,161 +2726,108 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         document.getElementById('adminLoginForm').classList.toggle('hidden', !hasAdmin);
       },
 
+      // สมัครสมาชิกทั่วไปผ่าน Firebase Auth + บันทึกโปรไฟล์ลง users/{uid}/profile/main
       async handleRegisterSubmit(e) {
         e.preventDefault();
+        this.showAuthError('');
+
         const name = document.getElementById('regName').value.trim();
         const email = document.getElementById('regEmail').value.trim().toLowerCase();
         const phone = document.getElementById('regPhone').value.trim();
         const password = document.getElementById('regPassword').value;
-
-        if (!isFirebaseReady || !auth?.currentUser) {
-          this.showToast('กรุณารอการเชื่อมต่อฐานข้อมูลสักครู่', 'warning');
-          return;
-        }
 
         const btn = document.getElementById('regSubmitBtn');
         btn.disabled = true;
         btn.textContent = 'กำลังสมัครสมาชิก...';
 
         try {
-          const accSnap = await getDocs(pubCol('accounts'));
-          let exists = false;
-          accSnap.forEach(d => {
-            if ((d.data().email || '').toLowerCase() === email) exists = true;
-          });
-          if (exists || (state.adminSettings?.email || '').toLowerCase() === email) {
-            this.showToast('อีเมลนี้ถูกใช้งานแล้ว กรุณาเข้าสู่ระบบ', 'error');
-            return;
-          }
+          const cred = await createUserWithEmailAndPassword(auth, email, password);
+          await updateProfile(cred.user, { displayName: name }).catch(() => {});
 
-          let accountUid = 'mem_' + crypto.randomUUID().replace(/-/g, '').slice(0, 16);
-          try {
-            const cred = await createUserWithEmailAndPassword(auth, email, password);
-            accountUid = cred.user.uid;
-          } catch (authErr) {
-            if (authErr.code === 'auth/email-already-in-use') {
-              this.showToast('อีเมลนี้ถูกใช้งานแล้ว กรุณาเข้าสู่ระบบ', 'error');
-              return;
-            }
-          }
-
-          const passwordHash = await sha256(email + ':' + password);
-          const accountData = {
-            uid: accountUid,
+          const profileData = {
+            uid: cred.user.uid,
             email,
             displayName: name,
             phone,
-            passwordHash,
             role: 'member',
             favorites: [],
             createdAt: Date.now()
           };
+          await setDoc(userProfileDoc(cred.user.uid), profileData, { merge: true });
 
-          await setDoc(pubDoc('accounts', accountUid), accountData);
-          this.setLoggedInUser({ ...accountData, isAdmin: false });
+          state.userProfile = profileData;
+          this.syncCurrentUserState();
           this.closeModal('authModal');
           e.target.reset();
           this.showToast(`ยินดีต้อนรับคุณ ${name} สู่ Landseller!`, 'success');
           this.runPendingAfterAuth();
         } catch (err) {
           console.error('Register error:', err);
-          this.showToast('เกิดข้อผิดพลาดในการสมัครสมาชิก กรุณาลองใหม่', 'error');
+          const msg = getThaiFirebaseError(err);
+          this.showAuthError(msg);
+          this.showToast(msg, 'error');
         } finally {
           btn.disabled = false;
           btn.textContent = 'สมัครสมาชิกฟรี';
         }
       },
 
+      // เข้าสู่ระบบทั่วไปผ่าน Firebase Auth (รองรับทั้งสมาชิกและเจ้าของเว็บ)
       async handleLoginSubmit(e) {
         e.preventDefault();
+        this.showAuthError('');
+
         const email = document.getElementById('loginEmail').value.trim().toLowerCase();
         const password = document.getElementById('loginPassword').value;
 
-        if (!isFirebaseReady || !auth?.currentUser) {
-          this.showToast('ระบบกำลังเชื่อมต่อ กรุณาลองใหม่', 'warning');
-          return;
-        }
-
         const btn = document.getElementById('loginSubmitBtn');
         btn.disabled = true;
-        btn.textContent = 'กำลังตรวจสอบ...';
+        btn.textContent = 'กำลังเข้าสู่ระบบ...';
 
         try {
-          const passwordHash = await sha256(email + ':' + password);
+          const cred = await signInWithEmailAndPassword(auth, email, password);
+          const profSnap = await getDoc(userProfileDoc(cred.user.uid)).catch(() => null);
 
-          if (state.adminSettings && (state.adminSettings.email || '').toLowerCase() === email) {
-            if (state.adminSettings.passwordHash === passwordHash) {
-              try {
-                await signInWithEmailAndPassword(auth, email, password);
-              } catch (_) { /* Fallback */ }
-
-              this.setLoggedInUser({
-                uid: state.adminSettings.adminUid,
-                email: state.adminSettings.email,
-                displayName: state.adminSettings.displayName || 'Landseller',
-                isAdmin: true,
-                favorites: state.adminSettings.favorites || []
-              });
-              this.closeModal('authModal');
-              e.target.reset();
-              this.showToast('เข้าสู่ระบบในฐานะเจ้าของ Landseller สำเร็จ', 'success');
-              this.runPendingAfterAuth();
-              return;
-            } else {
-              this.showToast('รหัสผ่านไม่ถูกต้อง', 'error');
-              return;
-            }
+          if (profSnap && profSnap.exists()) {
+            state.userProfile = profSnap.data();
+          } else {
+            const defaultProfile = {
+              uid: cred.user.uid,
+              email,
+              displayName: cred.user.displayName || email.split('@')[0],
+              favorites: [],
+              createdAt: Date.now()
+            };
+            await setDoc(userProfileDoc(cred.user.uid), defaultProfile, { merge: true }).catch(() => {});
+            state.userProfile = defaultProfile;
           }
 
-          const accSnap = await getDocs(pubCol('accounts'));
-          let matched = null;
-          accSnap.forEach(d => {
-            const data = d.data();
-            if ((data.email || '').toLowerCase() === email) {
-              matched = { id: d.id, ...data };
-            }
-          });
-
-          if (!matched || matched.passwordHash !== passwordHash) {
-            this.showToast('อีเมลหรือรหัสผ่านไม่ถูกต้อง', 'error');
-            return;
-          }
-
-          try {
-            await signInWithEmailAndPassword(auth, email, password);
-          } catch (_) { /* Fallback */ }
-
-          this.setLoggedInUser({
-            uid: matched.uid || matched.id,
-            email: matched.email,
-            displayName: matched.displayName,
-            phone: matched.phone || '',
-            isAdmin: false,
-            favorites: matched.favorites || []
-          });
+          this.syncCurrentUserState();
           this.closeModal('authModal');
           e.target.reset();
-          this.showToast(`เข้าสู่ระบบสำเร็จ ยินดีต้อนรับคุณ ${matched.displayName}`, 'success');
+          const welcomeName = state.currentUser?.displayName || email;
+          this.showToast(
+            state.currentUser?.isAdmin
+              ? `ยินดีต้อนรับเจ้าของเว็บ ${welcomeName}`
+              : `เข้าสู่ระบบสำเร็จ ยินดีต้อนรับคุณ ${welcomeName}`,
+            'success'
+          );
           this.runPendingAfterAuth();
         } catch (err) {
           console.error('Login error:', err);
-          this.showToast('เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่', 'error');
+          const msg = getThaiFirebaseError(err);
+          this.showAuthError(msg);
+          this.showToast(msg, 'error');
         } finally {
           btn.disabled = false;
           btn.textContent = 'เข้าสู่ระบบ Landseller';
         }
       },
 
+      // ตั้งค่าเจ้าของระบบครั้งแรก (Admin Claim) ผูกกับ Firebase Auth + Admin PIN ถาวร
       async handleAdminClaimSubmit(e) {
         e.preventDefault();
-        if (!isFirebaseReady || !auth?.currentUser) return;
-
-        const existingSnap = await getDoc(pubDoc('settings', 'admin'));
-        if (existingSnap.exists() && existingSnap.data()?.adminUid) {
-          this.showToast('ระบบมีบัญชีเจ้าของอยู่แล้ว ไม่สามารถตั้งค่าซ้ำได้', 'error');
-          this.updateAdminAuthView();
-          return;
-        }
+        this.showAuthError('');
 
         const displayName = document.getElementById('claimName').value.trim() || 'Landseller';
         const email = document.getElementById('claimEmail').value.trim().toLowerCase();
@@ -2784,58 +2836,77 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
 
         const btn = document.getElementById('claimSubmitBtn');
         btn.disabled = true;
-        btn.textContent = 'กำลังบันทึกสิทธิ์เจ้าของเว็บ...';
+        btn.textContent = 'กำลังยืนยันสิทธิ์เจ้าของเว็บ...';
 
         try {
-          let adminUid = auth.currentUser.uid;
+          // ตรวจสอบซ้ำอีกครั้งว่ายังไม่มีเจ้าของเว็บในฐานข้อมูล
+          const existingSnap = await getDoc(adminSettingsDoc());
+          if (existingSnap.exists() && existingSnap.data()?.adminUid) {
+            this.showAuthError('ระบบมีบัญชีเจ้าของเว็บอยู่แล้ว ไม่สามารถตั้งค่าซ้ำได้ กรุณาเข้าสู่ระบบแทน');
+            this.updateAdminAuthView();
+            return;
+          }
+
+          // สร้างบัญชีใหม่ หรือถ้าอีเมลนี้เคยสร้างไว้ใน Firebase Auth แล้วให้ล็อกอินด้วยรหัสผ่านเดียวกัน
+          let fbUser = null;
           try {
             const cred = await createUserWithEmailAndPassword(auth, email, password);
-            adminUid = cred.user.uid;
-          } catch (_) { /* Fallback */ }
+            fbUser = cred.user;
+            await updateProfile(fbUser, { displayName }).catch(() => {});
+          } catch (createErr) {
+            if (createErr.code === 'auth/email-already-in-use') {
+              const loginCred = await signInWithEmailAndPassword(auth, email, password);
+              fbUser = loginCred.user;
+            } else {
+              throw createErr;
+            }
+          }
 
-          const passwordHash = await sha256(email + ':' + password);
           const pinHash = await sha256('pin:' + pin);
-
           const adminRecord = {
-            adminUid,
+            adminUid: fbUser.uid,
             email,
             displayName,
             shopName: displayName,
             shopBio: 'Landseller ศูนย์รวมอสังหาฯ & ที่ดิน เจ้าของขายเอง 100% ครบ 77 จังหวัด',
             shopPhone: '089-999-8888',
             shopLine: '@LandsellerTH',
-            passwordHash,
             pinHash,
-            favorites: [],
             claimedAt: Date.now()
           };
 
-          await setDoc(pubDoc('settings', 'admin'), adminRecord);
-          state.adminSettings = adminRecord;
-
-          this.setLoggedInUser({
-            uid: adminUid,
+          await setDoc(adminSettingsDoc(), adminRecord);
+          await setDoc(userProfileDoc(fbUser.uid), {
+            uid: fbUser.uid,
             email,
             displayName,
-            isAdmin: true,
-            favorites: []
-          });
+            role: 'admin',
+            favorites: [],
+            updatedAt: Date.now()
+          }, { merge: true });
 
+          state.adminSettings = adminRecord;
+          this.syncCurrentUserState();
           this.closeModal('authModal');
           e.target.reset();
           this.showToast('ตั้งค่าคุณเป็นเจ้าของ Landseller เพียงผู้เดียวเรียบร้อยแล้ว!', 'success');
           this.openSellerCentre();
         } catch (err) {
           console.error('Admin claim error:', err);
-          this.showToast('บันทึกสิทธิ์เจ้าของไม่สำเร็จ กรุณาลองใหม่', 'error');
+          const msg = getThaiFirebaseError(err);
+          this.showAuthError(msg);
+          this.showToast(msg, 'error');
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-shield-halved mr-1 text-yellow-400"></i> ยืนยันตั้งค่าเป็นเจ้าของเว็บเพียงผู้เดียว';
         }
       },
 
+      // เข้าสู่ระบบเฉพาะเจ้าของเว็บ (ตรวจอีเมล + รหัสผ่าน Firebase Auth + Admin PIN)
       async handleAdminLoginSubmit(e) {
         e.preventDefault();
+        this.showAuthError('');
+
         if (!state.adminSettings) {
           this.updateAdminAuthView();
           return;
@@ -2845,44 +2916,34 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         const password = document.getElementById('adminLoginPassword').value;
         const pin = document.getElementById('adminLoginPin').value.trim();
 
-        const passwordHash = await sha256(email + ':' + password);
-        const pinHash = await sha256('pin:' + pin);
-
-        if (
-          email !== (state.adminSettings.email || '').toLowerCase() ||
-          passwordHash !== state.adminSettings.passwordHash ||
-          pinHash !== state.adminSettings.pinHash
-        ) {
-          this.showToast('ข้อมูลเจ้าของเว็บหรือรหัสลับ Admin PIN ไม่ถูกต้อง', 'error');
-          return;
-        }
+        const btn = document.getElementById('adminLoginSubmitBtn');
+        btn.disabled = true;
+        btn.textContent = 'กำลังตรวจสอบสิทธิ์เจ้าของเว็บ...';
 
         try {
+          const pinHash = await sha256('pin:' + pin);
+          if (
+            email !== (state.adminSettings.email || '').toLowerCase() ||
+            pinHash !== state.adminSettings.pinHash
+          ) {
+            this.showAuthError('อีเมลเจ้าของเว็บหรือรหัสลับ Admin PIN ไม่ถูกต้อง');
+            return;
+          }
+
           await signInWithEmailAndPassword(auth, email, password);
-        } catch (_) { /* Fallback */ }
-
-        this.setLoggedInUser({
-          uid: state.adminSettings.adminUid,
-          email: state.adminSettings.email,
-          displayName: state.adminSettings.displayName || 'Landseller',
-          isAdmin: true,
-          favorites: state.adminSettings.favorites || []
-        });
-
-        this.closeModal('authModal');
-        e.target.reset();
-        this.showToast('ยินดีต้อนรับเจ้าของระบบ เข้าสู่ Landseller Seller Centre', 'success');
-        this.openSellerCentre();
-      },
-
-      setLoggedInUser(userObj) {
-        state.currentUser = userObj;
-        this.renderHeaderAuth();
-        this.renderPropertyGrid();
-        this.updateSavedCounter();
-        this.updateChatBadges();
-        if (state.chatOpen) {
-          this.setupChatUIForRole();
+          this.syncCurrentUserState();
+          this.closeModal('authModal');
+          e.target.reset();
+          this.showToast('ยินดีต้อนรับเจ้าของระบบ เข้าสู่ Landseller Seller Centre', 'success');
+          this.openSellerCentre();
+        } catch (err) {
+          console.error('Admin login error:', err);
+          const msg = getThaiFirebaseError(err);
+          this.showAuthError(msg);
+          this.showToast(msg, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'เข้าสู่ Landseller Seller Centre';
         }
       },
 
@@ -2894,8 +2955,12 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         }
       },
 
-      logout() {
+      async logout() {
+        try {
+          await signOut(auth);
+        } catch (_) { /* ignore */ }
         state.currentUser = null;
+        state.userProfile = null;
         state.activeChatRoomId = null;
         this.closeChatWidget();
         this.showStorefront();
@@ -2906,9 +2971,9 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         this.showToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
       },
 
-      // ---------- ระบบรายการที่บันทึกไว้ (Favorites) ----------
+      // ---------- ระบบรายการที่บันทึกไว้ (Favorites เก็บใน users/{uid}/profile/main) ----------
       async toggleFavorite(propId) {
-        if (!state.currentUser) {
+        if (!state.currentUser || !auth.currentUser) {
           state.pendingAfterAuthAction = () => this.toggleFavorite(propId);
           this.openAuthModal('login', 'กรุณาเข้าสู่ระบบหรือสมัครสมาชิก เพื่อบันทึกรายการทรัพย์ที่ถูกใจไว้ดูภายหลัง');
           return;
@@ -2928,26 +2993,29 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           this.showToast('บันทึกรายการทรัพย์ไว้ดูภายหลังแล้ว ♥', 'success');
         }
 
-        state.currentUser.favorites = Array.from(favs);
+        const newFavs = Array.from(favs);
+        state.currentUser.favorites = newFavs;
         this.updateSavedCounter();
         this.renderPropertyGrid();
         if (state.viewingPropertyId === propId) {
           this.renderPropertyDetailContent(propId);
         }
 
-        if (isFirebaseReady && auth?.currentUser) {
-          try {
-            if (state.currentUser.isAdmin) {
-              await updateDoc(pubDoc('settings', 'admin'), { favorites: state.currentUser.favorites });
-            } else {
-              await updateDoc(pubDoc('accounts', state.currentUser.uid), { favorites: state.currentUser.favorites });
-            }
-            if (prop) {
-              await updateDoc(pubDoc('properties', propId), { likes: Math.max(0, (prop.likes || 0) + delta) });
-            }
-          } catch (err) {
-            console.error('Favorite sync error:', err);
+        try {
+          await setDoc(userProfileDoc(auth.currentUser.uid), {
+            uid: auth.currentUser.uid,
+            email: auth.currentUser.email || '',
+            displayName: state.currentUser.displayName,
+            favorites: newFavs,
+            updatedAt: Date.now()
+          }, { merge: true });
+
+          if (prop && !prop.isSeedPreview) {
+            await updateDoc(propertyDoc(propId), { likes: Math.max(0, (prop.likes || 0) + delta) });
           }
+        } catch (err) {
+          console.error('Favorite sync error:', err);
+          this.showToast(getThaiFirebaseError(err), 'error');
         }
       },
 
@@ -3000,10 +3068,14 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           return;
         }
         if (state.currentUser && !state.currentUser.isAdmin) {
+          if (!state.adminSettings?.adminUid) {
+            this.openAuthModal('admin', 'ยังไม่ได้ตั้งค่าเจ้าของระบบ คุณสามารถตั้งค่าเป็นเจ้าของเว็บคนแรกได้ที่แท็บนี้');
+            return;
+          }
           this.showToast('ขออภัย หน้า Landseller Seller Centre สงวนสิทธิ์เฉพาะเจ้าของเว็บไซต์เท่านั้น', 'warning');
           return;
         }
-        const msg = state.adminSettings
+        const msg = state.adminSettings?.adminUid
           ? 'กรุณาเข้าสู่ระบบด้วยบัญชีเจ้าของ Landseller เพื่อจัดการประกาศ'
           : 'ยังไม่ได้ตั้งค่าเจ้าของระบบ คุณสามารถตั้งค่าเป็นเจ้าของเว็บคนแรกได้ที่แท็บนี้';
         this.openAuthModal('admin', msg);
@@ -3020,13 +3092,41 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
 
+      // นำเข้าประกาศตัวอย่าง 12 รายการลง Firestore จริงด้วยปุ่มเดียว
+      async importSeedPropertiesToFirestore() {
+        if (!state.currentUser?.isAdmin) return;
+        const btn = document.getElementById('importSeedBtn');
+        btn.disabled = true;
+        btn.textContent = 'กำลังนำเข้า 12 รายการ...';
+
+        try {
+          const tasks = SEED_PROPERTIES.map(item => {
+            const { id, ...data } = item;
+            return setDoc(propertyDoc(id), {
+              ...data,
+              ownerUid: state.currentUser.uid,
+              updatedAt: Date.now()
+            });
+          });
+          await Promise.all(tasks);
+          this.showToast('นำเข้าประกาศตัวอย่าง 12 รายการลง Firestore สำเร็จแล้ว!', 'success');
+        } catch (err) {
+          console.error('Import seed error:', err);
+          this.showToast(getThaiFirebaseError(err), 'error');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-yellow-400"></i> นำเข้าประกาศตัวอย่าง 12 รายการลง Firestore';
+        }
+      },
+
       renderAdminDashboard() {
-        const props = state.properties;
+        const props = state.dbProperties;
         const available = props.filter(p => p.status === 'available').length;
         const closed = props.length - available;
         const totalViews = props.reduce((sum, p) => sum + Number(p.views || 0), 0);
         const totalUnread = state.chatRooms.reduce((sum, r) => sum + Number(r.unreadByAdmin || 0), 0);
 
+        document.getElementById('adminSeedImportBanner').classList.toggle('hidden', props.length > 0);
         document.getElementById('kpiTotal').textContent = props.length;
         document.getElementById('kpiAvailable').textContent = available;
         document.getElementById('kpiClosed').textContent = closed;
@@ -3044,7 +3144,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         const cat = document.getElementById('adminCatFilter')?.value || 'ทั้งหมด';
         const provFilter = document.getElementById('adminProvinceFilter')?.value || 'ทั้งหมด';
 
-        let list = [...state.properties].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        let list = [...state.dbProperties].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         if (cat !== 'ทั้งหมด') list = list.filter(p => p.category === cat);
         if (provFilter !== 'ทั้งหมด') list = list.filter(p => resolvePropertyProvince(p) === provFilter);
         if (q) {
@@ -3056,7 +3156,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         }
 
         if (list.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-gray-400">ไม่พบรายการประกาศ</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-gray-400">ยังไม่มีรายการประกาศในฐานข้อมูลจริง กด "+ เพิ่มประกาศทรัพย์ใหม่" หรือปุ่มนำเข้าตัวอย่างด้านบนได้เลย</td></tr>`;
           return;
         }
 
@@ -3118,7 +3218,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         form.reset();
 
         if (editId) {
-          const p = state.properties.find(item => item.id === editId);
+          const p = state.dbProperties.find(item => item.id === editId);
           if (!p) return;
           document.getElementById('propFormTitle').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> แก้ไขประกาศทรัพย์ Landseller';
           document.getElementById('propId').value = p.id;
@@ -3141,7 +3241,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         } else {
           document.getElementById('propFormTitle').innerHTML = '<i class="fa-solid fa-house-medical"></i> เพิ่มประกาศทรัพย์ใหม่ใน Landseller';
           document.getElementById('propId').value = '';
-          document.getElementById('propProvince').value = 'กรุงเทพมหานคร';
+          document.getElementById('propProvince').value = 'สุราษฎร์ธานี';
           document.getElementById('propIsMall').checked = true;
           state.formImages = [];
         }
@@ -3242,10 +3342,10 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
 
         try {
           if (editId) {
-            await updateDoc(pubDoc('properties', editId), payload);
+            await updateDoc(propertyDoc(editId), payload);
             this.showToast('อัปเดตประกาศทรัพย์เรียบร้อยแล้ว', 'success');
           } else {
-            await addDoc(pubCol('properties'), {
+            await addDoc(propertiesCol(), {
               ...payload,
               views: 1,
               likes: 0,
@@ -3257,7 +3357,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
           this.closeModal('propertyFormModal');
         } catch (err) {
           console.error('Save property error:', err);
-          this.showToast('บันทึกไม่สำเร็จ (หากรูปขนาดใหญ่เกินไป ลองลดจำนวนรูป)', 'error');
+          this.showToast(getThaiFirebaseError(err), 'error');
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1"></i> บันทึกประกาศ';
@@ -3267,35 +3367,35 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       async quickChangeStatus(propId, newStatus) {
         if (!state.currentUser?.isAdmin) return;
         try {
-          await updateDoc(pubDoc('properties', propId), { status: newStatus });
+          await updateDoc(propertyDoc(propId), { status: newStatus });
           this.showToast('อัปเดตสถานะประกาศเรียบร้อย', 'success');
         } catch (err) {
-          this.showToast('อัปเดตสถานะไม่สำเร็จ', 'error');
+          this.showToast(getThaiFirebaseError(err), 'error');
         }
       },
 
       async toggleFlashDeal(propId, val) {
         if (!state.currentUser?.isAdmin) return;
         try {
-          await updateDoc(pubDoc('properties', propId), { isFlashDeal: val });
+          await updateDoc(propertyDoc(propId), { isFlashDeal: val });
           this.showToast(val ? 'เพิ่มเข้า Flash Deals แล้ว ⚡' : 'นำออกจาก Flash Deals แล้ว', 'info');
         } catch (err) {
-          this.showToast('ดำเนินการไม่สำเร็จ', 'error');
+          this.showToast(getThaiFirebaseError(err), 'error');
         }
       },
 
       confirmDeleteProperty(propId) {
         if (!state.currentUser?.isAdmin) return;
-        const p = state.properties.find(item => item.id === propId);
+        const p = state.dbProperties.find(item => item.id === propId);
         this.openConfirm(
           'ยืนยันการลบประกาศ',
           `คุณต้องการลบประกาศ "${p?.title || ''}" ออกจาก Landseller ใช่หรือไม่? การลบไม่สามารถย้อนกลับได้`,
           async () => {
             try {
-              await deleteDoc(pubDoc('properties', propId));
+              await deleteDoc(propertyDoc(propId));
               this.showToast('ลบประกาศเรียบร้อยแล้ว', 'success');
             } catch (err) {
-              this.showToast('ลบประกาศไม่สำเร็จ', 'error');
+              this.showToast(getThaiFirebaseError(err), 'error');
             }
           }
         );
@@ -3314,16 +3414,16 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
         e.preventDefault();
         if (!state.currentUser?.isAdmin) return;
         try {
-          await updateDoc(pubDoc('settings', 'admin'), {
+          await setDoc(adminSettingsDoc(), {
             shopName: document.getElementById('shopNameInput').value.trim(),
             shopBio: document.getElementById('shopBioInput').value.trim(),
             shopPhone: document.getElementById('shopPhoneInput').value.trim(),
             shopLine: document.getElementById('shopLineInput').value.trim()
-          });
+          }, { merge: true });
           this.closeModal('shopProfileModal');
           this.showToast('บันทึกข้อมูลร้าน Landseller เรียบร้อยแล้ว', 'success');
         } catch (err) {
-          this.showToast('บันทึกข้อมูลร้านไม่สำเร็จ', 'error');
+          this.showToast(getThaiFirebaseError(err), 'error');
         }
       },
 
@@ -3555,7 +3655,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
       },
 
       async sendChatMessage(text, propertyCard = null) {
-        if (!state.currentUser || !isFirebaseReady || !auth?.currentUser) return;
+        if (!state.currentUser || !auth.currentUser) return;
 
         const isAdmin = state.currentUser.isAdmin;
         const roomId = isAdmin ? state.activeChatRoomId : state.currentUser.uid;
@@ -3566,7 +3666,7 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
 
         const now = Date.now();
         try {
-          await addDoc(pubCol('chat_messages'), {
+          await addDoc(chatMessagesCol(), {
             roomId,
             senderUid: state.currentUser.uid,
             senderName: isAdmin ? (state.adminSettings?.shopName || 'Landseller') : state.currentUser.displayName,
@@ -3587,22 +3687,22 @@ const pubDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data',
             unreadByMember: isAdmin ? ((existingRoom?.unreadByMember || 0) + 1) : 0
           };
 
-          await setDoc(pubDoc('chat_rooms', roomId), roomPayload, { merge: true });
+          await setDoc(chatRoomDoc(roomId), roomPayload, { merge: true });
         } catch (err) {
           console.error('Send chat error:', err);
-          this.showToast('ส่งข้อความไม่สำเร็จ กรุณาลองใหม่', 'error');
+          this.showToast(getThaiFirebaseError(err), 'error');
         }
       },
 
       async markRoomRead(roomId) {
-        if (!state.currentUser || !isFirebaseReady || !auth?.currentUser) return;
+        if (!state.currentUser || !auth.currentUser) return;
         const room = state.chatRooms.find(r => r.id === roomId);
         if (!room) return;
         try {
           if (state.currentUser.isAdmin && room.unreadByAdmin > 0) {
-            await updateDoc(pubDoc('chat_rooms', roomId), { unreadByAdmin: 0 });
+            await updateDoc(chatRoomDoc(roomId), { unreadByAdmin: 0 });
           } else if (!state.currentUser.isAdmin && room.unreadByMember > 0) {
-            await updateDoc(pubDoc('chat_rooms', roomId), { unreadByMember: 0 });
+            await updateDoc(chatRoomDoc(roomId), { unreadByMember: 0 });
           }
         } catch (_) { /* ignore */ }
       },
